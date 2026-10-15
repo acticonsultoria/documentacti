@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7B3C2E51-6A0D-4C8E-9F4B-2D61C0A9E3D7}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>Documentacti.My.MyApplication</StartupObject>
+    <RootNamespace>Documentacti</RootNamespace>
+    <AssemblyName>Documentacti</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <MyType>WindowsForms</MyType>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <OptionExplicit>On</OptionExplicit>
+    <OptionCompare>Binary</OptionCompare>
+    <OptionStrict>Off</OptionStrict>
+    <OptionInfer>On</OptionInfer>
+    <ApplicationIcon>Icon\documentacti.ico</ApplicationIcon>
+    <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>Documentacti.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
+    <WarningLevel>1</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>Documentacti.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
+    <WarningLevel>1</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BCrypt.Net-Next">
+      <HintPath>Lib\BCrypt.Net-Next.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DundasWinChart">
+      <HintPath>Lib\DundasWinChart.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Janus.Data.v3">
+      <HintPath>Lib\Janus.Data.v3.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Janus.Windows.CalendarCombo.v3">
+      <HintPath>Lib\Janus.Windows.CalendarCombo.v3.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Janus.Windows.Common.v3">
+      <HintPath>Lib\Janus.Windows.Common.v3.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Janus.Windows.GridEX.v3">
+      <HintPath>Lib\Janus.Windows.GridEX.v3.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Janus.Windows.UI.v3">
+      <HintPath>Lib\Janus.Windows.UI.v3.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MySql.Data, Version=6.3.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Lib\MySql.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Drawing" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Windows.Forms" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApplicationEvents.vb" />
+    <Compile Include="Class\Database\MySQLHelper.vb" />
+    <Compile Include="Class\Forms\Administracao\clsUsrAdmChamado.vb" />
+    <Compile Include="Class\Forms\Main\clsFrmLogin.vb" />
+    <Compile Include="Class\Function\clsConfigXML.vb" />
+    <Compile Include="Class\Function\clsFtp.vb" />
+    <Compile Include="Forms\Administracao\frmAdmChamadoComentario.Designer.vb">
+      <DependentUpon>frmAdmChamadoComentario.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Administracao\frmAdmChamadoComentario.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Administracao\usrAdmChamado.Designer.vb">
+      <DependentUpon>usrAdmChamado.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Administracao\usrAdmChamado.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\frmAlterarSenha.Designer.vb">
+      <DependentUpon>frmAlterarSenha.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Main\frmAlterarSenha.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\frmLogin.Designer.vb">
+      <DependentUpon>frmLogin.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Main\frmLogin.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\frmMain.Designer.vb">
+      <DependentUpon>frmMain.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Main\frmMain.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Module\modDeclaration.vb" />
+    <Compile Include="Module\modFunction.vb" />
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\Administracao\frmAdmChamadoComentario.resx">
+      <DependentUpon>frmAdmChamadoComentario.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Administracao\usrAdmChamado.resx">
+      <DependentUpon>usrAdmChamado.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Main\frmAlterarSenha.resx">
+      <DependentUpon>frmAlterarSenha.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Main\frmLogin.resx">
+      <DependentUpon>frmLogin.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Main\frmMain.resx">
+      <DependentUpon>frmMain.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="My Project\licenses.licx" />
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="My Project\app.manifest" />
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="XmlConfig\Config.exemplo.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Icon\documentacti.ico" />
+    <None Include="Resources\add3.png" />
+    <None Include="Resources\aprovar.png" />
+    <None Include="Resources\cancelar.png" />
+    <None Include="Resources\config2.png" />
+    <None Include="Resources\excel_14.png" />
+    <None Include="Resources\interacti.png" />
+    <None Include="Resources\login.png" />
+    <None Include="Resources\logo_inicial.png" />
+    <None Include="Resources\novo.bmp" />
+    <None Include="Resources\procurar.gif" />
+    <None Include="Resources\run.png" />
+    <None Include="Resources\salvar.bmp" />
+    <None Include="Resources\seta_esquerda.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+</Project>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+  Copie este arquivo para Config.xml (na pasta XmlConfig ao lado do executável) e informe a conexão.
+  O Config.xml contém credenciais: NÃO versionar.
+-->
+<Documentacti>
+  <ConfigDatabase>
+    <StringConnection>Server=127.0.0.1;Port=3306;Database=plataforma_local;Uid=USUARIO;Pwd=SENHA;CharSet=utf8mb4;Convert Zero Datetime=true;</StringConnection>
+  </ConfigDatabase>
+  <!-- FTP dos anexos de chamado (FTP sobre TLS). Informe o caminho com barra final. -->
+  <Ftp>
+    <Caminho>ftp://SERVIDOR/CAMINHO/DOS/ANEXOS/</Caminho>
+    <Usuario>USUARIO</Usuario>
+    <Senha>SENHA</Senha>
+  </Ftp>
+</Documentacti>

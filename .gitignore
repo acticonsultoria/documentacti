@@ -1,0 +1,7 @@
+bin/
+obj/
+.vs/
+*.suo
+*.user
+# Configuração local com credenciais
+Documentacti/XmlConfig/Config.xml
