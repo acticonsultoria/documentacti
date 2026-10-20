@@ -695,6 +695,7 @@ Public Class usrAdmChamado
                 txtStatus.Text = .Item("status").Value.ToString
                 txtStatus.Tag = .Item("codigo_status_atividade").Value
 
+                chkExibirUsuario.Checked = (IsDBNull(.Item("exibir_usuario").Value) = False AndAlso CInt(.Item("exibir_usuario").Value) = 1)
                 Call SetCheckedValues(cboResponsavel, .Item("codigos_responsavel").Value.ToString)
                 Call SetCheckedValues(cboTipoAtendimento, .Item("codigos_tipo_atendimento").Value.ToString)
 
@@ -821,6 +822,7 @@ Public Class usrAdmChamado
             cboPrioridade.SelectedIndex = -1
             cboResponsavel.UncheckAll()
             cboTipoAtendimento.UncheckAll()
+            chkExibirUsuario.Checked = False
             txtTitulo.Text = ""
             txtDescricao.Text = ""
             txtModulo.Text = ""
@@ -860,7 +862,8 @@ Public Class usrAdmChamado
                                          txtTela.Text.Trim, _
                                          txtNumeroDocumento.Text.Trim, _
                                          GetCheckedValues(cboResponsavel), _
-                                         GetCheckedValues(cboTipoAtendimento))
+                                         GetCheckedValues(cboTipoAtendimento), _
+                                         chkExibirUsuario.Checked)
 
                 frmMain.Informacao("Registro alterado com sucesso!", Color.Blue)
 
@@ -876,7 +879,8 @@ Public Class usrAdmChamado
                                                           txtTela.Text.Trim, _
                                                           txtNumeroDocumento.Text.Trim, _
                                                           GetCheckedValues(cboResponsavel), _
-                                                          GetCheckedValues(cboTipoAtendimento))
+                                                          GetCheckedValues(cboTipoAtendimento), _
+                                         chkExibirUsuario.Checked)
 
                 txtStatus.Tag = 1
                 btnInserirComentario.Enabled = True

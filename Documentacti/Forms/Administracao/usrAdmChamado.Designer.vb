@@ -116,6 +116,7 @@ Partial Class usrAdmChamado
         Me.txtNumeroDocumento = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.lblDefinicao = New System.Windows.Forms.Label()
         Me.txtDescricao = New Janus.Windows.GridEX.EditControls.EditBox()
+        Me.chkExibirUsuario = New Janus.Windows.EditControls.UICheckBox()
         Me.tabDadosChamado = New Janus.Windows.UI.Tab.UITab()
         Me.pagArquivos = New Janus.Windows.UI.Tab.UITabPage()
         Me.pagComentario = New Janus.Windows.UI.Tab.UITabPage()
@@ -707,6 +708,7 @@ Partial Class usrAdmChamado
         Me.grpDados.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpDados.BackColor = System.Drawing.Color.Transparent
+        Me.grpDados.Controls.Add(Me.chkExibirUsuario)
         Me.grpDados.Controls.Add(Me.txtDescricao)
         Me.grpDados.Controls.Add(Me.lblDefinicao)
         Me.grpDados.Controls.Add(Me.txtNumeroDocumento)
@@ -903,7 +905,7 @@ Partial Class usrAdmChamado
         Me.lblResponsavel.BackColor = System.Drawing.Color.Transparent
         Me.lblResponsavel.Location = New System.Drawing.Point(6, 93)
         Me.lblResponsavel.Name = "lblResponsavel"
-        Me.lblResponsavel.TabIndex = 16
+        Me.lblResponsavel.TabIndex = 17
         Me.lblResponsavel.Text = "Responsáveis:"
         '
         'cboResponsavel
@@ -915,7 +917,7 @@ Partial Class usrAdmChamado
         Me.cboResponsavel.Name = "cboResponsavel"
         Me.cboResponsavel.SaveSettings = False
         Me.cboResponsavel.Size = New System.Drawing.Size(400, 20)
-        Me.cboResponsavel.TabIndex = 17
+        Me.cboResponsavel.TabIndex = 18
         Me.cboResponsavel.ValuesDataMember = Nothing
         '
         'lblTipoAtendimento
@@ -924,7 +926,7 @@ Partial Class usrAdmChamado
         Me.lblTipoAtendimento.BackColor = System.Drawing.Color.Transparent
         Me.lblTipoAtendimento.Location = New System.Drawing.Point(412, 93)
         Me.lblTipoAtendimento.Name = "lblTipoAtendimento"
-        Me.lblTipoAtendimento.TabIndex = 18
+        Me.lblTipoAtendimento.TabIndex = 19
         Me.lblTipoAtendimento.Text = "Tipos de Atendimento:"
         '
         'cboTipoAtendimento
@@ -936,7 +938,7 @@ Partial Class usrAdmChamado
         Me.cboTipoAtendimento.Name = "cboTipoAtendimento"
         Me.cboTipoAtendimento.SaveSettings = False
         Me.cboTipoAtendimento.Size = New System.Drawing.Size(250, 20)
-        Me.cboTipoAtendimento.TabIndex = 19
+        Me.cboTipoAtendimento.TabIndex = 20
         Me.cboTipoAtendimento.ValuesDataMember = Nothing
         '
         'lblModulo
@@ -945,7 +947,7 @@ Partial Class usrAdmChamado
         Me.lblModulo.BackColor = System.Drawing.Color.Transparent
         Me.lblModulo.Location = New System.Drawing.Point(668, 93)
         Me.lblModulo.Name = "lblModulo"
-        Me.lblModulo.TabIndex = 20
+        Me.lblModulo.TabIndex = 21
         Me.lblModulo.Text = "Módulo:"
         '
         'txtModulo
@@ -955,7 +957,7 @@ Partial Class usrAdmChamado
         Me.txtModulo.Name = "txtModulo"
         Me.txtModulo.MaxLength = 200
         Me.txtModulo.Size = New System.Drawing.Size(148, 20)
-        Me.txtModulo.TabIndex = 21
+        Me.txtModulo.TabIndex = 22
         '
         'lblTela
         '
@@ -963,7 +965,7 @@ Partial Class usrAdmChamado
         Me.lblTela.BackColor = System.Drawing.Color.Transparent
         Me.lblTela.Location = New System.Drawing.Point(822, 93)
         Me.lblTela.Name = "lblTela"
-        Me.lblTela.TabIndex = 22
+        Me.lblTela.TabIndex = 23
         Me.lblTela.Text = "Tela:"
         '
         'txtTela
@@ -973,7 +975,7 @@ Partial Class usrAdmChamado
         Me.txtTela.Name = "txtTela"
         Me.txtTela.MaxLength = 200
         Me.txtTela.Size = New System.Drawing.Size(146, 20)
-        Me.txtTela.TabIndex = 23
+        Me.txtTela.TabIndex = 24
         '
         'lblNumeroDocumento
         '
@@ -981,7 +983,7 @@ Partial Class usrAdmChamado
         Me.lblNumeroDocumento.BackColor = System.Drawing.Color.Transparent
         Me.lblNumeroDocumento.Location = New System.Drawing.Point(974, 93)
         Me.lblNumeroDocumento.Name = "lblNumeroDocumento"
-        Me.lblNumeroDocumento.TabIndex = 24
+        Me.lblNumeroDocumento.TabIndex = 25
         Me.lblNumeroDocumento.Text = "Nº Documento:"
         '
         'txtNumeroDocumento
@@ -991,7 +993,7 @@ Partial Class usrAdmChamado
         Me.txtNumeroDocumento.Name = "txtNumeroDocumento"
         Me.txtNumeroDocumento.MaxLength = 200
         Me.txtNumeroDocumento.Size = New System.Drawing.Size(196, 20)
-        Me.txtNumeroDocumento.TabIndex = 25
+        Me.txtNumeroDocumento.TabIndex = 26
         '
         'lblDefinicao
         '
@@ -999,7 +1001,7 @@ Partial Class usrAdmChamado
         Me.lblDefinicao.BackColor = System.Drawing.Color.Transparent
         Me.lblDefinicao.Location = New System.Drawing.Point(6, 133)
         Me.lblDefinicao.Name = "lblDefinicao"
-        Me.lblDefinicao.TabIndex = 26
+        Me.lblDefinicao.TabIndex = 27
         Me.lblDefinicao.Text = "Descrição:"
         '
         'txtDescricao
@@ -1014,7 +1016,17 @@ Partial Class usrAdmChamado
         Me.txtDescricao.Multiline = True
         Me.txtDescricao.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.txtDescricao.Size = New System.Drawing.Size(1164, 78)
-        Me.txtDescricao.TabIndex = 27
+        Me.txtDescricao.TabIndex = 28
+        '
+        'chkExibirUsuario
+        '
+        Me.chkExibirUsuario.BackColor = System.Drawing.Color.Transparent
+        Me.chkExibirUsuario.Location = New System.Drawing.Point(977, 70)
+        Me.chkExibirUsuario.Name = "chkExibirUsuario"
+        Me.chkExibirUsuario.Size = New System.Drawing.Size(196, 18)
+        Me.chkExibirUsuario.TabIndex = 16
+        Me.chkExibirUsuario.Text = "Exibir para usuário"
+        Me.chkExibirUsuario.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'tabDadosChamado
         '
@@ -2141,6 +2153,7 @@ Partial Class usrAdmChamado
     Friend WithEvents txtNumeroDocumento As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents lblDefinicao As System.Windows.Forms.Label
     Friend WithEvents txtDescricao As Janus.Windows.GridEX.EditControls.EditBox
+    Friend WithEvents chkExibirUsuario As Janus.Windows.EditControls.UICheckBox
     Friend WithEvents tabDadosChamado As Janus.Windows.UI.Tab.UITab
     Friend WithEvents pagArquivos As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents pagComentario As Janus.Windows.UI.Tab.UITabPage

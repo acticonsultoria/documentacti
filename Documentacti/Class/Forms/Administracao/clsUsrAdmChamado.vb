@@ -23,7 +23,8 @@ Public Class clsUsrAdmChamado
                            ByVal sTela As String, _
                            ByVal sNumeroDocumento As String, _
                            ByVal sResponsaveis As String, _
-                           ByVal sTiposAtendimento As String) As Long
+                           ByVal sTiposAtendimento As String, _
+                           ByVal bExibirUsuario As Boolean) As Long
 
         'Variaveis Locais
         Dim oMySqlParameter(0) As MySqlParameter
@@ -115,6 +116,13 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
             oMySqlParameter(i).Value = sTiposAtendimento : i += 1 : ReDim Preserve oMySqlParameter(i)
 
+            'Seta Parametros - Exibir para o usuário (ERP)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_exibir_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).Value = IIf(bExibirUsuario, 1, 0) : i += 1 : ReDim Preserve oMySqlParameter(i)
+
             'Seta Parametros - Código Usuário
             oMySqlParameter(i) = New MySqlParameter
             oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
@@ -152,7 +160,8 @@ Public Class clsUsrAdmChamado
                       ByVal sTela As String, _
                       ByVal sNumeroDocumento As String, _
                       ByVal sResponsaveis As String, _
-                      ByVal sTiposAtendimento As String)
+                      ByVal sTiposAtendimento As String, _
+                      ByVal bExibirUsuario As Boolean)
 
         'Variaveis Locais
         Dim oMySqlParameter(0) As MySqlParameter
@@ -250,6 +259,13 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
             oMySqlParameter(i).Value = sTiposAtendimento : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Exibir para o usuário (ERP)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_exibir_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).Value = IIf(bExibirUsuario, 1, 0) : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Código Usuário
             oMySqlParameter(i) = New MySqlParameter
@@ -474,6 +490,13 @@ Public Class clsUsrAdmChamado
 
         Try
 
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
             'Seta Parametros - Código Atividade
             oMySqlParameter(i) = New MySqlParameter
             oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
@@ -495,21 +518,14 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).MySqlDbType = MySqlDbType.MediumText
             oMySqlParameter(i).Value = sComentario : i += 1 : ReDim Preserve oMySqlParameter(i)
 
-            'Seta Parametros - Cliente (0 = equipe)
-            oMySqlParameter(i) = New MySqlParameter
-            oMySqlParameter(i).ParameterName = "@p_cliente"
-            oMySqlParameter(i).Direction = ParameterDirection.Input
-            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
-            oMySqlParameter(i).Value = 0 : i += 1 : ReDim Preserve oMySqlParameter(i)
-
             'Seta Parametros - Código (OUT)
             oMySqlParameter(i) = New MySqlParameter
             oMySqlParameter(i).ParameterName = "@p_codigo"
             oMySqlParameter(i).Direction = ParameterDirection.Output
-            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
 
             'Executa Query
-            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_sup_insert_comentario_chamado", oMySqlParameter)
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_insert_administracao_chamado_comentario", oMySqlParameter)
 
         Catch MySqlEx As MySqlException
             Throw MySqlEx
