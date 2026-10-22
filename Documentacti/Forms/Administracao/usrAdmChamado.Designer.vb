@@ -93,7 +93,7 @@ Partial Class usrAdmChamado
         Me.lblDataChamado = New System.Windows.Forms.Label()
         Me.dtpDataChamado = New Janus.Windows.CalendarCombo.CalendarCombo()
         Me.lblStatus = New System.Windows.Forms.Label()
-        Me.txtStatus = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
+        Me.cboStatus = New Janus.Windows.EditControls.UIComboBox()
         Me.lblSolicitante = New System.Windows.Forms.Label()
         Me.txtSolicitante = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.lblEmpresa = New System.Windows.Forms.Label()
@@ -731,7 +731,7 @@ Partial Class usrAdmChamado
         Me.grpDados.Controls.Add(Me.lblEmpresa)
         Me.grpDados.Controls.Add(Me.txtSolicitante)
         Me.grpDados.Controls.Add(Me.lblSolicitante)
-        Me.grpDados.Controls.Add(Me.txtStatus)
+        Me.grpDados.Controls.Add(Me.cboStatus)
         Me.grpDados.Controls.Add(Me.lblStatus)
         Me.grpDados.Controls.Add(Me.dtpDataChamado)
         Me.grpDados.Controls.Add(Me.lblDataChamado)
@@ -794,14 +794,17 @@ Partial Class usrAdmChamado
         Me.lblStatus.TabIndex = 4
         Me.lblStatus.Text = "Status:"
         '
-        'txtStatus
+        'cboStatus
         '
-        Me.txtStatus.Location = New System.Drawing.Point(209, 29)
-        Me.txtStatus.Name = "txtStatus"
-        Me.txtStatus.ReadOnly = True
-        Me.txtStatus.Size = New System.Drawing.Size(200, 20)
-        Me.txtStatus.TabIndex = 5
-        Me.txtStatus.TabStop = False
+        Me.cboStatus.AutoSize = False
+        Me.cboStatus.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboStatus.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
+        Me.cboStatus.Enabled = False
+        Me.cboStatus.Location = New System.Drawing.Point(209, 29)
+        Me.cboStatus.Name = "cboStatus"
+        Me.cboStatus.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboStatus.Size = New System.Drawing.Size(200, 20)
+        Me.cboStatus.TabIndex = 5
         '
         'lblSolicitante
         '
@@ -2130,7 +2133,7 @@ Partial Class usrAdmChamado
     Friend WithEvents lblDataChamado As System.Windows.Forms.Label
     Friend WithEvents dtpDataChamado As Janus.Windows.CalendarCombo.CalendarCombo
     Friend WithEvents lblStatus As System.Windows.Forms.Label
-    Friend WithEvents txtStatus As Janus.Windows.GridEX.EditControls.MaskedEditBox
+    Friend WithEvents cboStatus As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblSolicitante As System.Windows.Forms.Label
     Friend WithEvents txtSolicitante As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents lblEmpresa As System.Windows.Forms.Label

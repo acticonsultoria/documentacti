@@ -5,8 +5,8 @@
 -->
 <Documentacti>
   <ConfigDatabase>
-    <StringConnection>Server=127.0.0.1;Port=3306;Database=plataforma_local;Uid=USUARIO;Pwd=SENHA;CharSet=utf8mb4;Convert Zero Datetime=true;</StringConnection>
-  </ConfigDatabase>
+    <StringConnection>Server=127.0.0.1;Port=3306;Database=plataforma_prd_copia;Uid=root;Pwd=root;CharSet=utf8mb4;Convert Zero Datetime=true;</StringConnection>
+  </ConfigDatabase>USUARIO
   <!-- FTP dos anexos de chamado (FTP sobre TLS). Informe o caminho com barra final. -->
   <Ftp>
     <Caminho>ftp://SERVIDOR/CAMINHO/DOS/ANEXOS/</Caminho>

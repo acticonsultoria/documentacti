@@ -60,6 +60,26 @@ Public Class clsFtp
 
     End Sub
 
+    Public Function Existe(ByVal sRelativo As String) As Boolean
+
+        'Verifica se já existe um arquivo com este nome no servidor (evita sobrescrever anexos de outros chamados)
+        Try
+
+            Dim oRequest As FtpWebRequest = CriarRequest(sRelativo, WebRequestMethods.Ftp.GetFileSize)
+
+            Using oResponse As FtpWebResponse = DirectCast(oRequest.GetResponse(), FtpWebResponse)
+                Return True
+            End Using
+
+        Catch exWeb As WebException
+            If ArquivoNaoEncontrado(exWeb) Then Return False
+            Throw exWeb
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
     Public Function Delete(ByVal sRelativo As String) As Boolean
 
         'Retorna False quando o arquivo não existe mais no servidor

@@ -16,6 +16,8 @@ Public Class usrAdmChamado
     Private oDiferencaServidor As TimeSpan = TimeSpan.Zero
     Private iContadorSincronizacao As Integer = 0
     Private bCarregando As Boolean = False
+    Private bAtualizandoStatus As Boolean = False
+    Private iStatusAtual As Integer = 1
 
     'Relatório de horas: dados do último filtro (o gráfico é redesenhado sem nova consulta)
     Private oTabelaRelatorio As DataTable
@@ -569,6 +571,7 @@ Public Class usrAdmChamado
 
             'Combos - Chamados
             Call LoadCombo(cboStatusFiltro, "sp_select_combo_status_atividade")
+            Call LoadCombo(cboStatus, "sp_select_combo_status_atividade")
             Call LoadCombo(cboEmpresaFiltro, "sp_select_combo_administracao_chamado_empresa")
             Call LoadCombo(cboTipoAtendimentoFiltro, "sp_select_combo_administracao_chamado_tipo_atendimento")
             Call LoadCombo(cboResponsavelFiltro, "sp_select_combo_administracao_chamado_usuario")
@@ -692,8 +695,7 @@ Public Class usrAdmChamado
                 txtModulo.Text = .Item("modulo").Value.ToString
                 txtTela.Text = .Item("tela").Value.ToString
                 txtNumeroDocumento.Text = .Item("numero_documento").Value.ToString
-                txtStatus.Text = .Item("status").Value.ToString
-                txtStatus.Tag = .Item("codigo_status_atividade").Value
+                Call DefinirStatus(CInt(.Item("codigo_status_atividade").Value))
 
                 chkExibirUsuario.Checked = (IsDBNull(.Item("exibir_usuario").Value) = False AndAlso CInt(.Item("exibir_usuario").Value) = 1)
                 Call SetCheckedValues(cboResponsavel, .Item("codigos_responsavel").Value.ToString)
@@ -754,6 +756,56 @@ Public Class usrAdmChamado
 
     End Sub
 
+    Private Sub DefinirStatus(ByVal iStatus As Integer)
+
+        'Posiciona o combo sem disparar a gravação do status
+        bAtualizandoStatus = True
+
+        Try
+            cboStatus.SelectedValue = iStatus
+            iStatusAtual = iStatus
+            cboStatus.Enabled = IsNumeric(txtCodigo.Text)
+        Finally
+            bAtualizandoStatus = False
+        End Try
+
+    End Sub
+
+    Private Sub cboStatus_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboStatus.SelectedIndexChanged
+
+        Try
+
+            If bCarregando OrElse bAtualizandoStatus OrElse IsNumeric(txtCodigo.Text) = False OrElse IsNothing(cboStatus.SelectedValue) Then Exit Sub
+
+            Dim iNovo As Integer = CInt(cboStatus.SelectedValue)
+
+            If iNovo = iStatusAtual Then Exit Sub
+
+            Dim sMensagem As String = "Deseja alterar o status do chamado para '" & cboStatus.Text & "'?"
+
+            If (iNovo = gcStatusChamadoConcluido OrElse iNovo = gcStatusChamadoCancelado) AndAlso QuantidadeApontamentoAndamento() > 0 Then
+                sMensagem &= vbCrLf & vbCrLf & "Existem apontamentos em andamento neste chamado. Eles serão ENCERRADOS com a data/hora atual."
+            End If
+
+            If MsgBox(sMensagem, MsgBoxStyle.Question + MsgBoxStyle.YesNo, gAplicacao) = MsgBoxResult.No Then
+                Call DefinirStatus(iStatusAtual)
+                Exit Sub
+            End If
+
+            Try
+                Dim iEncerrados As Integer = AlterarStatus(iNovo)
+                frmMain.Informacao("Status alterado com sucesso!" & IIf(iEncerrados > 0, " " & iEncerrados & " apontamento(s) em andamento encerrado(s).", ""), Color.Blue)
+            Catch
+                Call DefinirStatus(iStatusAtual)
+                Throw
+            End Try
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
     Private Function AlterarStatus(ByVal iStatus As Integer) As Integer
 
         Try
@@ -768,8 +820,7 @@ Public Class usrAdmChamado
             'O status do chamado é independente do status dos apontamentos
             Dim iEncerrados As Integer = oClsUsrAdmChamado.UpdateStatus(txtCodigo.Text, iStatus)
 
-            txtStatus.Tag = iStatus
-            txtStatus.Text = IIf(iStatus = gcStatusChamadoIniciado, "INICIADA", IIf(iStatus = gcStatusChamadoConcluido, "CONCLUIDA", "CANCELADO"))
+            Call DefinirStatus(iStatus)
 
             Call AtualizarApontamentos()
 
@@ -828,8 +879,8 @@ Public Class usrAdmChamado
             txtModulo.Text = ""
             txtTela.Text = ""
             txtNumeroDocumento.Text = ""
-            txtStatus.Text = "ABERTO"
-            txtStatus.Tag = Nothing
+            Call DefinirStatus(1)
+            cboStatus.Enabled = False
             grdArquivos.DataSource = Nothing
             grdComentario.DataSource = Nothing
             grdComentarioDev.DataSource = Nothing
@@ -882,7 +933,7 @@ Public Class usrAdmChamado
                                                           GetCheckedValues(cboTipoAtendimento), _
                                          chkExibirUsuario.Checked)
 
-                txtStatus.Tag = 1
+                Call DefinirStatus(1)
                 btnInserirComentario.Enabled = True
                 btnInserirComentarioDev.Enabled = True
 
@@ -989,8 +1040,15 @@ Public Class usrAdmChamado
                         Throw New ArgumentException("O arquivo '" & oInfo.Name & "' excede o limite de " & (gcTamanhoMaximoAnexo / 1048576) & " MB.")
                     End If
 
-                    'Nome único por chamado (não sobrescreve arquivos existentes no servidor)
-                    Dim sRelativo As String = "chamados/" & txtCodigo.Text & "/" & Guid.NewGuid.ToString("N") & "_" & NomeArquivoSeguro(oInfo.Name)
+                    'Mesmo padrão do INTERACTI: somente o nome do arquivo (sem acento), direto na pasta de anexos.
+                    'Se já existir um arquivo com o mesmo nome no servidor, acrescenta um sufixo para não sobrescrevê-lo
+                    Dim sRelativo As String = NomeArquivoSeguro(oInfo.Name)
+                    Dim iSufixo As Integer = 1
+
+                    Do While oFtp.Existe(sRelativo)
+                        sRelativo = System.IO.Path.GetFileNameWithoutExtension(NomeArquivoSeguro(oInfo.Name)) & "_" & iSufixo & System.IO.Path.GetExtension(NomeArquivoSeguro(oInfo.Name))
+                        iSufixo += 1
+                    Loop
 
                     oFtp.Upload(sRelativo, sCaminho)
 
