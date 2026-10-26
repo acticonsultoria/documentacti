@@ -1,0 +1,342 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+ChatUI
+</name>
+</assembly>
+<members>
+<member name="T:ChatUI.ChatBox">
+ <summary>
+ Chat completo de UMA conversa: cabeçalho + mensagens + caixa de digitação.
+ Já funciona sozinho: enviar texto, anexar (diálogo), arrastar arquivos e colar imagens.
+ Para várias conversas em abas use <see cref="T:ChatUI.ChatTabs"/>.
+ </summary>
+</member>
+<member name="E:ChatUI.ChatBox.MessageSubmitting">
+ <summary>Antes de criar a mensagem enviada (pode alterar o texto ou cancelar).</summary>
+</member>
+<member name="E:ChatUI.ChatBox.MessageSubmitted">
+ <summary>O usuário enviou uma mensagem. Ela já está na conversa com Status = Sending:
+ mande para o seu servidor e depois atualize e.Message.Status.</summary>
+</member>
+<member name="E:ChatUI.ChatBox.AttachRequested">
+ <summary>Botão de anexo. Padrão (Handled = False): abre um OpenFileDialog e envia os arquivos.</summary>
+</member>
+<member name="E:ChatUI.ChatBox.FilesDropped">
+ <summary>Arquivos arrastados para o chat. Padrão (Handled = False): envia cada arquivo.</summary>
+</member>
+<member name="E:ChatUI.ChatBox.ImagePasted">
+ <summary>Imagem colada com Ctrl+V. Padrão (Handled = False): envia a imagem.</summary>
+</member>
+<member name="E:ChatUI.ChatBox.TypingStateChanged">
+ <summary>O usuário local começou/parou de digitar.</summary>
+</member>
+<member name="P:ChatUI.ChatBox.Conversation">
+ <summary>Conversa exibida. Ao trocar, o rascunho e a posição de rolagem são guardados na conversa anterior.</summary>
+</member>
+<member name="P:ChatUI.ChatBox.CurrentUser">
+ <summary>Usuário local (remetente das mensagens enviadas).</summary>
+</member>
+<member name="M:ChatUI.ChatBox.SendText(System.String)">
+ <summary>Envia um texto como se o usuário tivesse digitado. Retorna a mensagem criada (ou Nothing se cancelado).</summary>
+</member>
+<member name="M:ChatUI.ChatBox.SendFile(System.String,System.String)">
+ <summary>Envia um arquivo. Imagens (png/jpg/gif/bmp) aparecem como foto; o resto como cartão de anexo.</summary>
+</member>
+<member name="M:ChatUI.ChatBox.OnViewKeyPress(System.Object,System.Windows.Forms.KeyPressEventArgs)">
+ <summary>Digitar com o foco na lista de mensagens manda o caractere para a caixa de texto.</summary>
+</member>
+<member name="T:ChatUI.ChatComposer">
+ <summary>
+ Caixa de digitação: botão de anexo, campo que cresce até MaxLines e botão enviar desenhados com GDI+.
+ Enter envia, Shift+Enter quebra linha, Ctrl+V com imagem dispara ImagePasted.
+ </summary>
+</member>
+<member name="T:ChatUI.ChatComposer.CueTextBox">
+ <summary>TextBox multilinha com texto de dica (placeholder) desenhado por cima.</summary>
+</member>
+<member name="E:ChatUI.ChatComposer.SendRequested">
+ <summary>Usuário pediu para enviar (Enter ou botão). e.Cancel = True mantém o texto na caixa.</summary>
+</member>
+<member name="E:ChatUI.ChatComposer.AttachRequested">
+ <summary>Clique no botão de anexo.</summary>
+</member>
+<member name="E:ChatUI.ChatComposer.ImagePasted">
+ <summary>Ctrl+V com uma imagem na área de transferência.</summary>
+</member>
+<member name="E:ChatUI.ChatComposer.TypingStateChanged">
+ <summary>Começou/parou de digitar (para enviar "digitando..." ao outro lado). Para após 3 s sem teclar.</summary>
+</member>
+<member name="P:ChatUI.ChatComposer.InputBox">
+ <summary>Acesso direto ao TextBox interno (para casos especiais).</summary>
+</member>
+<member name="M:ChatUI.ChatComposer.Send">
+ <summary>Dispara SendRequested com o texto atual (se não estiver vazio).</summary>
+</member>
+<member name="T:ChatUI.ChatHitArea">
+ <summary>Parte do balão que foi clicada.</summary>
+</member>
+<member name="F:ChatUI.ChatHitArea.Status">
+ <summary>Ícone de status (ex.: clicar no "!" de falha para reenviar).</summary>
+</member>
+<member name="P:ChatUI.ChatMessageEventArgs.Handled">
+ <summary>Marque True para impedir o comportamento padrão (abrir imagem/anexo).</summary>
+</member>
+<member name="P:ChatUI.ChatContextMenuEventArgs.Menu">
+ <summary>Menu que será exibido: adicione/remova itens à vontade.</summary>
+</member>
+<member name="T:ChatUI.ChatMessageSubmittedEventArgs">
+ <summary>Uma mensagem foi enviada pelo usuário (já está na conversa com Status = Sending).</summary>
+</member>
+<member name="P:ChatUI.ChatMessageSubmittedEventArgs.Message">
+ <summary>Atualize Message.Status (Sent / Delivered / Read / Failed) conforme o servidor responder.</summary>
+</member>
+<member name="T:ChatUI.ChatMessageSubmittingEventArgs">
+ <summary>Antes de criar a mensagem: permite alterar o texto ou cancelar.</summary>
+</member>
+<member name="T:ChatUI.ChatHandledEventArgs">
+ <summary>Evento com comportamento padrão: marque Handled = True para substituir o padrão.</summary>
+</member>
+<member name="T:ChatUI.ChatHeader">
+ <summary>
+ Cabeçalho da conversa: avatar, nome, "online"/"digitando...".
+ Aceita controles filhos (ex.: botões ancorados à direita).
+ </summary>
+</member>
+<member name="P:ChatUI.ChatHeader.SubtitleText">
+ <summary>Texto da segunda linha calculado a partir do estado da conversa.</summary>
+</member>
+<member name="T:ChatUI.ChatImageViewer">
+ <summary>Visualizador simples de imagem (padrão do clique em imagem). Esc ou clique fecha.</summary>
+</member>
+<member name="T:ChatUI.ChatTabStrip">
+ <summary>Faixa de abas / lista de conversas desenhada com GDI+ (uso interno do ChatTabs).</summary>
+</member>
+<member name="F:ChatUI.ChatTabStyle.Tabs">
+ <summary>Abas no topo, estilo navegador (com X para fechar).</summary>
+</member>
+<member name="F:ChatUI.ChatTabStyle.List">
+ <summary>Lista de conversas à esquerda, estilo WhatsApp/Teams (avatar, prévia, hora, não lidas).</summary>
+</member>
+<member name="T:ChatUI.ChatTabs">
+ <summary>
+ Várias conversas em abas, com um único <see cref="P:ChatUI.ChatTabs.ChatBox"/> que troca de conversa (leve: um só conjunto de handles).
+ Badges de não lidas, "digitando..." na aba, Ctrl+Tab / Ctrl+Shift+Tab / Ctrl+W.
+ </summary>
+</member>
+<member name="E:ChatUI.ChatTabs.ConversationClosing">
+ <summary>Antes de fechar uma aba (e.Cancel = True impede).</summary>
+</member>
+<member name="E:ChatUI.ChatTabs.MessageSubmitted">
+ <summary>Mensagem enviada pelo usuário em qualquer aba (e.Conversation diz qual).</summary>
+</member>
+<member name="E:ChatUI.ChatTabs.MessageReceived">
+ <summary>Mensagem recebida adicionada em qualquer conversa (bom para notificar / piscar a janela).</summary>
+</member>
+<member name="E:ChatUI.ChatTabs.TypingStateChanged">
+ <summary>O usuário local começou/parou de digitar na conversa e.Conversation.</summary>
+</member>
+<member name="P:ChatUI.ChatTabs.ChatBox">
+ <summary>O ChatBox interno (para assinar AttachRequested, ImageClick, etc.).</summary>
+</member>
+<member name="M:ChatUI.ChatTabs.AddConversation(ChatUI.ChatUser,System.Boolean)">
+ <summary>Abre (ou reaproveita, pelo Id do contato) uma conversa com o contato.</summary>
+</member>
+<member name="M:ChatUI.ChatTabs.CloseConversation(ChatUI.ChatConversation)">
+ <summary>Fecha a aba (dispara ConversationClosing/Closed). Retorna False se foi cancelado.</summary>
+</member>
+<member name="F:ChatUI.SenderNameMode.Auto">
+ <summary>Mostra o nome do remetente apenas em conversas de grupo.</summary>
+</member>
+<member name="T:ChatUI.ChatView">
+ <summary>
+ Área de mensagens 100% desenhada (GDI/GDI+): balões, avatares, status, imagens, anexos,
+ separadores de data e indicador "digitando...". Virtualizada: só desenha o que está visível.
+ </summary>
+</member>
+<member name="T:ChatUI.ChatView.Row">
+ <summary>Uma linha já medida. Retângulos em coordenadas de conteúdo (Y absoluto, sem rolagem).</summary>
+</member>
+<member name="E:ChatUI.ChatView.MessageClick">
+ <summary>Clique em qualquer parte de uma mensagem (veja e.Area).</summary>
+</member>
+<member name="E:ChatUI.ChatView.ImageClick">
+ <summary>Clique na imagem. Padrão (se e.Handled = False): abre o visualizador embutido.</summary>
+</member>
+<member name="E:ChatUI.ChatView.AttachmentClick">
+ <summary>Clique no anexo. Padrão (se e.Handled = False): abre o arquivo com o programa associado.</summary>
+</member>
+<member name="E:ChatUI.ChatView.RetryRequested">
+ <summary>Usuário pediu para reenviar uma mensagem com Status = Failed.</summary>
+</member>
+<member name="E:ChatUI.ChatView.MessageContextMenuOpening">
+ <summary>Antes de abrir o menu de contexto de uma mensagem (adicione itens ou cancele).</summary>
+</member>
+<member name="E:ChatUI.ChatView.LoadOlderRequested">
+ <summary>A rolagem chegou ao topo: bom momento para carregar o histórico (Messages.InsertRange(0, ...)).</summary>
+</member>
+<member name="M:ChatUI.ChatView.ScrollToMessage(ChatUI.ChatMessage)">
+ <summary>Rola até que a mensagem fique visível (centralizada).</summary>
+</member>
+<member name="M:ChatUI.ChatView.InvalidateLayout">
+ <summary>Refaz o layout (chame se alterar algo que o controle não percebe sozinho).</summary>
+</member>
+<member name="M:ChatUI.ChatView.DrawStickyDay(System.Drawing.Graphics,System.Int32)">
+ <summary>Data "grudada" no topo enquanto rola (como no WhatsApp).</summary>
+</member>
+<member name="M:ChatUI.ChatView.HandleNavigationKey(System.Windows.Forms.Keys)">
+ <summary>Encaminhado pelo ChatBox (PageUp/PageDown na caixa de digitação).</summary>
+</member>
+<member name="M:ChatUI.ChatView.GetMessageAt(System.Drawing.Point)">
+ <summary>Mensagem sob um ponto (coordenadas do cliente) ou Nothing.</summary>
+</member>
+<member name="T:ChatUI.ChatObservableCollection`1">
+ <summary>
+ Coleção observável genérica: avisa inclusões/remoções e também mudanças de propriedade dos itens.
+ Altere-a sempre pela thread da UI (use Control.BeginInvoke se os dados vierem de um socket/thread).
+ </summary>
+</member>
+<member name="M:ChatUI.ChatObservableCollection`1.AddRange(System.Collections.Generic.IEnumerable{`0})">
+ <summary>Adiciona vários itens disparando um único Reset (bem mais rápido para carregar histórico).</summary>
+</member>
+<member name="M:ChatUI.ChatObservableCollection`1.InsertRange(System.Int32,System.Collections.Generic.IEnumerable{`0})">
+ <summary>Insere vários itens no início (ex.: "carregar mensagens anteriores").</summary>
+</member>
+<member name="P:ChatUI.ChatMessageCollection.Last">
+ <summary>Última mensagem (ou Nothing).</summary>
+</member>
+<member name="T:ChatUI.ChatConversation">
+ <summary>
+ Uma conversa (aba). Contém o contato, as mensagens, o rascunho digitado e o estado "digitando...".
+ </summary>
+</member>
+<member name="P:ChatUI.ChatConversation.Title">
+ <summary>Título da aba/cabeçalho. Se vazio, usa Contact.DisplayName.</summary>
+</member>
+<member name="P:ChatUI.ChatConversation.Contact">
+ <summary>Contato principal (avatar e status do cabeçalho). Em grupos pode ser um ChatUser representando o grupo.</summary>
+</member>
+<member name="P:ChatUI.ChatConversation.IsGroup">
+ <summary>Em grupos, o nome do remetente aparece em cima de cada bloco de mensagens recebidas.</summary>
+</member>
+<member name="P:ChatUI.ChatConversation.IsTyping">
+ <summary>Mostra o indicador animado "digitando..." no fim da conversa e no cabeçalho.</summary>
+</member>
+<member name="P:ChatUI.ChatConversation.TypingUser">
+ <summary>Quem está digitando (opcional; usado para o avatar do indicador). Padrão: Contact.</summary>
+</member>
+<member name="P:ChatUI.ChatConversation.Draft">
+ <summary>Texto que estava sendo digitado quando o usuário trocou de aba.</summary>
+</member>
+<member name="F:ChatUI.MessageDirection.Incoming">
+ <summary>Mensagem recebida (balão à esquerda, com avatar).</summary>
+</member>
+<member name="F:ChatUI.MessageDirection.Outgoing">
+ <summary>Mensagem enviada pelo usuário atual (balão à direita).</summary>
+</member>
+<member name="F:ChatUI.MessageDirection.System">
+ <summary>Aviso do sistema, centralizado ("Fulano entrou no grupo").</summary>
+</member>
+<member name="F:ChatUI.MessageStatus.Sending">
+ <summary>Relógio: ainda não confirmada pelo servidor.</summary>
+</member>
+<member name="F:ChatUI.MessageStatus.Sent">
+ <summary>✓</summary>
+</member>
+<member name="F:ChatUI.MessageStatus.Delivered">
+ <summary>✓✓ cinza</summary>
+</member>
+<member name="F:ChatUI.MessageStatus.Read">
+ <summary>✓✓ na cor de destaque</summary>
+</member>
+<member name="F:ChatUI.MessageStatus.Failed">
+ <summary>! vermelho (clicável: Area = Status)</summary>
+</member>
+<member name="T:ChatUI.ChatAttachment">
+ <summary>Arquivo anexado a uma mensagem.</summary>
+</member>
+<member name="P:ChatUI.ChatAttachment.Size">
+ <summary>Tamanho em bytes (-1 = desconhecido).</summary>
+</member>
+<member name="T:ChatUI.ChatMessage">
+ <summary>
+ Uma mensagem do chat. Alterar qualquer propriedade (Status, Text...) atualiza a tela automaticamente.
+ </summary>
+</member>
+<member name="P:ChatUI.ChatMessage.Image">
+ <summary>Imagem exibida no balão (o Text vira legenda).</summary>
+</member>
+<member name="P:ChatUI.ChatMessage.Attachment">
+ <summary>Arquivo anexado (exibido como cartão clicável quando não há Image).</summary>
+</member>
+<member name="T:ChatUI.ChatUser">
+ <summary>
+ Participante de uma conversa (você, o contato, membros de um grupo).
+ </summary>
+</member>
+<member name="P:ChatUI.ChatUser.Id">
+ <summary>Identificador único (usado para agrupar mensagens do mesmo remetente).</summary>
+</member>
+<member name="P:ChatUI.ChatUser.Avatar">
+ <summary>Foto do usuário. Se Nothing, são desenhadas as iniciais sobre <see cref="P:ChatUI.ChatUser.AvatarColor"/>.</summary>
+</member>
+<member name="P:ChatUI.ChatUser.AvatarColor">
+ <summary>Cor de fundo das iniciais e do nome no balão. Color.Empty = cor automática pelo nome.</summary>
+</member>
+<member name="P:ChatUI.ChatUser.StatusText">
+ <summary>Texto de status mostrado no cabeçalho quando offline (ex.: "visto por último às 14:02").</summary>
+</member>
+<member name="P:ChatUI.ChatUser.Initials">
+ <summary>Até duas iniciais a partir do nome.</summary>
+</member>
+<member name="P:ChatUI.ChatUser.EffectiveColor">
+ <summary>Cor efetiva (a definida ou uma cor estável derivada do Id/nome).</summary>
+</member>
+<member name="T:ChatUI.GdiHelpers">
+ <summary>Rotinas de desenho GDI/GDI+ compartilhadas pelos controles.</summary>
+</member>
+<member name="M:ChatUI.GdiHelpers.ColorFromKey(System.String)">
+ <summary>Cor estável a partir de um texto (FNV-1a, igual em qualquer máquina).</summary>
+</member>
+<member name="M:ChatUI.GdiHelpers.RoundRect(System.Drawing.RectangleF,System.Single,System.Single,System.Single,System.Single)">
+ <summary>Retângulo arredondado com raio independente em cada canto.</summary>
+</member>
+<member name="M:ChatUI.GdiHelpers.DrawAvatar(System.Drawing.Graphics,ChatUI.ChatUser,System.Drawing.Rectangle)">
+ <summary>Avatar circular: foto (recortada em círculo com antialias) ou iniciais.</summary>
+</member>
+<member name="M:ChatUI.GdiHelpers.StatusIconWidth(ChatUI.MessageStatus,System.Single)">
+ <summary>Largura reservada para o ícone de status.</summary>
+</member>
+<member name="M:ChatUI.GdiHelpers.DrawStatus(System.Drawing.Graphics,ChatUI.MessageStatus,System.Single,System.Single,System.Drawing.Color,System.Drawing.Color,System.Drawing.Color,System.Single)">
+ <summary>Relógio, ✓, ✓✓, ✓✓ (lida) ou ! (falha). x = borda esquerda, cy = centro vertical.</summary>
+</member>
+<member name="M:ChatUI.GdiHelpers.DrawFileIcon(System.Drawing.Graphics,System.Drawing.Rectangle,System.String,System.Drawing.Color,System.Drawing.Font)">
+ <summary>Ícone de documento com a extensão escrita.</summary>
+</member>
+<member name="M:ChatUI.GdiHelpers.MeasureBadge(System.String,System.Drawing.Font,System.Single)">
+ <summary>Pílula com número (não lidas).</summary>
+</member>
+<member name="M:ChatUI.GdiHelpers.DrawSendGlyph(System.Drawing.Graphics,System.Drawing.RectangleF,System.Drawing.Color)">
+ <summary>Seta "aviãozinho" de enviar, dentro de r.</summary>
+</member>
+<member name="M:ChatUI.GdiHelpers.GetDpiScale(System.Windows.Forms.Control)">
+ <summary>Fator de escala do DPI atual (1.0 = 96 DPI). Compatível com .NET 4.5.1.</summary>
+</member>
+<member name="M:ChatUI.GdiHelpers.LoadImageUnlocked(System.String)">
+ <summary>Carrega uma imagem sem manter o arquivo travado.</summary>
+</member>
+<member name="T:ChatUI.ChatTheme">
+ <summary>
+ Cores, fontes e medidas de todos os controles do chat. Uma instância pode ser compartilhada
+ entre vários controles; qualquer alteração redesenha todos eles.
+ </summary>
+</member>
+<member name="E:ChatUI.ChatTheme.Changed">
+ <summary>Disparado a cada alteração (os controles se redesenham).</summary>
+</member>
+<member name="T:ChatUI.ChatStrings">
+ <summary>Textos exibidos pelos controles. Troque para traduzir.</summary>
+</member>
+</members>
+</doc>

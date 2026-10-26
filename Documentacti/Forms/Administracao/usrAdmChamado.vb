@@ -2,6 +2,7 @@
 Imports Janus.Windows.EditControls
 Imports MySql.Data.MySqlClient
 Imports DWC = Dundas.Charting.WinControl
+Imports ChatUI
 
 Public Class usrAdmChamado
 
@@ -24,6 +25,18 @@ Public Class usrAdmChamado
     Private Const gcLimiteGrafico As Integer = 12
 
     Private Const gcIntervaloSincronizacao As Integer = 60 'segundos
+
+    'Chat do chamado: uma conversa por canal (1 = cliente / 2 = interno da equipe)
+    Private Const gcCanalChatCliente As Integer = 1
+    Private Const gcCanalChatDev As Integer = 2
+    Private lChamadoChat As Long = 0
+    Private oUsuarioChat As ChatUser
+    Private oConversaChat As ChatConversation
+    Private oConversaChatDev As ChatConversation
+    Private oUsuariosChat As New Dictionary(Of Long, ChatUser)
+    Private iLidaChat As Integer = 0
+    Private iLidaChatDev As Integer = 0
+    Private bAtualizandoChat As Boolean = False
 
 #End Region
 
@@ -114,6 +127,7 @@ Public Class usrAdmChamado
         Try
 
             tmrApontamento.Stop()
+            tmrChat.Stop()
 
             If TypeOf Me.Parent Is Form Then Me.Parent.Dispose() Else frmMain.tabMain.TabPages.Remove(Me.Parent)
             Me.Dispose()
@@ -328,11 +342,87 @@ Public Class usrAdmChamado
                 Case "pagArquivos" : Call LoadGridArquivo()
                 Case "pagComentario" : Call LoadGridComentario()
                 Case "pagComentarioDev" : Call LoadGridComentarioDev()
+                Case "pagChat", "pagChatDev" : Call AtualizarLeituraChat()
 
             End Select
 
         Catch ex As Exception
             Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: CHAT :::"
+
+    Private Sub chtChat_MessageSubmitted(sender As Object, e As ChatMessageSubmittedEventArgs) Handles chtChat.MessageSubmitted, chtChatDev.MessageSubmitted
+
+        Call EnviarMensagemChat(e.Conversation, e.Message)
+
+    End Sub
+
+    Private Sub chtChat_RetryRequested(sender As Object, e As ChatMessageEventArgs) Handles chtChat.RetryRequested, chtChatDev.RetryRequested
+
+        'Reenvio de mensagem com falha (clique no "!" do balão)
+        If e.Message.Status <> MessageStatus.Failed Then Exit Sub
+
+        e.Message.Status = MessageStatus.Sending
+
+        Call EnviarMensagemChat(CType(sender, ChatBox).Conversation, e.Message)
+
+    End Sub
+
+    Private Sub chtChat_ImagePasted(sender As Object, e As ChatImageEventArgs) Handles chtChat.ImagePasted, chtChatDev.ImagePasted
+
+        Try
+
+            'Imagem colada (Ctrl+V): grava como PNG para seguir o mesmo caminho dos arquivos (FTP)
+            e.Handled = True
+
+            Dim sCaminho As String = System.IO.Path.Combine(PastaArquivosTemporarios(), "imagem_" & Now.ToString("yyyyMMdd_HHmmss") & ".png")
+
+            e.Image.Save(sCaminho, System.Drawing.Imaging.ImageFormat.Png)
+
+            CType(sender, ChatBox).SendFile(sCaminho)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub chtChat_AttachmentClick(sender As Object, e As ChatMessageEventArgs) Handles chtChat.AttachmentClick, chtChatDev.AttachmentClick
+
+        Try
+
+            e.Handled = True
+
+            Call AbrirAnexoChat(e.Message.Attachment)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub tmrChat_Tick(sender As Object, e As EventArgs) Handles tmrChat.Tick
+
+        'Busca mensagens novas somente com um chamado aberto na aba de dados
+        If bAtualizandoChat OrElse lChamadoChat = 0 OrElse tabMain.SelectedTab IsNot pagDados Then Exit Sub
+
+        bAtualizandoChat = True
+
+        Try
+
+            Call AtualizarChat()
+
+        Catch ex As Exception
+            'Falha de conexão na atualização: interrompe o Timer e informa o usuário (volta ao reabrir o chamado)
+            tmrChat.Stop()
+            Call TratarErro(ex)
+        Finally
+            bAtualizandoChat = False
         End Try
 
     End Sub
@@ -598,11 +688,17 @@ Public Class usrAdmChamado
 
             tabMain.TabPages.Remove(pagDados)
 
-            'Comentários de DEV: somente usuário interno (as procs também validam no banco)
+            'Comentários e chat de DEV: somente usuário interno (as procs também validam no banco)
             If goUsuario.bInterno = False Then
                 tabDadosChamado.TabPages.Remove(pagComentarioDev)
+                tabDadosChamado.TabPages.Remove(pagChatDev)
                 btnInserirComentarioDev.Visible = False
             End If
+
+            'Chat: o usuário autenticado é o remetente das mensagens enviadas
+            oUsuarioChat = New ChatUser(goUsuario.lUsuario.ToString, goUsuario.sNome)
+            chtChat.CurrentUser = oUsuarioChat
+            chtChatDev.CurrentUser = oUsuarioChat
 
             Call ConfiguraGrid(grdListagem)
             Call ConfiguraGrid(grdArquivos)
@@ -709,6 +805,7 @@ Public Class usrAdmChamado
             Call LoadGridArquivo()
             Call LoadGridComentario()
             If goUsuario.bInterno = True Then Call LoadGridComentarioDev()
+            Call CarregarChat()
 
             Call MostrarDados()
 
@@ -884,6 +981,7 @@ Public Class usrAdmChamado
             grdArquivos.DataSource = Nothing
             grdComentario.DataSource = Nothing
             grdComentarioDev.DataSource = Nothing
+            Call LimparChat()
 
             'Sugere o usuário autenticado como responsável
             Call SetCheckedValues(cboResponsavel, goUsuario.lUsuario.ToString)
@@ -938,6 +1036,7 @@ Public Class usrAdmChamado
                 btnInserirComentarioDev.Enabled = True
 
                 Call LoadGridComentario()
+                Call CarregarChat()
 
                 frmMain.Informacao("Registro inserido com sucesso! Chamado " & txtCodigo.Text & " disponível para apontamento.", Color.Blue)
 
@@ -1092,24 +1191,13 @@ Public Class usrAdmChamado
             Cursor.Current = Cursors.WaitCursor
 
             'Somente o nome do arquivo vai para a pasta temporária (descarta qualquer subpasta do caminho)
-            Dim sPasta As String = System.IO.Path.Combine(System.IO.Path.GetTempPath, "Documentacti")
-            System.IO.Directory.CreateDirectory(sPasta)
-
-            Dim sDestino As String = System.IO.Path.Combine(sPasta, System.IO.Path.GetFileName(sRelativo.Replace("/", "\")))
+            Dim sDestino As String = System.IO.Path.Combine(PastaArquivosTemporarios(), System.IO.Path.GetFileName(sRelativo.Replace("/", "\")))
 
             oFtp.Download(sRelativo, sDestino)
 
             Cursor.Current = Cursors.Default
 
-            'Arquivos executáveis/scripts não são abertos automaticamente
-            Dim sExtensoesBloqueadas As String = ".exe.bat.cmd.com.msi.scr.js.jse.vbs.vbe.ps1.lnk.jar.hta.reg.dll.wsf"
-
-            If sExtensoesBloqueadas.Contains(System.IO.Path.GetExtension(sDestino).ToLower) AndAlso System.IO.Path.GetExtension(sDestino) <> "" Then
-                MsgBox("Por segurança, este tipo de arquivo não é aberto automaticamente." & vbCrLf & "O arquivo foi salvo em:" & vbCrLf & sDestino, MsgBoxStyle.Information, gAplicacao)
-                Process.Start("explorer.exe", "/select," & Chr(34) & sDestino & Chr(34))
-            Else
-                Process.Start(sDestino)
-            End If
+            Call AbrirArquivoLocal(sDestino)
 
         Catch ex As Exception
             Throw
@@ -1247,6 +1335,409 @@ Public Class usrAdmChamado
             oForm.txtSolicitante.Text = oGrid.CurrentRow.Cells("usuario").Value.ToString
             oForm.txtComentario.Text = oGrid.CurrentRow.Cells(IIf(bComentarioDev, "comentario", "texto")).Value.ToString
             oForm.ShowDialog(Me)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: CHAT :::"
+
+    Private Sub LimparChat()
+
+        Try
+
+            lChamadoChat = 0
+            oConversaChat = Nothing
+            oConversaChatDev = Nothing
+            chtChat.Conversation = Nothing
+            chtChatDev.Conversation = Nothing
+            pagChat.Text = "Chat"
+            pagChatDev.Text = "Chat DEV"
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub CarregarChat()
+
+        Try
+
+            Call LimparChat()
+
+            If IsNumeric(txtCodigo.Text) = False Then Exit Sub
+
+            lChamadoChat = CLng(txtCodigo.Text)
+            iLidaChat = 0
+            iLidaChatDev = 0
+            oUsuariosChat.Clear()
+
+            'Conversa em grupo: o nome de quem enviou aparece acima dos balões recebidos
+            oConversaChat = New ChatConversation("chat_" & lChamadoChat, "Chamado " & lChamadoChat, True)
+            oConversaChat.Tag = gcCanalChatCliente
+            Call AdicionarMensagensChat(oConversaChat, oClsUsrAdmChamado.LoadChat(lChamadoChat, gcCanalChatCliente, 0))
+            chtChat.Conversation = oConversaChat
+
+            If goUsuario.bInterno = True Then
+                oConversaChatDev = New ChatConversation("chatdev_" & lChamadoChat, "Chamado " & lChamadoChat & " (interno)", True)
+                oConversaChatDev.Tag = gcCanalChatDev
+                Call AdicionarMensagensChat(oConversaChatDev, oClsUsrAdmChamado.LoadChat(lChamadoChat, gcCanalChatDev, 0))
+                chtChatDev.Conversation = oConversaChatDev
+            End If
+
+            Call AtualizarLeituraChat()
+
+            tmrChat.Start()
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AtualizarChat()
+
+        Try
+
+            Call AdicionarMensagensChat(oConversaChat, oClsUsrAdmChamado.LoadChat(lChamadoChat, gcCanalChatCliente, UltimaMensagemChat(oConversaChat)))
+
+            If Not IsNothing(oConversaChatDev) Then
+                Call AdicionarMensagensChat(oConversaChatDev, oClsUsrAdmChamado.LoadChat(lChamadoChat, gcCanalChatDev, UltimaMensagemChat(oConversaChatDev)))
+            End If
+
+            Call AtualizarLeituraChat()
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AdicionarMensagensChat(ByVal oConversa As ChatConversation, ByVal oTabela As DataTable)
+
+        Try
+
+            Dim oLista As New List(Of ChatMessage)
+
+            For Each oRow As DataRow In oTabela.Rows
+
+                'Mensagem já exibida (ex.: enviada por esta estação): não duplica
+                If Not IsNothing(oConversa.Messages.FindById(oRow.Item("codigo_mensagem").ToString)) Then Continue For
+
+                Dim lUsuario As Long = CLng(oRow.Item("codigo_usuario"))
+                Dim bEnviada As Boolean = (lUsuario = goUsuario.lUsuario)
+
+                Dim oMensagem As New ChatMessage(UsuarioChat(lUsuario, oRow.Item("nome_usuario").ToString), _
+                                                 oRow.Item("mensagem").ToString, _
+                                                 If(bEnviada, MessageDirection.Outgoing, MessageDirection.Incoming))
+
+                oMensagem.Id = oRow.Item("codigo_mensagem").ToString
+                oMensagem.Timestamp = CDate(oRow.Item("data_hora"))
+                oMensagem.Status = If(bEnviada, MessageStatus.Sent, MessageStatus.None)
+
+                If oRow.Item("nome_arquivo").ToString <> "" Then
+                    Call DefinirAnexoChat(oMensagem, oRow.Item("nome_arquivo").ToString, CLng(oRow.Item("tamanho_arquivo")))
+                End If
+
+                oLista.Add(oMensagem)
+
+            Next
+
+            'Um único redesenho para todas as mensagens
+            If oLista.Count > 0 Then oConversa.Messages.AddRange(oLista)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AtualizarLeituraChat()
+
+        Try
+
+            If lChamadoChat = 0 Then Exit Sub
+
+            'Marca como lidas as mensagens da conversa que está na tela (somente quando há mensagem nova)
+            If tabDadosChamado.SelectedTab Is pagChat AndAlso UltimaMensagemChat(oConversaChat) > iLidaChat Then
+                iLidaChat = UltimaMensagemChat(oConversaChat)
+                oClsUsrAdmChamado.UpdateChatLeitura(lChamadoChat, gcCanalChatCliente, iLidaChat)
+            End If
+
+            If tabDadosChamado.SelectedTab Is pagChatDev AndAlso UltimaMensagemChat(oConversaChatDev) > iLidaChatDev Then
+                iLidaChatDev = UltimaMensagemChat(oConversaChatDev)
+                oClsUsrAdmChamado.UpdateChatLeitura(lChamadoChat, gcCanalChatDev, iLidaChatDev)
+            End If
+
+            'Leitura dos outros usuários (✓✓ nas mensagens enviadas) e contador de não lidas nas abas
+            For Each oRow As DataRow In oClsUsrAdmChamado.LoadChatLeitura(lChamadoChat).Rows
+
+                Dim bCliente As Boolean = (CInt(oRow.Item("canal")) = gcCanalChatCliente)
+                Dim oConversa As ChatConversation = If(bCliente, oConversaChat, oConversaChatDev)
+                Dim iNaoLidas As Integer = CInt(oRow.Item("nao_lidas"))
+
+                If IsNothing(oConversa) Then Continue For
+
+                Call AtualizarStatusChat(oConversa, CInt(oRow.Item("lida_outros")))
+
+                If bCliente Then
+                    pagChat.Text = "Chat" & IIf(iNaoLidas > 0, " (" & iNaoLidas & ")", "")
+                Else
+                    pagChatDev.Text = "Chat DEV" & IIf(iNaoLidas > 0, " (" & iNaoLidas & ")", "")
+                End If
+
+            Next
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AtualizarStatusChat(ByVal oConversa As ChatConversation, ByVal iLidaOutros As Integer)
+
+        'Mensagens enviadas e gravadas: ✓ (enviada) ou ✓✓ azul (lida por outro usuário)
+        For Each oMensagem As ChatMessage In oConversa.Messages
+
+            Dim iCodigo As Integer
+
+            If oMensagem.Direction <> MessageDirection.Outgoing OrElse Integer.TryParse(oMensagem.Id, iCodigo) = False Then Continue For
+
+            Dim oStatus As MessageStatus = If(iCodigo <= iLidaOutros, MessageStatus.Read, MessageStatus.Sent)
+
+            If oMensagem.Status <> oStatus Then oMensagem.Status = oStatus
+
+        Next
+
+    End Sub
+
+    Private Function UltimaMensagemChat(ByVal oConversa As ChatConversation) As Integer
+
+        'Maior código gravado no banco (mensagens com falha de envio ainda não têm código)
+        Dim iUltima As Integer = 0
+
+        If IsNothing(oConversa) Then Return 0
+
+        For Each oMensagem As ChatMessage In oConversa.Messages
+
+            Dim iCodigo As Integer
+
+            If Integer.TryParse(oMensagem.Id, iCodigo) AndAlso iCodigo > iUltima Then iUltima = iCodigo
+
+        Next
+
+        Return iUltima
+
+    End Function
+
+    Private Function UsuarioChat(ByVal lUsuario As Long, ByVal sNome As String) As ChatUser
+
+        If lUsuario = goUsuario.lUsuario Then Return oUsuarioChat
+
+        If oUsuariosChat.ContainsKey(lUsuario) = False Then
+            oUsuariosChat.Add(lUsuario, New ChatUser(lUsuario.ToString, sNome))
+        End If
+
+        Return oUsuariosChat(lUsuario)
+
+    End Function
+
+    Private Sub EnviarMensagemChat(ByVal oConversa As ChatConversation, ByVal oMensagem As ChatMessage)
+
+        Dim sNomeArquivo As String = ""
+        Dim bEnviouFtp As Boolean = False
+
+        Try
+
+            If IsNothing(oConversa) OrElse lChamadoChat = 0 Then Exit Sub
+
+            Dim lTamanho As Long = -1
+
+            If Not IsNothing(oMensagem.Attachment) Then
+
+                Dim oAnexo As ChatAttachment = oMensagem.Attachment
+
+                If FtpDisponivel() = False Then Throw New ArgumentException("FTP dos anexos não configurado no Config.xml.")
+
+                Dim oInfo As New System.IO.FileInfo(oAnexo.FilePath)
+
+                If oInfo.Length > gcTamanhoMaximoAnexo Then
+                    Throw New ArgumentException("O arquivo '" & oInfo.Name & "' excede o limite de " & (gcTamanhoMaximoAnexo / 1048576) & " MB.")
+                End If
+
+                lTamanho = oInfo.Length
+
+                If IsNothing(oAnexo.Tag) Then
+
+                    Cursor.Current = Cursors.WaitCursor
+
+                    sNomeArquivo = NomeLivreFtp(oInfo.Name)
+                    oFtp.Upload(sNomeArquivo, oInfo.FullName)
+                    bEnviouFtp = True
+
+                    'Cópia local com o nome do servidor: a imagem continua visível ao recarregar o chamado
+                    Dim sCache As String = System.IO.Path.Combine(PastaArquivosTemporarios(), sNomeArquivo)
+                    If String.Equals(oInfo.FullName, sCache, StringComparison.OrdinalIgnoreCase) = False Then System.IO.File.Copy(oInfo.FullName, sCache, True)
+
+                Else
+                    'Reenvio: o arquivo já está no servidor, falta somente gravar a mensagem
+                    sNomeArquivo = oAnexo.Tag.ToString
+                End If
+
+            End If
+
+            Dim dDataHora As DateTime
+            Dim iCodigo As Integer = oClsUsrAdmChamado.InsertChat(lChamadoChat, CInt(oConversa.Tag), oMensagem.Text, sNomeArquivo, lTamanho, dDataHora)
+
+            If Not IsNothing(oMensagem.Attachment) Then oMensagem.Attachment.Tag = sNomeArquivo
+            oMensagem.Id = iCodigo.ToString
+            oMensagem.Timestamp = dDataHora
+            oMensagem.Status = MessageStatus.Sent
+
+            'Quem envia já leu a conversa até a própria mensagem
+            If CInt(oConversa.Tag) = gcCanalChatCliente Then iLidaChat = iCodigo Else iLidaChatDev = iCodigo
+
+            Cursor.Current = Cursors.Default
+
+        Catch ex As Exception
+
+            'Falha ao gravar no banco: remove somente o arquivo que acabou de ser enviado
+            If bEnviouFtp Then
+                Try
+                    oFtp.Delete(sNomeArquivo)
+                Catch
+                End Try
+            End If
+
+            oMensagem.Status = MessageStatus.Failed
+
+            If TypeOf ex Is ArgumentException Then
+                Cursor.Current = Cursors.Default
+                frmMain.Informacao(ex.Message, gColorInformacaoErro)
+                MsgBox(ex.Message, MsgBoxStyle.Exclamation, gAplicacao)
+            Else
+                Call TratarErro(ex)
+            End If
+
+        End Try
+
+    End Sub
+
+    Private Function NomeLivreFtp(ByVal sNome As String) As String
+
+        'Mesmo padrão dos anexos: somente o nome do arquivo, com sufixo se o nome já existir no servidor
+        Try
+
+            Dim sNomeSeguro As String = NomeArquivoSeguro(sNome)
+            Dim sNomeLivre As String = sNomeSeguro
+            Dim iSufixo As Integer = 1
+
+            Do While oFtp.Existe(sNomeLivre)
+                sNomeLivre = System.IO.Path.GetFileNameWithoutExtension(sNomeSeguro) & "_" & iSufixo & System.IO.Path.GetExtension(sNomeSeguro)
+                iSufixo += 1
+            Loop
+
+            Return sNomeLivre
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Private Sub DefinirAnexoChat(ByVal oMensagem As ChatMessage, ByVal sNomeArquivo As String, ByVal lTamanho As Long)
+
+        Try
+
+            'O arquivo só é baixado do FTP ao clicar; se já estiver na pasta temporária, a imagem é exibida no balão
+            Dim sLocal As String = System.IO.Path.Combine(PastaArquivosTemporarios(), System.IO.Path.GetFileName(sNomeArquivo))
+
+            oMensagem.Attachment = New ChatAttachment(sNomeArquivo, IIf(System.IO.File.Exists(sLocal), sLocal, Nothing), lTamanho)
+            oMensagem.Attachment.Tag = sNomeArquivo
+
+            If System.IO.File.Exists(sLocal) Then oMensagem.Image = CarregarImagemChat(sLocal)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Function CarregarImagemChat(ByVal sCaminho As String) As Image
+
+        'Somente imagens; o arquivo não fica bloqueado (cópia em memória)
+        If System.IO.Path.GetExtension(sCaminho) = "" OrElse ".png.jpg.jpeg.gif.bmp".Contains(System.IO.Path.GetExtension(sCaminho).ToLower) = False Then Return Nothing
+
+        Try
+            Using oStream As New System.IO.MemoryStream(System.IO.File.ReadAllBytes(sCaminho)), _
+                  oImagem As Image = Image.FromStream(oStream)
+                Return New Bitmap(oImagem)
+            End Using
+        Catch
+            'Arquivo de imagem inválido: fica como anexo
+            Return Nothing
+        End Try
+
+    End Function
+
+    Private Sub AbrirAnexoChat(ByVal oAnexo As ChatAttachment)
+
+        Try
+
+            If IsNothing(oAnexo) Then Exit Sub
+
+            'Arquivo ainda não baixado nesta estação: busca no FTP
+            If String.IsNullOrEmpty(oAnexo.FilePath) OrElse System.IO.File.Exists(oAnexo.FilePath) = False Then
+
+                If IsNothing(oAnexo.Tag) OrElse FtpDisponivel() = False Then Exit Sub
+
+                Cursor.Current = Cursors.WaitCursor
+
+                Dim sDestino As String = System.IO.Path.Combine(PastaArquivosTemporarios(), System.IO.Path.GetFileName(oAnexo.Tag.ToString))
+
+                oFtp.Download(oAnexo.Tag.ToString, sDestino)
+                oAnexo.FilePath = sDestino
+
+                Cursor.Current = Cursors.Default
+
+            End If
+
+            Call AbrirArquivoLocal(oAnexo.FilePath)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Function PastaArquivosTemporarios() As String
+
+        Dim sPasta As String = System.IO.Path.Combine(System.IO.Path.GetTempPath, "Documentacti")
+
+        System.IO.Directory.CreateDirectory(sPasta)
+
+        Return sPasta
+
+    End Function
+
+    Private Sub AbrirArquivoLocal(ByVal sCaminho As String)
+
+        Try
+
+            'Arquivos executáveis/scripts não são abertos automaticamente
+            Dim sExtensoesBloqueadas As String = ".exe.bat.cmd.com.msi.scr.js.jse.vbs.vbe.ps1.lnk.jar.hta.reg.dll.wsf"
+
+            If sExtensoesBloqueadas.Contains(System.IO.Path.GetExtension(sCaminho).ToLower) AndAlso System.IO.Path.GetExtension(sCaminho) <> "" Then
+                MsgBox("Por segurança, este tipo de arquivo não é aberto automaticamente." & vbCrLf & "O arquivo foi salvo em:" & vbCrLf & sCaminho, MsgBoxStyle.Information, gAplicacao)
+                Process.Start("explorer.exe", "/select," & Chr(34) & sCaminho & Chr(34))
+            Else
+                Process.Start(sCaminho)
+            End If
 
         Catch ex As Exception
             Throw ex

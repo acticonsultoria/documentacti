@@ -121,6 +121,10 @@ Partial Class usrAdmChamado
         Me.pagArquivos = New Janus.Windows.UI.Tab.UITabPage()
         Me.pagComentario = New Janus.Windows.UI.Tab.UITabPage()
         Me.pagComentarioDev = New Janus.Windows.UI.Tab.UITabPage()
+        Me.pagChat = New Janus.Windows.UI.Tab.UITabPage()
+        Me.chtChat = New ChatUI.ChatBox()
+        Me.pagChatDev = New Janus.Windows.UI.Tab.UITabPage()
+        Me.chtChatDev = New ChatUI.ChatBox()
         Me.btnArquivo = New Janus.Windows.EditControls.UIButton()
         Me.grdArquivos = New Janus.Windows.GridEX.GridEX()
         Me.grdComentario = New Janus.Windows.GridEX.GridEX()
@@ -186,6 +190,7 @@ Partial Class usrAdmChamado
         Me.vsmMain = New Janus.Windows.Common.VisualStyleManager(Me.components)
         Me.ToolTip = New System.Windows.Forms.ToolTip(Me.components)
         Me.tmrApontamento = New System.Windows.Forms.Timer(Me.components)
+        Me.tmrChat = New System.Windows.Forms.Timer(Me.components)
         CType(Me.tabMain, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.tabMain.SuspendLayout()
         Me.pagLista.SuspendLayout()
@@ -211,6 +216,8 @@ Partial Class usrAdmChamado
         Me.pagArquivos.SuspendLayout()
         Me.pagComentario.SuspendLayout()
         Me.pagComentarioDev.SuspendLayout()
+        Me.pagChat.SuspendLayout()
+        Me.pagChatDev.SuspendLayout()
         CType(Me.grdArquivos, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.grdComentario, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.grdComentarioDev, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -1042,7 +1049,7 @@ Partial Class usrAdmChamado
         Me.tabDadosChamado.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.tabDadosChamado.Size = New System.Drawing.Size(1182, 233)
         Me.tabDadosChamado.TabIndex = 1
-        Me.tabDadosChamado.TabPages.AddRange(New Janus.Windows.UI.Tab.UITabPage() {Me.pagArquivos, Me.pagComentario, Me.pagComentarioDev})
+        Me.tabDadosChamado.TabPages.AddRange(New Janus.Windows.UI.Tab.UITabPage() {Me.pagArquivos, Me.pagComentario, Me.pagComentarioDev, Me.pagChat, Me.pagChatDev})
         Me.tabDadosChamado.TabStop = False
         Me.tabDadosChamado.VisualStyleManager = Me.vsmMain
         '
@@ -1076,6 +1083,44 @@ Partial Class usrAdmChamado
         Me.pagComentarioDev.Size = New System.Drawing.Size(1180, 210)
         Me.pagComentarioDev.TabStop = True
         Me.pagComentarioDev.Text = "Comentários de DEV"
+        '
+        'pagChat
+        '
+        Me.pagChat.Controls.Add(Me.chtChat)
+        Me.pagChat.Key = "pagChat"
+        Me.pagChat.Location = New System.Drawing.Point(1, 22)
+        Me.pagChat.Name = "pagChat"
+        Me.pagChat.Size = New System.Drawing.Size(1180, 210)
+        Me.pagChat.TabStop = True
+        Me.pagChat.Text = "Chat"
+        '
+        'chtChat
+        '
+        Me.chtChat.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.chtChat.Location = New System.Drawing.Point(0, 0)
+        Me.chtChat.Name = "chtChat"
+        Me.chtChat.ShowHeader = False
+        Me.chtChat.Size = New System.Drawing.Size(1180, 210)
+        Me.chtChat.TabIndex = 0
+        '
+        'pagChatDev
+        '
+        Me.pagChatDev.Controls.Add(Me.chtChatDev)
+        Me.pagChatDev.Key = "pagChatDev"
+        Me.pagChatDev.Location = New System.Drawing.Point(1, 22)
+        Me.pagChatDev.Name = "pagChatDev"
+        Me.pagChatDev.Size = New System.Drawing.Size(1180, 210)
+        Me.pagChatDev.TabStop = True
+        Me.pagChatDev.Text = "Chat DEV"
+        '
+        'chtChatDev
+        '
+        Me.chtChatDev.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.chtChatDev.Location = New System.Drawing.Point(0, 0)
+        Me.chtChatDev.Name = "chtChatDev"
+        Me.chtChatDev.ShowHeader = False
+        Me.chtChatDev.Size = New System.Drawing.Size(1180, 210)
+        Me.chtChatDev.TabIndex = 0
         '
         'btnArquivo
         '
@@ -1999,6 +2044,10 @@ Partial Class usrAdmChamado
         '
         Me.tmrApontamento.Interval = 1000
         '
+        'tmrChat
+        '
+        Me.tmrChat.Interval = 5000
+        '
         'usrAdmChamado
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 14.0!)
@@ -2045,6 +2094,8 @@ Partial Class usrAdmChamado
         Me.pagComentario.PerformLayout()
         Me.pagComentarioDev.ResumeLayout(False)
         Me.pagComentarioDev.PerformLayout()
+        Me.pagChat.ResumeLayout(False)
+        Me.pagChatDev.ResumeLayout(False)
         CType(Me.grdArquivos, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.grdComentario, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.grdComentarioDev, System.ComponentModel.ISupportInitialize).EndInit()
@@ -2226,5 +2277,10 @@ Partial Class usrAdmChamado
     Friend WithEvents vsmMain As Janus.Windows.Common.VisualStyleManager
     Friend WithEvents ToolTip As System.Windows.Forms.ToolTip
     Friend WithEvents tmrApontamento As System.Windows.Forms.Timer
+    Friend WithEvents pagChat As Janus.Windows.UI.Tab.UITabPage
+    Friend WithEvents pagChatDev As Janus.Windows.UI.Tab.UITabPage
+    Friend WithEvents chtChat As ChatUI.ChatBox
+    Friend WithEvents chtChatDev As ChatUI.ChatBox
+    Friend WithEvents tmrChat As System.Windows.Forms.Timer
 
 End Class

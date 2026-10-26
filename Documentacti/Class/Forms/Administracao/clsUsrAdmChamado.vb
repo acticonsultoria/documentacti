@@ -878,6 +878,257 @@ Public Class clsUsrAdmChamado
 
 #End Region
 
+#Region "::: CHAT :::"
+
+    Public Function LoadChat(ByVal lCodigoAtividade As Long, _
+                             ByVal iCanal As Integer, _
+                             ByVal iUltimaMensagem As Integer) As DataTable
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim oDataSet As DataSet
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Atividade
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigoAtividade : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Canal (1 = cliente / 2 = interno DEV)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_canal"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).Value = iCanal : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Usuário (a proc valida o acesso ao chat interno)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Última mensagem já carregada (0 = todas)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_mensagem"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iUltimaMensagem
+
+            'Executa Query
+            oDataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_chat", oMySqlParameter)
+
+            Return oDataSet.Tables(0)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Public Function LoadChatLeitura(ByVal lCodigoAtividade As Long) As DataTable
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim oDataSet As DataSet
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Atividade
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigoAtividade : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Usuário
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario
+
+            'Executa Query
+            oDataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_chat_leitura", oMySqlParameter)
+
+            Return oDataSet.Tables(0)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Public Function InsertChat(ByVal lCodigoAtividade As Long, _
+                               ByVal iCanal As Integer, _
+                               ByVal sMensagem As String, _
+                               ByVal sNomeArquivo As String, _
+                               ByVal lTamanhoArquivo As Long, _
+                               ByRef dDataHora As DateTime) As Integer
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Atividade
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigoAtividade : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Canal
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_canal"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).Value = iCanal : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Usuário
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Mensagem
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_mensagem"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.MediumText
+            oMySqlParameter(i).Value = IIf(String.IsNullOrEmpty(sMensagem), DBNull.Value, sMensagem) : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Nome do Arquivo (FTP)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_nome_arquivo"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = IIf(String.IsNullOrEmpty(sNomeArquivo), DBNull.Value, sNomeArquivo) : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Tamanho do Arquivo
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_tamanho_arquivo"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = IIf(String.IsNullOrEmpty(sNomeArquivo), DBNull.Value, lTamanhoArquivo) : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Mensagem (OUT)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_mensagem"
+            oMySqlParameter(i).Direction = ParameterDirection.Output
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32 : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Data/Hora (OUT, hora do banco)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_data_hora"
+            oMySqlParameter(i).Direction = ParameterDirection.Output
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.DateTime
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_insert_administracao_chamado_chat", oMySqlParameter)
+
+            dDataHora = CDate(oMySqlParameter(i).Value)
+
+            Return CInt(oMySqlParameter(i - 1).Value)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Public Sub UpdateChatLeitura(ByVal lCodigoAtividade As Long, _
+                                 ByVal iCanal As Integer, _
+                                 ByVal iCodigoMensagem As Integer)
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Atividade
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigoAtividade : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Canal
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_canal"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).Value = iCanal : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Usuário
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Última mensagem lida
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_mensagem"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iCodigoMensagem
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_administracao_chamado_chat_leitura", oMySqlParameter)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+#End Region
+
 #Region "::: APONTAMENTO :::"
 
     Public Sub LoadComboChamadoApontamento(ByVal oComboBox As Janus.Windows.EditControls.UIComboBox, _
