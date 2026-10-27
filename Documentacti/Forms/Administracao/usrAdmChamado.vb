@@ -1346,6 +1346,63 @@ Public Class usrAdmChamado
 
 #Region "::: CHAT :::"
 
+    Public Function ChatVisivel(ByVal lChamado As Long, ByVal iCanal As Integer) As Boolean
+
+        'O usuário já está vendo esta conversa: não precisa de notificação
+        Return lChamadoChat = lChamado AndAlso tabMain.SelectedTab Is pagDados AndAlso _
+               tabDadosChamado.SelectedTab Is IIf(iCanal = gcCanalChatDev, pagChatDev, pagChat)
+
+    End Function
+
+    Public Sub AbrirChat(ByVal lChamado As Long, ByVal iCanal As Integer)
+
+        'Chamado vindo da notificação: filtra somente pelo código e abre direto na aba do chat
+        Try
+
+            Cursor.Current = Cursors.WaitCursor
+
+            dtpDataInicioFiltro.Checked = False
+            dtpDataTerminoFiltro.Checked = False
+            txtCodigoFiltro.Text = lChamado.ToString
+            txtTituloFiltro.Text = ""
+            cboEmpresaFiltro.SelectedIndex = -1
+            cboStatusFiltro.UncheckAll()
+            cboResponsavelFiltro.SelectedIndex = -1
+            cboTipoAtendimentoFiltro.SelectedIndex = -1
+
+            Call LoadGrid()
+            Call MostrarLista()
+
+            For r As Integer = 0 To grdListagem.RowCount - 1
+                If CLng(grdListagem.GetRow(r).Cells.Item("codigo_atividade").Value) = lChamado Then
+
+                    grdListagem.Row = r
+                    Call Editar()
+
+                    If iCanal = gcCanalChatDev AndAlso tabDadosChamado.TabPages.Contains(pagChatDev) Then
+                        tabDadosChamado.SelectedTab = pagChatDev
+                    Else
+                        tabDadosChamado.SelectedTab = pagChat
+                    End If
+
+                    Call AtualizarLeituraChat()
+
+                    Cursor.Current = Cursors.Default
+                    Exit Sub
+
+                End If
+            Next
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Chamado " & lChamado & " não encontrado na listagem.", gColorInformacaoErro)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
     Private Sub LimparChat()
 
         Try
@@ -1715,65 +1772,9 @@ Public Class usrAdmChamado
 
     End Sub
 
-    Private Function PastaArquivosTemporarios() As String
-
-        Dim sPasta As String = System.IO.Path.Combine(System.IO.Path.GetTempPath, "Documentacti")
-
-        System.IO.Directory.CreateDirectory(sPasta)
-
-        Return sPasta
-
-    End Function
-
-    Private Sub AbrirArquivoLocal(ByVal sCaminho As String)
-
-        Try
-
-            'Arquivos executáveis/scripts não são abertos automaticamente
-            Dim sExtensoesBloqueadas As String = ".exe.bat.cmd.com.msi.scr.js.jse.vbs.vbe.ps1.lnk.jar.hta.reg.dll.wsf"
-
-            If sExtensoesBloqueadas.Contains(System.IO.Path.GetExtension(sCaminho).ToLower) AndAlso System.IO.Path.GetExtension(sCaminho) <> "" Then
-                MsgBox("Por segurança, este tipo de arquivo não é aberto automaticamente." & vbCrLf & "O arquivo foi salvo em:" & vbCrLf & sCaminho, MsgBoxStyle.Information, gAplicacao)
-                Process.Start("explorer.exe", "/select," & Chr(34) & sCaminho & Chr(34))
-            Else
-                Process.Start(sCaminho)
-            End If
-
-        Catch ex As Exception
-            Throw ex
-        End Try
-
-    End Sub
-
 #End Region
 
 #Region "::: RELATÓRIO :::"
-
-    Private Sub LoadComboLista(ByVal oComboBox As UIComboBox, ByVal sLista As String)
-
-        Try
-
-            'Lista fixa no formato "CODIGO=Descrição;CODIGO=Descrição"
-            Dim oTabela As New DataTable
-            oTabela.Columns.Add("codigo", GetType(String))
-            oTabela.Columns.Add("descricao", GetType(String))
-
-            For Each sItem As String In sLista.Split(";"c)
-                oTabela.Rows.Add(sItem.Split("="c)(0), sItem.Split("="c)(1))
-            Next
-
-            With oComboBox
-                .DataSource = oTabela
-                .ValueMember = "codigo"
-                .DisplayMember = "descricao"
-                .SelectedIndex = 0
-            End With
-
-        Catch ex As Exception
-            Throw ex
-        End Try
-
-    End Sub
 
     Private Sub LoadRelatorio()
 

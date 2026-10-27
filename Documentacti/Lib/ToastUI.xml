@@ -1,0 +1,179 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+ToastUI
+</name>
+</assembly>
+<members>
+<member name="T:ToastUI.NativeMethods">
+ <summary>APIs do Windows usadas para a janela com transparência por pixel (layered window).</summary>
+</member>
+<member name="P:ToastUI.NativeMethods.LayeredSupported">
+ <summary>Windows "de verdade" (no Mono/Linux usamos o modo simples, sem sombra).</summary>
+</member>
+<member name="F:ToastUI.ToastType.Info">
+ <summary>Ícone "i" azul.</summary>
+</member>
+<member name="F:ToastUI.ToastType.Success">
+ <summary>Ícone de check verde.</summary>
+</member>
+<member name="F:ToastUI.ToastType.Warning">
+ <summary>Ícone "!" âmbar.</summary>
+</member>
+<member name="F:ToastUI.ToastType.Error">
+ <summary>Ícone "X" vermelho.</summary>
+</member>
+<member name="F:ToastUI.ToastType.Message">
+ <summary>Avatar redondo (foto em Image ou iniciais do Title) — mensagens, menções, pessoas.</summary>
+</member>
+<member name="F:ToastUI.ToastType.Plain">
+ <summary>Sem ícone (ou com a Image informada, sem recorte).</summary>
+</member>
+<member name="F:ToastUI.ToastScreenMode.Primary">
+ <summary>Monitor principal.</summary>
+</member>
+<member name="F:ToastUI.ToastScreenMode.UnderMouse">
+ <summary>Monitor onde está o mouse quando a primeira notificação da pilha aparece.</summary>
+</member>
+<member name="F:ToastUI.ToastCloseReason.Timeout">
+ <summary>O tempo acabou.</summary>
+</member>
+<member name="F:ToastUI.ToastCloseReason.CloseButton">
+ <summary>Clique no X.</summary>
+</member>
+<member name="F:ToastUI.ToastCloseReason.Swiped">
+ <summary>Arrastada para o lado.</summary>
+</member>
+<member name="F:ToastUI.ToastCloseReason.Clicked">
+ <summary>Clique no corpo (com CloseOnClick).</summary>
+</member>
+<member name="F:ToastUI.ToastCloseReason.Programmatic">
+ <summary>Toast.Close() ou ToastManager.CloseAll() por código.</summary>
+</member>
+<member name="P:ToastUI.ToastEventArgs.CloseToast">
+ <summary>Fecha a notificação depois do clique (padrão = ToastManager.CloseOnClick).</summary>
+</member>
+<member name="T:ToastUI.Toast">
+ <summary>
+ Uma notificação. Pode ser alterada enquanto está aberta (Title, Message, Image...): a tela é atualizada na hora.
+ Altere pela thread da UI.
+ </summary>
+</member>
+<member name="E:ToastUI.Toast.Click">
+ <summary>Clique no corpo da notificação.</summary>
+</member>
+<member name="E:ToastUI.Toast.Closed">
+ <summary>A notificação foi fechada (veja e.Reason).</summary>
+</member>
+<member name="P:ToastUI.Toast.Message">
+ <summary>Texto (quebra em até ToastTheme.MaxLines linhas, depois "...").</summary>
+</member>
+<member name="P:ToastUI.Toast.Caption">
+ <summary>Linha pequena acima do título (ex.: nome do sistema). Vazio = ToastManager.AppCaption.</summary>
+</member>
+<member name="P:ToastUI.Toast.Image">
+ <summary>Ícone/imagem próprio. Em Type = Message vira avatar redondo; nos outros tipos substitui o ícone padrão.</summary>
+</member>
+<member name="P:ToastUI.Toast.AccentColor">
+ <summary>Cor do ícone, das iniciais e da barra de tempo. Color.Empty = cor do tipo no tema.</summary>
+</member>
+<member name="P:ToastUI.Toast.Duration">
+ <summary>Tempo na tela em ms. -1 = ToastManager.DefaultDuration; 0 = fica até o usuário fechar.</summary>
+</member>
+<member name="P:ToastUI.Toast.ShowProgress">
+ <summary>Mostra a barrinha de tempo restante.</summary>
+</member>
+<member name="P:ToastUI.Toast.Timestamp">
+ <summary>Hora exibida ao lado do Caption.</summary>
+</member>
+<member name="P:ToastUI.Toast.Tag">
+ <summary>Qualquer objeto seu (ex.: o registro que deve ser aberto ao clicar).</summary>
+</member>
+<member name="P:ToastUI.Toast.IsOpen">
+ <summary>Está na tela (ou entrando/saindo).</summary>
+</member>
+<member name="P:ToastUI.Toast.IsQueued">
+ <summary>Aguardando espaço na pilha (MaxVisible atingido).</summary>
+</member>
+<member name="M:ToastUI.Toast.Close">
+ <summary>Fecha (com animação) ou tira da fila.</summary>
+</member>
+<member name="M:ToastUI.Toast.RestartTimer">
+ <summary>Recomeça a contagem de tempo (ex.: ao atualizar o texto de uma notificação aberta).</summary>
+</member>
+<member name="T:ToastUI.ToastManager">
+ <summary>
+ Mostra e empilha as notificações. Use <see cref="P:ToastUI.ToastManager.Default"/> ou arraste um ToastManager para o form
+ (configure posição, tempo e tema no designer).
+ Pode chamar Show de qualquer thread depois que o gerenciador foi criado/usado pela thread da UI.
+ </summary>
+</member>
+<member name="E:ToastUI.ToastManager.ToastShown">
+ <summary>Uma notificação apareceu na tela.</summary>
+</member>
+<member name="E:ToastUI.ToastManager.ToastClicked">
+ <summary>Clique no corpo de qualquer notificação (dispara depois do Toast.Click).</summary>
+</member>
+<member name="E:ToastUI.ToastManager.ToastClosed">
+ <summary>Uma notificação foi fechada (e.Reason diz como).</summary>
+</member>
+<member name="P:ToastUI.ToastManager.Default">
+ <summary>Gerenciador compartilhado. Acesse a primeira vez pela thread da UI (ex.: no Form_Load).</summary>
+</member>
+<member name="P:ToastUI.ToastManager.OpenToasts">
+ <summary>Notificações na tela (da mais nova para a mais antiga).</summary>
+</member>
+<member name="M:ToastUI.ToastManager.Show(ToastUI.Toast)">
+ <summary>Mostra (ou põe na fila) uma notificação. Retorna a própria notificação para você poder fechar/alterar depois.</summary>
+</member>
+<member name="M:ToastUI.ToastManager.ShowMessage(System.String,System.String,System.Drawing.Image,System.Object)">
+ <summary>Notificação de pessoa/mensagem: avatar (foto ou iniciais do título).</summary>
+</member>
+<member name="M:ToastUI.ToastManager.CloseAll">
+ <summary>Fecha todas (com animação) e esvazia a fila.</summary>
+</member>
+<member name="M:ToastUI.ToastManager.RenderPreview(ToastUI.Toast,ToastUI.ToastTheme,System.Boolean,System.Double,System.String)">
+ <summary>Desenha uma notificação num Bitmap (com sombra), sem mostrar. Útil para pré-visualização/documentação.</summary>
+</member>
+<member name="M:ToastUI.ToastManager.RelayoutStack">
+ <summary>Recalcula as posições (as janelas deslizam até o novo lugar).</summary>
+</member>
+<member name="T:ToastUI.ToastLayout">
+ <summary>Medidas calculadas de uma notificação (coordenadas relativas ao cartão).</summary>
+</member>
+<member name="T:ToastUI.ToastRenderer">
+ <summary>Desenho das notificações com GDI+ (sem estado).</summary>
+</member>
+<member name="M:ToastUI.ToastRenderer.RenderStatic(ToastUI.Toast,ToastUI.ToastTheme,ToastUI.ToastLayout,System.Int32,System.Boolean,System.Boolean)">
+ <summary>Cartão (e sombra, se margin > 0) sem a barra de tempo. Bitmap ARGB do tamanho da janela.</summary>
+</member>
+<member name="M:ToastUI.ToastRenderer.DrawProgress(System.Drawing.Graphics,System.Drawing.Rectangle,System.Int32,System.Double,System.Drawing.Color,System.Single)">
+ <summary>Barra de tempo restante na base do cartão.</summary>
+</member>
+<member name="T:ToastUI.ToastTheme">
+ <summary>Cores, fontes e medidas das notificações. Alterar qualquer valor redesenha as abertas.</summary>
+</member>
+<member name="M:ToastUI.ToastTheme.FromSystem">
+ <summary>Claro ou escuro conforme a configuração "modo de app" do Windows 10/11 (claro se não der para ler).</summary>
+</member>
+<member name="M:ToastUI.ToastTheme.GetTypeColor(ToastUI.ToastType)">
+ <summary>Cor padrão do tipo (usada quando Toast.AccentColor está vazio).</summary>
+</member>
+<member name="T:ToastUI.ToastWindow">
+ <summary>
+ Janela de uma notificação: sem borda, sempre por cima, fora da barra de tarefas e do Alt+Tab,
+ e que não rouba o foco. No Windows usa layered window (alpha por pixel: cantos suaves e sombra).
+ </summary>
+</member>
+<member name="M:ToastUI.ToastWindow.Present">
+ <summary>Aplica posição/transparência atuais à janela (só se mudou algo).</summary>
+</member>
+<member name="M:ToastUI.ToastWindow.ShowToast(System.Boolean)">
+ <summary>Cria a janela e mostra sem ativar.</summary>
+</member>
+<member name="M:ToastUI.ToastWindow.StepFrame(System.Double,System.Boolean)">
+ <summary>Avança a animação. Retorna True quando terminou de sair (pode ser destruída).</summary>
+</member>
+</members>
+</doc>

@@ -596,6 +596,53 @@ Public Module modFunction
     End Sub
 
     Public Sub LoadCombo(ByVal oComboBox As CheckedComboBox, _
+                         ByVal oTabela As DataTable)
+
+        'Carrega a partir de uma tabela já montada (colunas codigo / descricao)
+        Try
+
+            With oComboBox
+
+                .DropDownDataSource = Nothing
+                Call ConfigurarDataCheckedComboBox(oComboBox)
+                .DropDownDataSource = oTabela
+                .DropDownDataMember = ""
+
+            End With
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Sub LoadComboLista(ByVal oComboBox As UIComboBox, ByVal sLista As String)
+
+        Try
+
+            'Lista fixa no formato "CODIGO=Descrição;CODIGO=Descrição"
+            Dim oTabela As New DataTable
+            oTabela.Columns.Add("codigo", GetType(String))
+            oTabela.Columns.Add("descricao", GetType(String))
+
+            For Each sItem As String In sLista.Split(";"c)
+                oTabela.Rows.Add(sItem.Split("="c)(0), sItem.Split("="c)(1))
+            Next
+
+            With oComboBox
+                .DataSource = oTabela
+                .ValueMember = "codigo"
+                .DisplayMember = "descricao"
+                .SelectedIndex = 0
+            End With
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Sub LoadCombo(ByVal oComboBox As CheckedComboBox, _
                          ByVal sProcedure As String)
 
         'Variaveis Locais
@@ -671,6 +718,37 @@ Public Module modFunction
                 Else
                     oComboBox.CheckedValues = oValores.ToArray
                 End If
+            End If
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Function PastaArquivosTemporarios() As String
+
+        'Pasta local onde os arquivos baixados do FTP são gravados antes de abrir
+        Dim sPasta As String = Path.Combine(Path.GetTempPath, "Documentacti")
+
+        Directory.CreateDirectory(sPasta)
+
+        Return sPasta
+
+    End Function
+
+    Public Sub AbrirArquivoLocal(ByVal sCaminho As String)
+
+        Try
+
+            'Arquivos executáveis/scripts não são abertos automaticamente
+            Dim sExtensoesBloqueadas As String = ".exe.bat.cmd.com.msi.scr.js.jse.vbs.vbe.ps1.lnk.jar.hta.reg.dll.wsf"
+
+            If sExtensoesBloqueadas.Contains(Path.GetExtension(sCaminho).ToLower) AndAlso Path.GetExtension(sCaminho) <> "" Then
+                MsgBox("Por segurança, este tipo de arquivo não é aberto automaticamente." & vbCrLf & "O arquivo foi salvo em:" & vbCrLf & sCaminho, MsgBoxStyle.Information, gAplicacao)
+                Process.Start("explorer.exe", "/select," & Chr(34) & sCaminho & Chr(34))
+            Else
+                Process.Start(sCaminho)
             End If
 
         Catch ex As Exception

@@ -1,4 +1,5 @@
 ﻿Imports Janus.Windows.UI.Tab
+Imports ToastUI
 
 Public Class frmMain
 
@@ -6,6 +7,14 @@ Public Class frmMain
 
     Private oClsConfigXML As New clsConfigXML
     Private WithEvents tmrInformacao As New System.Windows.Forms.Timer
+
+    'Notificações (ToastUI) das mensagens novas do chat dos chamados
+    Private WithEvents tmrNotificacao As New System.Windows.Forms.Timer
+    Private oToastManager As New ToastManager
+    Private oMensagensNotificadas As New HashSet(Of String)
+    Private oToastsChat As New Dictionary(Of String, Toast)
+    Private bNotificacaoIniciada As Boolean = False
+    Private Const gcIntervaloNotificacao As Integer = 30000 'milissegundos
 
 #End Region
 
@@ -20,6 +29,9 @@ Public Class frmMain
     Private Sub frmMain_FormClosing(ByVal sender As Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
 
         Try
+
+            tmrNotificacao.Stop()
+            oToastManager.CloseAll()
 
             If goUsuario.sUsuario <> "" Then
                 Dim oClsFrmLogin As New clsFrmLogin
@@ -51,6 +63,20 @@ Public Class frmMain
 
     End Sub
 
+    Private Sub tmrNotificacao_Tick(sender As Object, e As EventArgs) Handles tmrNotificacao.Tick
+
+        Try
+
+            Call VerificarNotificacoes()
+
+        Catch ex As Exception
+            'Falha de conexão: interrompe as notificações e avisa na barra de status (voltam ao trocar de usuário)
+            tmrNotificacao.Stop()
+            Informacao("Notificações do chat interrompidas: " & ex.Message, gColorInformacaoErro)
+        End Try
+
+    End Sub
+
     Private Sub tmrInformacao_Tick(sender As Object, e As EventArgs) Handles tmrInformacao.Tick
 
         tmrInformacao.Stop()
@@ -70,6 +96,54 @@ Public Class frmMain
 
     End Sub
 
+    Private Sub mnuEmpresas_Click(sender As Object, e As EventArgs) Handles mnuEmpresas.Click
+
+        Try
+
+            Call AbrirTela(New usrCadEmpresa, "Empresas")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub mnuUsuarios_Click(sender As Object, e As EventArgs) Handles mnuUsuarios.Click
+
+        Try
+
+            Call AbrirTela(New usrCadUsuario, "Usuários")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub mnuAvisos_Click(sender As Object, e As EventArgs) Handles mnuAvisos.Click
+
+        Try
+
+            Call AbrirTela(New usrCadAviso, "Avisos")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub mnuBaseConhecimento_Click(sender As Object, e As EventArgs) Handles mnuBaseConhecimento.Click
+
+        Try
+
+            Call AbrirTela(New usrCadBaseConhecimento, "Base de Conhecimento")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
     Private Sub mnuTrocarUsuario_Click(sender As Object, e As EventArgs) Handles mnuTrocarUsuario.Click
 
         Try
@@ -79,12 +153,19 @@ Public Class frmMain
             'Fecha telas abertas (exceto a principal)
             Call ClosePageButOne("pagPrincipal")
 
+            tmrNotificacao.Stop()
+            oToastManager.CloseAll()
+
             Dim oClsFrmLogin As New clsFrmLogin
             oClsFrmLogin.InsertLog("logout")
 
             goUsuario = Nothing
 
-            If Login() = False Then Me.Close()
+            If Login() = False Then
+                Me.Close()
+            Else
+                Call IniciarNotificacoes()
+            End If
 
         Catch ex As Exception
             Call TratamentoErro(ex.Message, Me.Text)
@@ -140,6 +221,8 @@ Public Class frmMain
             'Abre a tela de chamados
             Call AbrirTela(New usrAdmChamado, "Chamados")
 
+            Call IniciarNotificacoes()
+
         Catch ex As Exception
             MsgBox(ex.Message, MsgBoxStyle.Critical, gAplicacao)
             End
@@ -190,6 +273,154 @@ Public Class frmMain
         End Try
 
     End Sub
+
+#Region "::: NOTIFICAÇÕES :::"
+
+    Private Sub IniciarNotificacoes()
+
+        Try
+
+            oMensagensNotificadas.Clear()
+            oToastsChat.Clear()
+            bNotificacaoIniciada = False
+
+            oToastManager.AppCaption = "Documentacti"
+            oToastManager.MaxVisible = 4
+
+            Call VerificarNotificacoes()
+
+            tmrNotificacao.Interval = gcIntervaloNotificacao
+            tmrNotificacao.Start()
+
+        Catch ex As Exception
+            Informacao("Notificações do chat indisponíveis: " & ex.Message, gColorInformacaoErro)
+        End Try
+
+    End Sub
+
+    Private Sub VerificarNotificacoes()
+
+        Try
+
+            Dim oClsUsrAdmChamado As New clsUsrAdmChamado
+            Dim oTabela As DataTable = oClsUsrAdmChamado.LoadChatNotificacao()
+            Dim oNovas As New List(Of DataRow)
+
+            For Each oRow As DataRow In oTabela.Rows
+                Dim sChave As String = oRow.Item("codigo_atividade") & "|" & oRow.Item("canal") & "|" & oRow.Item("codigo_mensagem")
+                If oMensagensNotificadas.Add(sChave) AndAlso bNotificacaoIniciada Then oNovas.Add(oRow)
+            Next
+
+            'Primeira consulta após o login: somente um resumo do que já estava pendente
+            If bNotificacaoIniciada = False Then
+
+                bNotificacaoIniciada = True
+
+                If oTabela.Rows.Count > 0 Then
+                    Dim iChamados As Integer = oTabela.DefaultView.ToTable(True, "codigo_atividade").Rows.Count
+                    Dim oToast As New Toast("Mensagens não lidas", _
+                                            oTabela.Rows.Count & " mensagem(ns) não lida(s) no chat de " & iChamados & " chamado(s).", _
+                                            ToastType.Info) With {.Caption = "Chat dos chamados", .Duration = 8000}
+                    If iChamados = 1 Then
+                        Dim lChamado As Long = CLng(oTabela.Rows(0).Item("codigo_atividade"))
+                        Dim iCanal As Integer = CInt(oTabela.Rows(0).Item("canal"))
+                        AddHandler oToast.Click, Sub(s, a) AbrirChatChamado(lChamado, iCanal)
+                    End If
+                    oToastManager.Show(oToast)
+                End If
+
+                Exit Sub
+
+            End If
+
+            For Each oRow As DataRow In oNovas
+                Call NotificarMensagem(oRow)
+            Next
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub NotificarMensagem(ByVal oRow As DataRow)
+
+        Try
+
+            Dim lChamado As Long = CLng(oRow.Item("codigo_atividade"))
+            Dim iCanal As Integer = CInt(oRow.Item("canal"))
+
+            'Conversa já está na tela: não notifica
+            If ChatVisivel(lChamado, iCanal) Then Exit Sub
+
+            Dim sChave As String = lChamado & "|" & iCanal
+            Dim sTexto As String = oRow.Item("mensagem").ToString
+            If sTexto.Trim = "" Then sTexto = "Arquivo: " & oRow.Item("nome_arquivo").ToString
+            Dim sCaption As String = "Chamado #" & lChamado & IIf(iCanal = 2, "  ·  Chat DEV", "  ·  Chat").ToString
+
+            'Uma notificação por conversa: mensagens seguidas atualizam a mesma
+            Dim oToast As Toast = Nothing
+            If oToastsChat.TryGetValue(sChave, oToast) AndAlso oToast.IsOpen Then
+                oToast.Title = oRow.Item("nome_usuario").ToString
+                oToast.Message = sTexto
+                oToast.Caption = sCaption
+                oToast.RestartTimer()
+                Exit Sub
+            End If
+
+            oToast = New Toast(oRow.Item("nome_usuario").ToString, sTexto, ToastType.Message) With {.Caption = sCaption, .Duration = 8000}
+            AddHandler oToast.Click, Sub(s, a) AbrirChatChamado(lChamado, iCanal)
+
+            oToastsChat(sChave) = oToast
+            oToastManager.Show(oToast)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Function TelaChamados() As usrAdmChamado
+
+        If tabMain.TabPages.Contains("usrAdmChamado") = False Then Return Nothing
+
+        For Each oControl As Control In tabMain.TabPages("usrAdmChamado").Controls
+            If TypeOf oControl Is usrAdmChamado Then Return CType(oControl, usrAdmChamado)
+        Next
+
+        Return Nothing
+
+    End Function
+
+    Private Function ChatVisivel(ByVal lChamado As Long, ByVal iCanal As Integer) As Boolean
+
+        Dim oTela As usrAdmChamado = TelaChamados()
+
+        Return Not IsNothing(oTela) AndAlso Form.ActiveForm Is Me AndAlso WindowState <> FormWindowState.Minimized AndAlso _
+               tabMain.SelectedTab Is tabMain.TabPages("usrAdmChamado") AndAlso oTela.ChatVisivel(lChamado, iCanal)
+
+    End Function
+
+    Private Sub AbrirChatChamado(ByVal lChamado As Long, ByVal iCanal As Integer)
+
+        'Clique na notificação: traz o sistema para frente e abre o chamado na aba do chat
+        Try
+
+            If WindowState = FormWindowState.Minimized Then WindowState = FormWindowState.Maximized
+            Activate()
+
+            Call AbrirTela(New usrAdmChamado, "Chamados")
+
+            Dim oTela As usrAdmChamado = TelaChamados()
+            If Not IsNothing(oTela) Then oTela.AbrirChat(lChamado, iCanal)
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+#End Region
 
     Public Sub LoadPage(ByVal pStrName As String, ByVal pStrText As String, ByVal pUsrControl As UserControl)
 
