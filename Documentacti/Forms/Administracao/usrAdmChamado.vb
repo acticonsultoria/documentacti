@@ -1258,32 +1258,6 @@ Public Class usrAdmChamado
 
 #Region "::: RELATÓRIO :::"
 
-    Private Sub LoadComboLista(ByVal oComboBox As UIComboBox, ByVal sLista As String)
-
-        Try
-
-            'Lista fixa no formato "CODIGO=Descrição;CODIGO=Descrição"
-            Dim oTabela As New DataTable
-            oTabela.Columns.Add("codigo", GetType(String))
-            oTabela.Columns.Add("descricao", GetType(String))
-
-            For Each sItem As String In sLista.Split(";"c)
-                oTabela.Rows.Add(sItem.Split("="c)(0), sItem.Split("="c)(1))
-            Next
-
-            With oComboBox
-                .DataSource = oTabela
-                .ValueMember = "codigo"
-                .DisplayMember = "descricao"
-                .SelectedIndex = 0
-            End With
-
-        Catch ex As Exception
-            Throw ex
-        End Try
-
-    End Sub
-
     Private Sub LoadRelatorio()
 
         Try

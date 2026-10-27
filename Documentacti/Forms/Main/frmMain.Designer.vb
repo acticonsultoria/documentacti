@@ -43,6 +43,11 @@ Partial Class frmMain
         Me.picImage = New System.Windows.Forms.PictureBox()
         Me.mnuMain = New System.Windows.Forms.MenuStrip()
         Me.mnuChamados = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuCadastros = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuEmpresas = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuUsuarios = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuAvisos = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuBaseConhecimento = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuTrocarUsuario = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuAlterarSenha = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuSair = New System.Windows.Forms.ToolStripMenuItem()
@@ -195,7 +200,7 @@ Partial Class frmMain
         Me.mnuMain.BackColor = System.Drawing.Color.Transparent
         Me.mnuMain.Dock = System.Windows.Forms.DockStyle.None
         Me.mnuMain.GripMargin = New System.Windows.Forms.Padding(6, 2, 0, 6)
-        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuSair})
+        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuCadastros, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuSair})
         Me.mnuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow
         Me.mnuMain.Location = New System.Drawing.Point(7, 8)
         Me.mnuMain.Name = "mnuMain"
@@ -209,6 +214,41 @@ Partial Class frmMain
         Me.mnuChamados.Size = New System.Drawing.Size(150, 20)
         Me.mnuChamados.Tag = "usrAdmChamado"
         Me.mnuChamados.Text = "Chamados / Apontamentos"
+        '
+        'mnuCadastros
+        '
+        Me.mnuCadastros.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuEmpresas, Me.mnuUsuarios, Me.mnuAvisos, Me.mnuBaseConhecimento})
+        Me.mnuCadastros.Name = "mnuCadastros"
+        Me.mnuCadastros.Size = New System.Drawing.Size(71, 20)
+        Me.mnuCadastros.Text = "Cadastros"
+        '
+        'mnuEmpresas
+        '
+        Me.mnuEmpresas.Name = "mnuEmpresas"
+        Me.mnuEmpresas.Size = New System.Drawing.Size(180, 22)
+        Me.mnuEmpresas.Tag = "usrCadEmpresa"
+        Me.mnuEmpresas.Text = "Empresas"
+        '
+        'mnuUsuarios
+        '
+        Me.mnuUsuarios.Name = "mnuUsuarios"
+        Me.mnuUsuarios.Size = New System.Drawing.Size(180, 22)
+        Me.mnuUsuarios.Tag = "usrCadUsuario"
+        Me.mnuUsuarios.Text = "Usuários"
+        '
+        'mnuAvisos
+        '
+        Me.mnuAvisos.Name = "mnuAvisos"
+        Me.mnuAvisos.Size = New System.Drawing.Size(180, 22)
+        Me.mnuAvisos.Tag = "usrCadAviso"
+        Me.mnuAvisos.Text = "Avisos"
+        '
+        'mnuBaseConhecimento
+        '
+        Me.mnuBaseConhecimento.Name = "mnuBaseConhecimento"
+        Me.mnuBaseConhecimento.Size = New System.Drawing.Size(180, 22)
+        Me.mnuBaseConhecimento.Tag = "usrCadBaseConhecimento"
+        Me.mnuBaseConhecimento.Text = "Base de Conhecimento"
         '
         'mnuTrocarUsuario
         '
@@ -264,6 +304,11 @@ Partial Class frmMain
     Friend WithEvents picImage As System.Windows.Forms.PictureBox
     Friend WithEvents mnuMain As System.Windows.Forms.MenuStrip
     Friend WithEvents mnuChamados As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuCadastros As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuEmpresas As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuUsuarios As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuAvisos As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuBaseConhecimento As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuTrocarUsuario As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuAlterarSenha As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuSair As System.Windows.Forms.ToolStripMenuItem

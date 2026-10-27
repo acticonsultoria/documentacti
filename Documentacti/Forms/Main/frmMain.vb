@@ -70,6 +70,54 @@ Public Class frmMain
 
     End Sub
 
+    Private Sub mnuEmpresas_Click(sender As Object, e As EventArgs) Handles mnuEmpresas.Click
+
+        Try
+
+            Call AbrirTela(New usrCadEmpresa, "Empresas")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub mnuUsuarios_Click(sender As Object, e As EventArgs) Handles mnuUsuarios.Click
+
+        Try
+
+            Call AbrirTela(New usrCadUsuario, "Usuários")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub mnuAvisos_Click(sender As Object, e As EventArgs) Handles mnuAvisos.Click
+
+        Try
+
+            Call AbrirTela(New usrCadAviso, "Avisos")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub mnuBaseConhecimento_Click(sender As Object, e As EventArgs) Handles mnuBaseConhecimento.Click
+
+        Try
+
+            Call AbrirTela(New usrCadBaseConhecimento, "Base de Conhecimento")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
     Private Sub mnuTrocarUsuario_Click(sender As Object, e As EventArgs) Handles mnuTrocarUsuario.Click
 
         Try

@@ -109,6 +109,10 @@
     <Compile Include="Class\Forms\Main\clsFrmLogin.vb" />
     <Compile Include="Class\Function\clsConfigXML.vb" />
     <Compile Include="Class\Function\clsFtp.vb" />
+    <Compile Include="Class\Forms\Cadastro\clsUsrCadEmpresa.vb" />
+    <Compile Include="Class\Forms\Cadastro\clsUsrCadUsuario.vb" />
+    <Compile Include="Class\Forms\Cadastro\clsUsrCadAviso.vb" />
+    <Compile Include="Class\Forms\Cadastro\clsUsrCadBaseConhecimento.vb" />
     <Compile Include="Forms\Administracao\frmAdmChamadoComentario.Designer.vb">
       <DependentUpon>frmAdmChamadoComentario.vb</DependentUpon>
     </Compile>
@@ -119,6 +123,30 @@
       <DependentUpon>usrAdmChamado.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\Administracao\usrAdmChamado.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Cadastro\usrCadAviso.Designer.vb">
+      <DependentUpon>usrCadAviso.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Cadastro\usrCadAviso.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Cadastro\usrCadBaseConhecimento.Designer.vb">
+      <DependentUpon>usrCadBaseConhecimento.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Cadastro\usrCadBaseConhecimento.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Cadastro\usrCadEmpresa.Designer.vb">
+      <DependentUpon>usrCadEmpresa.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Cadastro\usrCadEmpresa.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Cadastro\usrCadUsuario.Designer.vb">
+      <DependentUpon>usrCadUsuario.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Cadastro\usrCadUsuario.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Forms\Main\frmAlterarSenha.Designer.vb">
@@ -163,6 +191,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Administracao\usrAdmChamado.resx">
       <DependentUpon>usrAdmChamado.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Cadastro\usrCadAviso.resx">
+      <DependentUpon>usrCadAviso.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Cadastro\usrCadBaseConhecimento.resx">
+      <DependentUpon>usrCadBaseConhecimento.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Cadastro\usrCadEmpresa.resx">
+      <DependentUpon>usrCadEmpresa.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Cadastro\usrCadUsuario.resx">
+      <DependentUpon>usrCadUsuario.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Main\frmAlterarSenha.resx">
       <DependentUpon>frmAlterarSenha.vb</DependentUpon>
