@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <!--
-  Copie este arquivo para Config.xml (na pasta XmlConfig ao lado do executável) e informe a conexão.
+  Copie este arquivo para Config.xml (na pasta XmlConfig ao lado do executável).
+  Usado SOMENTE em Debug (testes em base local / FTP de testes). Em Release o banco e o FTP vêm
+  compilados no executável (Module\modConexao.vb) e este arquivo não é lido.
   O Config.xml contém credenciais: NÃO versionar.
 -->
 <Documentacti>

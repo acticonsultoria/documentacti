@@ -1,7 +1,8 @@
 ﻿'===============================================================================================
 'Classe:        clsConfigXML
-'Objetivo:      Leitura do arquivo de configuração XmlConfig\Config.xml (padrão do INTERACTI)
-'               O Config.xml fica somente na pasta do executável e não é versionado.
+'Objetivo:      Acesso ao banco e ao FTP (constantes do modConexao, compiladas no executável)
+'               Em Debug, o XmlConfig\Config.xml (se existir) tem prioridade, para testes em base local.
+'               Em Release o Config.xml não é lido.
 '===============================================================================================
 Imports System.Xml
 Imports System.IO
@@ -23,25 +24,37 @@ Public Class clsConfigXML
             'Seta Retorno da Função
             LoadXML = False
 
-            'Verifica se existe o arquivo de configuração
-            If File.Exists(ArquivoConfiguracao) = False Then
-                MsgBox("Arquivo de configuração não encontrado: " & ArquivoConfiguracao() & vbCrLf & vbCrLf & _
-                       "Copie o arquivo XmlConfig\Config.exemplo.xml para XmlConfig\Config.xml e informe a conexão com o MySQL.", _
-                       MsgBoxStyle.Exclamation, gAplicacao)
+            'Acesso compilado no executável (modConexao)
+            Dim sConexao As String = gcConexaoBanco
+            Dim sCaminhoFtp As String = gcFtpCaminho
+            Dim sUsuarioFtp As String = gcFtpUsuario
+            Dim sSenhaFtp As String = gcFtpSenha
+
+#If DEBUG Then
+            'Debug: o Config.xml, se existir, aponta para uma base/FTP de testes
+            If File.Exists(ArquivoConfiguracao) Then
+
+                Dim oXmlDocument As New XmlDocument
+                oXmlDocument.Load(ArquivoConfiguracao)
+
+                If LerNo(oXmlDocument, "Documentacti/ConfigDatabase/StringConnection") <> "" Then sConexao = LerNo(oXmlDocument, "Documentacti/ConfigDatabase/StringConnection")
+
+                If LerNo(oXmlDocument, "Documentacti/Ftp/Caminho") <> "" Then
+                    sCaminhoFtp = LerNo(oXmlDocument, "Documentacti/Ftp/Caminho")
+                    sUsuarioFtp = LerNo(oXmlDocument, "Documentacti/Ftp/Usuario")
+                    sSenhaFtp = LerNo(oXmlDocument, "Documentacti/Ftp/Senha")
+                End If
+
+            End If
+#End If
+
+            If sConexao.Trim = "" Then
+                MsgBox("Esta versão do " & gAplicacao & " foi compilada sem a conexão com o banco de dados." & vbCrLf & _
+                       "Procure o suporte da ACTi.", MsgBoxStyle.Critical, gAplicacao)
                 Exit Function
             End If
 
-            Dim oXmlDocument As New XmlDocument
-            oXmlDocument.Load(ArquivoConfiguracao)
-
-            Dim oNode As XmlNode = oXmlDocument.SelectSingleNode("Documentacti/ConfigDatabase/StringConnection")
-
-            If IsNothing(oNode) OrElse oNode.InnerText.Trim = "" Then
-                MsgBox("A tag Documentacti/ConfigDatabase/StringConnection não foi informada no arquivo de configuração.", MsgBoxStyle.Exclamation, gAplicacao)
-                Exit Function
-            End If
-
-            goDatabase.sConnection = oNode.InnerText.Trim
+            goDatabase.sConnection = sConexao.Trim
 
             'Dados exibidos na barra de status (sem senha)
             Dim oBuilder As New MySql.Data.MySqlClient.MySqlConnectionStringBuilder(goDatabase.sConnection)
@@ -49,12 +62,10 @@ Public Class clsConfigXML
             goDatabase.sDatabase = oBuilder.Database
 
             'FTP dos anexos (opcional: sem ele a aba Arquivos fica indisponível para upload/download)
-            Dim sCaminhoFtp As String = LerNo(oXmlDocument, "Documentacti/Ftp/Caminho")
-
-            If sCaminhoFtp <> "" Then
-                goFtp.sCaminho = sCaminhoFtp & IIf(sCaminhoFtp.EndsWith("/"), "", "/")
-                goFtp.sUsuario = LerNo(oXmlDocument, "Documentacti/Ftp/Usuario")
-                goFtp.sSenha = LerNo(oXmlDocument, "Documentacti/Ftp/Senha")
+            If sCaminhoFtp.Trim <> "" Then
+                goFtp.sCaminho = sCaminhoFtp.Trim & IIf(sCaminhoFtp.Trim.EndsWith("/"), "", "/")
+                goFtp.sUsuario = sUsuarioFtp
+                goFtp.sSenha = sSenhaFtp
             End If
 
             'Seta Retorno da Função

@@ -5,3 +5,5 @@ obj/
 *.user
 # Configuração local com credenciais
 Documentacti/XmlConfig/Config.xml
+# Acesso ao banco e ao FTP compilados no executável (contém senhas)
+Documentacti/Module/modConexao.vb

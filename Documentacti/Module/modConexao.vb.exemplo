@@ -1,0 +1,17 @@
+﻿'===============================================================================================
+'Módulo:        modConexao
+'Objetivo:      Acesso ao banco MySQL e ao FTP dos anexos, compilados dentro do executável
+'               (o usuário final não recebe Config.xml com essas informações).
+'               MODELO: copie para Module\modConexao.vb (fora do git) e preencha os valores reais.
+'===============================================================================================
+Public Module modConexao
+
+    'Banco de dados (MySQL)
+    Public Const gcConexaoBanco As String = "Server=SERVIDOR;Port=3306;Database=BASE;Uid=USUARIO;Pwd=SENHA;CharSet=utf8mb4;Convert Zero Datetime=true;"
+
+    'FTP dos anexos (FTP sobre TLS). Caminho com barra final.
+    Public Const gcFtpCaminho As String = "ftp://SERVIDOR/CAMINHO/DOS/ANEXOS/"
+    Public Const gcFtpUsuario As String = "USUARIO"
+    Public Const gcFtpSenha As String = "SENHA"
+
+End Module

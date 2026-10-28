@@ -119,6 +119,7 @@
     <Compile Include="Class\Forms\Main\clsFrmLogin.vb" />
     <Compile Include="Class\Forms\Main\clsFrmConfiguracao.vb" />
     <Compile Include="Class\Function\clsConfigXML.vb" />
+    <Compile Include="Class\Function\clsDllEmbutida.vb" />
     <Compile Include="Class\Function\clsFtp.vb" />
     <Compile Include="Class\Forms\Cadastro\clsUsrCadEmpresa.vb" />
     <Compile Include="Class\Forms\Cadastro\clsUsrCadUsuario.vb" />
@@ -184,6 +185,7 @@
     <Compile Include="Forms\Main\frmMain.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Module\modConexao.vb" />
     <Compile Include="Module\modDeclaration.vb" />
     <Compile Include="Module\modFunction.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -274,6 +276,39 @@
     <None Include="Resources\run.png" />
     <None Include="Resources\salvar.bmp" />
     <None Include="Resources\seta_esquerda.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- DLLs embutidas no executável (carregadas por clsDllEmbutida): distribuir somente o .exe -->
+    <EmbeddedResource Include="Lib\BCrypt.Net-Next.dll">
+      <LogicalName>Documentacti.Lib.BCrypt.Net-Next.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lib\ChatUI.dll">
+      <LogicalName>Documentacti.Lib.ChatUI.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lib\DundasWinChart.dll">
+      <LogicalName>Documentacti.Lib.DundasWinChart.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lib\Janus.Data.v3.dll">
+      <LogicalName>Documentacti.Lib.Janus.Data.v3.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lib\Janus.Windows.CalendarCombo.v3.dll">
+      <LogicalName>Documentacti.Lib.Janus.Windows.CalendarCombo.v3.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lib\Janus.Windows.Common.v3.dll">
+      <LogicalName>Documentacti.Lib.Janus.Windows.Common.v3.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lib\Janus.Windows.GridEX.v3.dll">
+      <LogicalName>Documentacti.Lib.Janus.Windows.GridEX.v3.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lib\Janus.Windows.UI.v3.dll">
+      <LogicalName>Documentacti.Lib.Janus.Windows.UI.v3.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lib\MySql.Data.dll">
+      <LogicalName>Documentacti.Lib.MySql.Data.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lib\ToastUI.dll">
+      <LogicalName>Documentacti.Lib.ToastUI.dll</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

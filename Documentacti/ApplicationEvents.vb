@@ -6,6 +6,13 @@
     ' UnhandledException: Raised if the application encounters an unhandled exception.
     Partial Friend Class MyApplication
 
+        Shared Sub New()
+
+            'DLLs do Lib embutidas no executável: precisa vir antes de qualquer tela (Janus/Dundas)
+            Documentacti.clsDllEmbutida.Registrar()
+
+        End Sub
+
         Private Sub MyApplication_UnhandledException(sender As Object, e As ApplicationServices.UnhandledExceptionEventArgs) Handles Me.UnhandledException
 
             Try
