@@ -373,6 +373,34 @@ Public Class usrAdmChamado
 
     End Sub
 
+    Private Sub chtChat_RefreshRequested(sender As Object, e As ChatConversationEventArgs) Handles chtChat.RefreshRequested, chtChatDev.RefreshRequested
+
+        'Atualização manual (sem conexão em tempo real): mesma busca do Timer, na hora
+        If bAtualizandoChat OrElse lChamadoChat = 0 Then Exit Sub
+
+        bAtualizandoChat = True
+
+        Try
+
+            Cursor.Current = Cursors.WaitCursor
+
+            Call AtualizarChat()
+
+            'Volta a atualização automática, caso tenha sido interrompida por falha de conexão
+            tmrChat.Start()
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Chat atualizado.", Color.Blue)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        Finally
+            bAtualizandoChat = False
+        End Try
+
+    End Sub
+
     Private Sub chtChat_ImagePasted(sender As Object, e As ChatImageEventArgs) Handles chtChat.ImagePasted, chtChatDev.ImagePasted
 
         Try

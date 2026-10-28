@@ -23,6 +23,9 @@ ChatUI
 <member name="E:ChatUI.ChatBox.AttachRequested">
  <summary>Botão de anexo. Padrão (Handled = False): abre um OpenFileDialog e envia os arquivos.</summary>
 </member>
+<member name="E:ChatUI.ChatBox.RefreshRequested">
+ <summary>Botão de atualizar (ShowRefreshButton): o sistema busca as mensagens novas da conversa.</summary>
+</member>
 <member name="E:ChatUI.ChatBox.FilesDropped">
  <summary>Arquivos arrastados para o chat. Padrão (Handled = False): envia cada arquivo.</summary>
 </member>
@@ -62,6 +65,9 @@ ChatUI
 <member name="E:ChatUI.ChatComposer.AttachRequested">
  <summary>Clique no botão de anexo.</summary>
 </member>
+<member name="E:ChatUI.ChatComposer.RefreshRequested">
+ <summary>Clique no botão de atualizar (busca manual de mensagens novas, para quem não usa conexão em tempo real).</summary>
+</member>
 <member name="E:ChatUI.ChatComposer.ImagePasted">
  <summary>Ctrl+V com uma imagem na área de transferência.</summary>
 </member>
@@ -73,6 +79,9 @@ ChatUI
 </member>
 <member name="M:ChatUI.ChatComposer.Send">
  <summary>Dispara SendRequested com o texto atual (se não estiver vazio).</summary>
+</member>
+<member name="M:ChatUI.ChatComposer.DrawRefreshGlyph(System.Drawing.Graphics,System.Drawing.Rectangle,System.Drawing.Color)">
+ <summary>Seta circular (atualizar).</summary>
 </member>
 <member name="T:ChatUI.ChatHitArea">
  <summary>Parte do balão que foi clicada.</summary>

@@ -50,6 +50,7 @@ Partial Class frmMain
         Me.mnuBaseConhecimento = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuTrocarUsuario = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuAlterarSenha = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuConfiguracao = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuSair = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.errInfo, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.errMsg, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -200,7 +201,7 @@ Partial Class frmMain
         Me.mnuMain.BackColor = System.Drawing.Color.Transparent
         Me.mnuMain.Dock = System.Windows.Forms.DockStyle.None
         Me.mnuMain.GripMargin = New System.Windows.Forms.Padding(6, 2, 0, 6)
-        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuCadastros, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuSair})
+        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuCadastros, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuConfiguracao, Me.mnuSair})
         Me.mnuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow
         Me.mnuMain.Location = New System.Drawing.Point(7, 8)
         Me.mnuMain.Name = "mnuMain"
@@ -262,6 +263,12 @@ Partial Class frmMain
         Me.mnuAlterarSenha.Size = New System.Drawing.Size(100, 20)
         Me.mnuAlterarSenha.Text = "Alterar Senha"
         '
+        'mnuConfiguracao
+        '
+        Me.mnuConfiguracao.Name = "mnuConfiguracao"
+        Me.mnuConfiguracao.Size = New System.Drawing.Size(96, 20)
+        Me.mnuConfiguracao.Text = "Configurações"
+        '
         'mnuSair
         '
         Me.mnuSair.Name = "mnuSair"
@@ -311,6 +318,7 @@ Partial Class frmMain
     Friend WithEvents mnuBaseConhecimento As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuTrocarUsuario As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuAlterarSenha As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuConfiguracao As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuSair As System.Windows.Forms.ToolStripMenuItem
 
 End Class

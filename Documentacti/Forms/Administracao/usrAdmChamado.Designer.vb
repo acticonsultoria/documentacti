@@ -1100,6 +1100,7 @@ Partial Class usrAdmChamado
         Me.chtChat.Location = New System.Drawing.Point(0, 0)
         Me.chtChat.Name = "chtChat"
         Me.chtChat.ShowHeader = False
+        Me.chtChat.ShowRefreshButton = True
         Me.chtChat.Size = New System.Drawing.Size(1180, 210)
         Me.chtChat.TabIndex = 0
         '
@@ -1119,6 +1120,7 @@ Partial Class usrAdmChamado
         Me.chtChatDev.Location = New System.Drawing.Point(0, 0)
         Me.chtChatDev.Name = "chtChatDev"
         Me.chtChatDev.ShowHeader = False
+        Me.chtChatDev.ShowRefreshButton = True
         Me.chtChatDev.Size = New System.Drawing.Size(1180, 210)
         Me.chtChatDev.TabIndex = 0
         '

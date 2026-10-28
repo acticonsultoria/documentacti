@@ -14,6 +14,7 @@ Public Class frmMain
     Private oMensagensNotificadas As New HashSet(Of String)
     Private oToastsChat As New Dictionary(Of String, Toast)
     Private bNotificacaoIniciada As Boolean = False
+    Private bSilenciarNotificacao As Boolean = False
     Private Const gcIntervaloNotificacao As Integer = 30000 'milissegundos
 
 #End Region
@@ -173,6 +174,19 @@ Public Class frmMain
 
     End Sub
 
+    Private Sub mnuConfiguracao_Click(sender As Object, e As EventArgs) Handles mnuConfiguracao.Click
+
+        Try
+
+            Dim oForm As New frmConfiguracao
+            oForm.ShowDialog(Me)
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
     Private Sub mnuAlterarSenha_Click(sender As Object, e As EventArgs) Handles mnuAlterarSenha.Click
 
         Try
@@ -287,6 +301,10 @@ Public Class frmMain
             oToastManager.AppCaption = "Documentacti"
             oToastManager.MaxVisible = 4
 
+            'Preferência do usuário (Configurações): silenciar as notificações
+            Dim oClsConfiguracao As New clsFrmConfiguracao
+            bSilenciarNotificacao = oClsConfiguracao.SilenciarNotificacao()
+
             Call VerificarNotificacoes()
 
             tmrNotificacao.Interval = gcIntervaloNotificacao
@@ -316,7 +334,7 @@ Public Class frmMain
 
                 bNotificacaoIniciada = True
 
-                If oTabela.Rows.Count > 0 Then
+                If oTabela.Rows.Count > 0 AndAlso bSilenciarNotificacao = False Then
                     Dim iChamados As Integer = oTabela.DefaultView.ToTable(True, "codigo_atividade").Rows.Count
                     Dim oToast As New Toast("Mensagens não lidas", _
                                             oTabela.Rows.Count & " mensagem(ns) não lida(s) no chat de " & iChamados & " chamado(s).", _
@@ -332,6 +350,9 @@ Public Class frmMain
                 Exit Sub
 
             End If
+
+            'Silenciado: as mensagens continuam sendo registradas como avisadas (não acumulam para depois)
+            If bSilenciarNotificacao Then Exit Sub
 
             For Each oRow As DataRow In oNovas
                 Call NotificarMensagem(oRow)
@@ -377,6 +398,15 @@ Public Class frmMain
         Catch ex As Exception
             Throw ex
         End Try
+
+    End Sub
+
+    Public Sub DefinirSilenciarNotificacao(ByVal bSilenciar As Boolean)
+
+        'Chamado pela tela de Configurações ao salvar
+        bSilenciarNotificacao = bSilenciar
+
+        If bSilenciar Then oToastManager.CloseAll()
 
     End Sub
 
