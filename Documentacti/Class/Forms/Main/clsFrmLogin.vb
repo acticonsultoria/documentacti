@@ -67,6 +67,7 @@ Public Class clsFrmLogin
                 goUsuario.sEmail = .Item("email").ToString
                 goUsuario.bAdmin = (CInt(.Item("admin")) = 1)
                 goUsuario.bInterno = True 'a proc só autentica usuário interno
+                goUsuario.iTime = CInt(.Item("time_empresa"))
 
             End With
 

@@ -56,6 +56,8 @@ Partial Class usrCadUsuario
         Me.txtSenha = New Janus.Windows.GridEX.EditControls.EditBox()
         Me.lblConfirmarSenha = New System.Windows.Forms.Label()
         Me.txtConfirmarSenha = New Janus.Windows.GridEX.EditControls.EditBox()
+        Me.lblTime = New System.Windows.Forms.Label()
+        Me.cboTime = New Janus.Windows.EditControls.UIComboBox()
         Me.lblSenhaInfo = New System.Windows.Forms.Label()
         Me.grpControl2 = New Janus.Windows.EditControls.UIGroupBox()
         Me.btnNovo1 = New Janus.Windows.EditControls.UIButton()
@@ -295,6 +297,8 @@ Partial Class usrCadUsuario
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpDados.BackColor = System.Drawing.Color.Transparent
         Me.grpDados.Controls.Add(Me.lblSenhaInfo)
+        Me.grpDados.Controls.Add(Me.cboTime)
+        Me.grpDados.Controls.Add(Me.lblTime)
         Me.grpDados.Controls.Add(Me.txtConfirmarSenha)
         Me.grpDados.Controls.Add(Me.lblConfirmarSenha)
         Me.grpDados.Controls.Add(Me.txtSenha)
@@ -426,6 +430,26 @@ Partial Class usrCadUsuario
         Me.txtConfirmarSenha.Size = New System.Drawing.Size(220, 20)
         Me.txtConfirmarSenha.TabIndex = 11
         '
+        'lblTime
+        '
+        Me.lblTime.AutoSize = True
+        Me.lblTime.BackColor = System.Drawing.Color.Transparent
+        Me.lblTime.Location = New System.Drawing.Point(638, 54)
+        Me.lblTime.Name = "lblTime"
+        Me.lblTime.TabIndex = 12
+        Me.lblTime.Text = "Time:"
+        '
+        'cboTime
+        '
+        Me.cboTime.AutoSize = False
+        Me.cboTime.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboTime.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
+        Me.cboTime.Location = New System.Drawing.Point(641, 70)
+        Me.cboTime.Name = "cboTime"
+        Me.cboTime.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboTime.Size = New System.Drawing.Size(340, 20)
+        Me.cboTime.TabIndex = 13
+        '
         'lblSenhaInfo
         '
         Me.lblSenhaInfo.AutoSize = True
@@ -433,7 +457,7 @@ Partial Class usrCadUsuario
         Me.lblSenhaInfo.ForeColor = System.Drawing.Color.Blue
         Me.lblSenhaInfo.Location = New System.Drawing.Point(461, 73)
         Me.lblSenhaInfo.Name = "lblSenhaInfo"
-        Me.lblSenhaInfo.TabIndex = 12
+        Me.lblSenhaInfo.TabIndex = 14
         Me.lblSenhaInfo.Text = "Em branco mantém a senha atual."
         '
         'grpControl2
@@ -585,6 +609,8 @@ Partial Class usrCadUsuario
     Friend WithEvents txtSenha As Janus.Windows.GridEX.EditControls.EditBox
     Friend WithEvents lblConfirmarSenha As System.Windows.Forms.Label
     Friend WithEvents txtConfirmarSenha As Janus.Windows.GridEX.EditControls.EditBox
+    Friend WithEvents lblTime As System.Windows.Forms.Label
+    Friend WithEvents cboTime As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblSenhaInfo As System.Windows.Forms.Label
     Friend WithEvents grpControl2 As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents btnNovo1 As Janus.Windows.EditControls.UIButton

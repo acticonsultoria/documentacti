@@ -170,6 +170,14 @@ Public Class usrCadUsuario
             Call LoadComboLista(cboAtivoFiltro, "-1=TODOS;1=SIM;0=NÃO")
             Call LoadCombo(cboEmpresa, "sp_select_combo_administracao_chamado_empresa")
 
+            'Time do usuário (mesmos times do cadastro de empresa) + opção sem time
+            Call LoadCombo(cboTime, "sp_select_combo_tipo_time_empresa")
+            Dim oTimes As DataTable = CType(cboTime.DataSource, DataTable)
+            Dim oSemTime As DataRow = oTimes.NewRow
+            oSemTime.Item("codigo") = 0
+            oSemTime.Item("descricao") = "SEM TIME"
+            oTimes.Rows.InsertAt(oSemTime, 0)
+
             tabMain.TabPages.Remove(pagDados)
 
             Call ConfiguraGrid(grdListagem)
@@ -246,6 +254,7 @@ Public Class usrCadUsuario
             cboEmpresa.SelectedValue = goUsuario.iEmpresa
             chkAdmin.Checked = False
             chkAtivo.Checked = True
+            cboTime.SelectedValue = 0
             txtSenha.Text = ""
             txtConfirmarSenha.Text = ""
             sSenhaWebAtual = ""
@@ -284,6 +293,7 @@ Public Class usrCadUsuario
                 chkAdmin.Checked = (IsDBNull(.Item("admin")) = False AndAlso CInt(.Item("admin")) = 1)
                 chkAtivo.Checked = (IsDBNull(.Item("ativo")) = False AndAlso CInt(.Item("ativo")) = 1)
                 sSenhaWebAtual = .Item("senha").ToString
+                cboTime.SelectedValue = oClsUsrCadUsuario.LoadTime(lCodigoUsuario)
 
             End With
 
@@ -334,6 +344,10 @@ Public Class usrCadUsuario
             End If
 
             sSenhaWebAtual = sSenhaWeb
+
+            'Time não faz parte das procs da web: gravado à parte
+            oClsUsrCadUsuario.UpdateTime(lCodigoUsuario, IIf(cboTime.SelectedIndex = -1, 0, cboTime.SelectedValue))
+            If lCodigoUsuario = goUsuario.lUsuario Then goUsuario.iTime = IIf(cboTime.SelectedIndex = -1, 0, cboTime.SelectedValue)
 
             'Login do Documentacti (BCrypt): a proc só grava para usuário ativo
             Dim sAviso As String = ""

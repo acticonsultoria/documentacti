@@ -342,9 +342,92 @@ Public Class usrAdmChamado
                 Case "pagArquivos" : Call LoadGridArquivo()
                 Case "pagComentario" : Call LoadGridComentario()
                 Case "pagComentarioDev" : Call LoadGridComentarioDev()
+                Case "pagChecklist" : Call LoadGridChecklist()
                 Case "pagChat", "pagChatDev" : Call AtualizarLeituraChat()
 
             End Select
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: CHECKLIST :::"
+
+    Private Sub btnAdicionarChecklist_Click(sender As Object, e As EventArgs) Handles btnAdicionarChecklist.Click
+
+        Try
+
+            Call AdicionarItemChecklist()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub txtChecklist_KeyDown(sender As Object, e As KeyEventArgs) Handles txtChecklist.KeyDown
+
+        Try
+
+            'Enter adiciona o item, sem precisar do botão
+            If e.KeyCode = Keys.Enter Then
+                e.SuppressKeyPress = True
+                Call AdicionarItemChecklist()
+            End If
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub grdChecklist_CellValueChanged(sender As Object, e As ColumnActionEventArgs) Handles grdChecklist.CellValueChanged
+
+        Try
+
+            'Check gravado na hora
+            If e.Column.Key = "concluido" Then grdChecklist.UpdateData()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub grdChecklist_CellUpdated(sender As Object, e As ColumnActionEventArgs) Handles grdChecklist.CellUpdated
+
+        Try
+
+            If e.Column.Key = "concluido" Then
+
+                With grdChecklist.CurrentRow.Cells
+                    oClsUsrAdmChamado.UpdateChecklist(CLng(.Item("codigo").Value), _
+                                                      IsDBNull(.Item("concluido").Value) = False AndAlso CBool(.Item("concluido").Value))
+                End With
+
+                'Recarrega após o evento para mostrar quem concluiu e quando
+                Me.BeginInvoke(New MethodInvoker(AddressOf LoadGridChecklist))
+
+            End If
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+            Me.BeginInvoke(New MethodInvoker(AddressOf LoadGridChecklist))
+        End Try
+
+    End Sub
+
+    Private Sub grdChecklist_RowDoubleClick(sender As Object, e As RowActionEventArgs) Handles grdChecklist.RowDoubleClick
+
+        Try
+
+            If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
+
+            If grdChecklist.CurrentColumn.Key = "excluir" Then Call ExcluirItemChecklist()
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -558,12 +641,28 @@ Public Class usrAdmChamado
                 Case "data_hora_inicio", "data_hora_fim", "observacao"
                     Call AtualizarApontamento(grdApontamentoHistorico.CurrentRow)
 
+                Case "anulado"
+                    Call AtualizarSituacaoApontamento(grdApontamentoHistorico.CurrentRow)
+
             End Select
 
         Catch ex As Exception
             Call TratarErro(ex)
             'Recarrega para descartar o valor não gravado
             Me.BeginInvoke(New MethodInvoker(AddressOf RecarregarHistorico))
+        End Try
+
+    End Sub
+
+    Private Sub grdApontamentoHistorico_CellValueChanged(sender As Object, e As ColumnActionEventArgs) Handles grdApontamentoHistorico.CellValueChanged
+
+        Try
+
+            'Combo de situação: grava ao escolher, sem precisar sair da célula
+            If e.Column.Key = "anulado" Then grdApontamentoHistorico.UpdateData()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
         End Try
 
     End Sub
@@ -690,6 +789,15 @@ Public Class usrAdmChamado
             'Combos - Chamados
             Call LoadCombo(cboStatusFiltro, "sp_select_combo_status_atividade")
             Call LoadCombo(cboStatus, "sp_select_combo_status_atividade")
+
+            'Time: começa no time do usuário (chamados das empresas daquele time); TODOS mostra os demais
+            Call LoadCombo(cboTimeFiltro, "sp_select_combo_tipo_time_empresa")
+            Dim oTimes As DataTable = CType(cboTimeFiltro.DataSource, DataTable)
+            Dim oTodos As DataRow = oTimes.NewRow
+            oTodos.Item("codigo") = -1
+            oTodos.Item("descricao") = "TODOS"
+            oTimes.Rows.InsertAt(oTodos, 0)
+            cboTimeFiltro.SelectedValue = IIf(goUsuario.iTime > 0 AndAlso oTimes.Select("codigo = " & goUsuario.iTime).Length > 0, goUsuario.iTime, -1)
             Call LoadCombo(cboEmpresaFiltro, "sp_select_combo_administracao_chamado_empresa")
             Call LoadCombo(cboTipoAtendimentoFiltro, "sp_select_combo_administracao_chamado_tipo_atendimento")
             Call LoadCombo(cboResponsavelFiltro, "sp_select_combo_administracao_chamado_usuario")
@@ -733,6 +841,7 @@ Public Class usrAdmChamado
             Call ConfiguraGrid(grdRelatorio)
             Call ConfiguraGrid(grdComentario)
             Call ConfiguraGrid(grdComentarioDev)
+            Call ConfiguraGrid(grdChecklist)
             Call ConfiguraGrid(grdApontamentoHistorico)
             Call ConfiguraGrid(grdApontamentoAndamento)
 
@@ -831,6 +940,7 @@ Public Class usrAdmChamado
             End With
 
             Call LoadGridArquivo()
+            Call LoadGridChecklist()
             Call LoadGridComentario()
             If goUsuario.bInterno = True Then Call LoadGridComentarioDev()
             Call CarregarChat()
@@ -1009,6 +1119,8 @@ Public Class usrAdmChamado
             grdArquivos.DataSource = Nothing
             grdComentario.DataSource = Nothing
             grdComentarioDev.DataSource = Nothing
+            grdChecklist.DataSource = Nothing
+            txtChecklist.Text = ""
             Call LimparChat()
 
             'Sugere o usuário autenticado como responsável
@@ -1095,7 +1207,8 @@ Public Class usrAdmChamado
                                            GetCheckedValues(cboStatusFiltro), _
                                            txtTituloFiltro.Text.Trim, _
                                            IIf(cboResponsavelFiltro.SelectedIndex = -1, -1, cboResponsavelFiltro.SelectedValue), _
-                                           IIf(cboTipoAtendimentoFiltro.SelectedIndex = -1, -1, cboTipoAtendimentoFiltro.SelectedValue))
+                                           IIf(cboTipoAtendimentoFiltro.SelectedIndex = -1, -1, cboTipoAtendimentoFiltro.SelectedValue), _
+                                           IIf(cboTimeFiltro.SelectedIndex = -1, -1, cboTimeFiltro.SelectedValue))
 
             Cursor.Current = Cursors.Default
 
@@ -1372,6 +1485,80 @@ Public Class usrAdmChamado
 
 #End Region
 
+#Region "::: CHECKLIST :::"
+
+    Private Sub LoadGridChecklist()
+
+        Try
+
+            If IsNumeric(txtCodigo.Text) = False Then
+                grdChecklist.DataSource = Nothing
+                Exit Sub
+            End If
+
+            Call oClsUsrAdmChamado.LoadGridChecklist(grdChecklist, CLng(txtCodigo.Text))
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub AdicionarItemChecklist()
+
+        Try
+
+            If IsNumeric(txtCodigo.Text) = False Then
+                frmMain.Informacao("Salve o chamado antes de montar o checklist.", gColorInformacaoErro)
+                Exit Sub
+            End If
+
+            If txtChecklist.Text.Trim = "" Then
+                txtChecklist.Focus()
+                Exit Sub
+            End If
+
+            Cursor.Current = Cursors.WaitCursor
+
+            oClsUsrAdmChamado.InsertChecklist(CLng(txtCodigo.Text), txtChecklist.Text.Trim)
+
+            txtChecklist.Text = ""
+            Call LoadGridChecklist()
+            txtChecklist.Focus()
+
+            Cursor.Current = Cursors.Default
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub ExcluirItemChecklist()
+
+        Try
+
+            With grdChecklist.CurrentRow.Cells
+
+                If MsgBox("Deseja excluir o item '" & .Item("texto").Value.ToString & "' do checklist?", _
+                          MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then Exit Sub
+
+                oClsUsrAdmChamado.DeleteChecklist(CLng(.Item("codigo").Value))
+
+            End With
+
+            Call LoadGridChecklist()
+
+            frmMain.Informacao("Item excluído do checklist.", Color.Blue)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+#End Region
+
 #Region "::: CHAT :::"
 
     Public Function ChatVisivel(ByVal lChamado As Long, ByVal iCanal As Integer) As Boolean
@@ -1397,6 +1584,7 @@ Public Class usrAdmChamado
             cboStatusFiltro.UncheckAll()
             cboResponsavelFiltro.SelectedIndex = -1
             cboTipoAtendimentoFiltro.SelectedIndex = -1
+            cboTimeFiltro.SelectedValue = -1
 
             Call LoadGrid()
             Call MostrarLista()
@@ -2020,8 +2208,10 @@ Public Class usrAdmChamado
 
             Dim lTotal As Long = 0
 
+            'Apontamentos anulados ficam só como histórico: não entram no total
             For Each oRow As GridEXRow In grdApontamentoHistorico.GetRows
-                If oRow.RowType = RowType.Record AndAlso IsDBNull(oRow.Cells("duracao_segundos").Value) = False Then
+                If oRow.RowType = RowType.Record AndAlso IsDBNull(oRow.Cells("duracao_segundos").Value) = False _
+                   AndAlso ApontamentoAnulado(oRow) = False Then
                     lTotal += CLng(oRow.Cells("duracao_segundos").Value)
                 End If
             Next
@@ -2166,6 +2356,50 @@ Public Class usrAdmChamado
             Call LoadGridApontamentoHistorico()
 
             Cursor.Current = Cursors.Default
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Function ApontamentoAnulado(ByVal oRow As GridEXRow) As Boolean
+
+        Dim oValor As Object = oRow.Cells("anulado").Value
+
+        Return IsDBNull(oValor) = False AndAlso IsNothing(oValor) = False AndAlso CLng(oValor) = 1
+
+    End Function
+
+    Private Sub AtualizarSituacaoApontamento(ByVal oRow As GridEXRow)
+
+        Try
+
+            If IsNothing(oRow) OrElse oRow.RowType <> RowType.Record Then Exit Sub
+
+            Dim bAnulado As Boolean = ApontamentoAnulado(oRow)
+
+            If bAnulado AndAlso MsgBox("Deseja anular este apontamento?" & vbCrLf & vbCrLf & _
+                                       "Ele continua no histórico, mas deixa de contar nas horas (totais, relatório e horas do chamado).", _
+                                       MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then
+                Me.BeginInvoke(New MethodInvoker(AddressOf RecarregarHistorico))
+                Exit Sub
+            End If
+
+            Cursor.Current = Cursors.WaitCursor
+
+            Call oClsUsrAdmChamado.UpdateApontamentoSituacao(oRow.Cells("codigo_empresa").Value, _
+                                                             oRow.Cells("codigo_usuario").Value, _
+                                                             oRow.Cells("codigo_chamado").Value, _
+                                                             oRow.Cells("codigo_apontamento").Value, _
+                                                             bAnulado)
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao(IIf(bAnulado, "Apontamento anulado: não conta mais nas horas.", "Apontamento voltou a contar nas horas."), Color.Blue)
+
+            'Recarrega após o evento para atualizar horas, totais e formatação da linha
+            Me.BeginInvoke(New MethodInvoker(AddressOf RecarregarHistorico))
 
         Catch ex As Exception
             Throw ex

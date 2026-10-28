@@ -349,7 +349,8 @@ Public Class clsUsrAdmChamado
                         ByVal sStatus As String, _
                         ByVal sTitulo As String, _
                         ByVal lResponsavel As Long, _
-                        ByVal iTipoAtendimento As Integer)
+                        ByVal iTipoAtendimento As Integer, _
+                        ByVal iTime As Integer)
 
         'Variaveis Locais
         Dim oMySqlParameter(0) As MySqlParameter
@@ -419,7 +420,14 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).ParameterName = "@p_codigo_tipo_atendimento"
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
-            oMySqlParameter(i).Value = iTipoAtendimento
+            oMySqlParameter(i).Value = iTipoAtendimento : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Time da empresa do chamado (-1 = todos)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_tipo_time"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iTime
 
             'Executa Query
             oDataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_lista", oMySqlParameter)
@@ -867,6 +875,159 @@ Public Class clsUsrAdmChamado
 
             'Executa Query
             ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_insert_administracao_chamado_comentario_dev", oMySqlParameter)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: CHECKLIST :::"
+
+    Public Sub LoadGridChecklist(ByVal oGrid As GridEX, _
+                                 ByVal lCodigoAtividade As Long)
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim oDataSet As DataSet
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Atividade
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigoAtividade
+
+            'Executa Query
+            oDataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_checklist", oMySqlParameter)
+
+            'Carrega Grid
+            Call ConfigurarDataMemberGrid(oGrid)
+            oGrid.DataSource = oDataSet.DefaultViewManager
+            oGrid.DataMember = oDataSet.Tables(0).TableName
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Function InsertChecklist(ByVal lCodigoAtividade As Long, _
+                                    ByVal sTexto As String) As Long
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Atividade
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigoAtividade : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Texto do item
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_texto"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sTexto : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Usuário
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código do item (OUT)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo"
+            oMySqlParameter(i).Direction = ParameterDirection.Output
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_insert_administracao_chamado_checklist", oMySqlParameter)
+
+            Return CLng(oMySqlParameter(i).Value)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Public Sub UpdateChecklist(ByVal lCodigo As Long, _
+                               ByVal bConcluido As Boolean)
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código do item
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = lCodigo : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Concluído
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_concluido"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).Value = IIf(bConcluido, 1, 0) : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Usuário
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_administracao_chamado_checklist", oMySqlParameter)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Sub DeleteChecklist(ByVal lCodigo As Long)
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código do item
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = lCodigo
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_delete_administracao_chamado_checklist", oMySqlParameter)
 
         Catch MySqlEx As MySqlException
             Throw MySqlEx
@@ -1411,6 +1572,71 @@ Public Class clsUsrAdmChamado
 
             'Executa Query
             ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_administracao_chamado_apontamento_encerrar", oMySqlParameter)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Sub UpdateApontamentoSituacao(ByVal iEmpresa As Integer, _
+                                         ByVal lUsuario As Long, _
+                                         ByVal lChamado As Long, _
+                                         ByVal iApontamento As Integer, _
+                                         ByVal bAnulado As Boolean)
+
+        'Situação do apontamento: normal ou anulado (anulado não soma horas, fica só como histórico)
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Usuário (dono do apontamento)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = lUsuario : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Chamado
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_chamado"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lChamado : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Apontamento
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_apontamento"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iApontamento : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Anulado
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_anulado"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).Value = IIf(bAnulado, 1, 0) : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Usuário Alteração
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario_alteracao"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_administracao_chamado_apontamento_situacao", oMySqlParameter)
 
         Catch MySqlEx As MySqlException
             Throw MySqlEx

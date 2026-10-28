@@ -283,6 +283,68 @@ Public Class clsUsrCadUsuario
 
     End Sub
 
+    Public Function LoadTime(ByVal lCodigo As Long) As Integer
+
+        'Time do usuário (0 = sem time)
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Usuário
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = lCodigo
+
+            'Executa Query
+            Dim oTabela As DataTable = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_usuario_time", oMySqlParameter).Tables(0)
+
+            Return IIf(oTabela.Rows.Count = 0, 0, CInt(oTabela.Rows(0).Item("time_empresa")))
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Public Sub UpdateTime(ByVal lCodigo As Long, _
+                          ByVal iTime As Integer)
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Usuário
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = lCodigo : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Time (0 = sem time)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_time_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iTime
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_administracao_usuario_time", oMySqlParameter)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
     Private Function SelectUsuarios(ByVal sUsuario As String, _
                                     ByVal sNome As String, _
                                     ByVal iAtivo As Integer) As DataSet
