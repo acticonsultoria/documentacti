@@ -9,7 +9,7 @@
 '==============================================================================================='
 Imports System.Xml
 Imports System.Data
-Imports MySql.Data.MySqlClient
+Imports MySqlConnector
 Imports My
 
 

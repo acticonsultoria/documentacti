@@ -1,6 +1,6 @@
 ﻿'===============================================================================================
 'Classe:        clsDllEmbutida
-'Objetivo:      Carrega as DLLs do Lib (Janus, Dundas, MySql.Data, BCrypt, ChatUI, ToastUI) que estão
+'Objetivo:      Carrega as DLLs do Lib (Janus, Dundas, MySqlConnector e dependências, BCrypt, ChatUI, ToastUI) que estão
 '               embutidas como recurso no executável, para distribuir somente o Documentacti.exe.
 '               Registrado na partida (My\ApplicationEvents.vb), antes de qualquer tela ser criada.
 '               ATENÇÃO: esta classe não pode usar tipos dessas DLLs.

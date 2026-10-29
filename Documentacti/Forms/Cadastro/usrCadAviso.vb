@@ -1,6 +1,6 @@
 ﻿Imports Janus.Windows.GridEX
 Imports Janus.Windows.EditControls
-Imports MySql.Data.MySqlClient
+Imports MySqlConnector
 
 Public Class usrCadAviso
 

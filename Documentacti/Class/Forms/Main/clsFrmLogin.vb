@@ -3,7 +3,7 @@
 'Objetivo:      Autenticação do usuário (MySQL - tb_cad_usuario)
 '===============================================================================================
 Imports System.Data
-Imports MySql.Data.MySqlClient
+Imports MySqlConnector
 Imports Documentacti.MySQLHelper
 
 Public Class clsFrmLogin

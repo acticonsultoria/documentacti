@@ -57,7 +57,7 @@ Public Class clsConfigXML
             goDatabase.sConnection = sConexao.Trim
 
             'Dados exibidos na barra de status (sem senha)
-            Dim oBuilder As New MySql.Data.MySqlClient.MySqlConnectionStringBuilder(goDatabase.sConnection)
+            Dim oBuilder As New MySqlConnector.MySqlConnectionStringBuilder(goDatabase.sConnection)
             goDatabase.sServer = oBuilder.Server & ":" & oBuilder.Port
             goDatabase.sDatabase = oBuilder.Database
 
@@ -89,7 +89,7 @@ Public Class clsConfigXML
 
         Try
 
-            Using oConnection As New MySql.Data.MySqlClient.MySqlConnection(goDatabase.sConnection)
+            Using oConnection As New MySqlConnector.MySqlConnection(goDatabase.sConnection)
                 oConnection.Open()
             End Using
 

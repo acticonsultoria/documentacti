@@ -4,7 +4,7 @@
 '               Empresas por artigo na tb_cad_base_conhecimento_empresa (N:N); -1 = TODOS
 '===============================================================================================
 Imports System.Data
-Imports MySql.Data.MySqlClient
+Imports MySqlConnector
 Imports Documentacti.MySQLHelper
 Imports Janus.Windows.GridEX
 

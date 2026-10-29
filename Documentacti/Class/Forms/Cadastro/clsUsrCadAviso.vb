@@ -5,7 +5,7 @@
 '               por completo no Salvar (sp_insert_aviso / sp_update_aviso, empresas separadas por ";")
 '===============================================================================================
 Imports System.Data
-Imports MySql.Data.MySqlClient
+Imports MySqlConnector
 Imports Documentacti.MySQLHelper
 Imports Janus.Windows.GridEX
 

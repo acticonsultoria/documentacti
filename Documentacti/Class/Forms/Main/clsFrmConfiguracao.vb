@@ -3,7 +3,7 @@
 'Objetivo:      Configurações do usuário logado (MySQL - tb_cad_usuario_configuracao)
 '===============================================================================================
 Imports System.Data
-Imports MySql.Data.MySqlClient
+Imports MySqlConnector
 Imports Documentacti.MySQLHelper
 
 Public Class clsFrmConfiguracao

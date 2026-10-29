@@ -9,7 +9,7 @@ Imports Janus.Windows.GridEX.EditControls
 Imports Janus.Windows.EditControls
 Imports Janus.Windows.UI.Tab
 Imports Janus.Windows.CalendarCombo
-Imports MySql.Data.MySqlClient
+Imports MySqlConnector
 Imports Documentacti.MySQLHelper
 
 Public Module modFunction

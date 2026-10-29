@@ -5,7 +5,7 @@
 '               nos dois formatos: base64 (campo senha, usado pela web) e BCrypt (senha_hash, Documentacti)
 '===============================================================================================
 Imports System.Data
-Imports MySql.Data.MySqlClient
+Imports MySqlConnector
 Imports Documentacti.MySQLHelper
 Imports Janus.Windows.GridEX
 

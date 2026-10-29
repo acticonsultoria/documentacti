@@ -4,7 +4,7 @@
 '               Usa as mesmas procedures da plataforma web (interactisystem)
 '===============================================================================================
 Imports System.Data
-Imports MySql.Data.MySqlClient
+Imports MySqlConnector
 Imports Documentacti.MySQLHelper
 Imports Janus.Windows.GridEX
 

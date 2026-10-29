@@ -3,7 +3,7 @@
 'Objetivo:      Acesso a dados da tela de Chamados / Apontamentos / Comentários de DEV (MySQL)
 '===============================================================================================
 Imports System.Data
-Imports MySql.Data.MySqlClient
+Imports MySqlConnector
 Imports Documentacti.MySQLHelper
 Imports Janus.Windows.GridEX
 
