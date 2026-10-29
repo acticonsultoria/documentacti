@@ -191,6 +191,81 @@ Public Class clsUsrCadBaseConhecimento
 
     End Sub
 
+    Public Function InsertArquivo(ByVal lCodigo As Long, _
+                                  ByVal sNomeArquivo As String) As Long
+
+        'Mesma proc da plataforma web
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Artigo
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_base_conhecimento"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigo : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Nome do Arquivo
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_nome_arquivo"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sNomeArquivo : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código do Anexo (OUT)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_anexo_base_conhecimento"
+            oMySqlParameter(i).Direction = ParameterDirection.Output
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_cadastro_anexo_base_conhecimento", oMySqlParameter)
+
+            Return CLng(oMySqlParameter(i).Value)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Public Sub DeleteArquivo(ByVal lCodigoAnexo As Long)
+
+        'Mesma proc da plataforma web: remove somente o registro (o arquivo continua no FTP)
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código do Anexo
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_anexo_baseconhecimento"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigoAnexo
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_delete_cadastro_anexo_baseconhecimento", oMySqlParameter)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
     Public Function Gravar(ByVal lCodigo As Long, _
                            ByVal sTitulo As String, _
                            ByVal sDescricao As String, _

@@ -21,6 +21,7 @@ Public Class usrCadBaseConhecimento
 
     'Anexos da base de conhecimento ficam na pasta da plataforma web (relativa à pasta de anexos de chamado do Config.xml)
     Private Const gcPastaFtpAnexoBaseConhecimento As String = "../../../base_conhecimento/uploads/"
+    Private ReadOnly gcExtensoesAnexoBaseConhecimento() As String = {"txt", "xls", "xlsx", "pdf", "doc", "docx", "jpg", "png", "jpeg", "xml", "csv", "sql", "rar", "zip", "pfx", "ovpn"}
 
     Private Const gcTamanhoMaximoDescricao As Integer = 4000
 
@@ -139,13 +140,41 @@ Public Class usrCadBaseConhecimento
 
     End Sub
 
+    Private Sub btnArquivo_Click(sender As Object, e As EventArgs) Handles btnArquivo.Click
+
+        Try
+
+            frmMain.errInfo.Clear()
+
+            If FtpDisponivel() = False Then Exit Sub
+
+            If lCodigoArtigo = 0 Then
+                frmMain.Informacao("Salve o artigo antes de anexar arquivos.", gColorInformacaoErro)
+                Exit Sub
+            End If
+
+            Call InserirArquivos()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
     Private Sub grdArquivos_RowDoubleClick(sender As Object, e As RowActionEventArgs) Handles grdArquivos.RowDoubleClick
 
         Try
 
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
 
-            If grdArquivos.CurrentColumn.Key = "visualizar" Then Call VisualizarArquivo()
+            If FtpDisponivel() = False Then Exit Sub
+
+            Select Case grdArquivos.CurrentColumn.Key
+
+                Case "visualizar" : Call VisualizarArquivo()
+                Case "excluir" : Call ExcluirArquivo()
+
+            End Select
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -540,15 +569,122 @@ Public Class usrCadBaseConhecimento
 
     End Function
 
-    Private Sub VisualizarArquivo()
+    Private Function FtpDisponivel() As Boolean
+
+        'O FTP fica compilado no executável (modConexao); em Debug o Config.xml pode sobrepor
+        If oFtp.Configurado() = False Then
+            frmMain.Informacao("FTP dos anexos não configurado.", gColorInformacaoErro)
+            Return False
+        End If
+
+        Return True
+
+    End Function
+
+    Private Sub InserirArquivos()
 
         Try
 
-            'O FTP é configurado no XmlConfig\Config.xml (nó Documentacti/Ftp)
-            If oFtp.Configurado() = False Then
-                frmMain.Informacao("FTP dos anexos não configurado no Config.xml.", gColorInformacaoErro)
-                Exit Sub
-            End If
+            Dim oDialog As New OpenFileDialog
+            oDialog.Multiselect = True
+            oDialog.Title = "Selecione os arquivos do artigo " & lCodigoArtigo
+            oDialog.Filter = "Arquivos permitidos|" & String.Join(";", Array.ConvertAll(gcExtensoesAnexoBaseConhecimento, Function(s) "*." & s))
+
+            If oDialog.ShowDialog() <> DialogResult.OK Then Exit Sub
+
+            Dim iEnviados As Integer = 0
+
+            Cursor.Current = Cursors.WaitCursor
+
+            Try
+
+                For Each sCaminho As String In oDialog.FileNames
+
+                    Dim oInfo As New System.IO.FileInfo(sCaminho)
+
+                    'Mesmas extensões aceitas pela web (base_conhecimento/upload.php)
+                    If Array.IndexOf(gcExtensoesAnexoBaseConhecimento, oInfo.Extension.TrimStart("."c).ToLower) < 0 Then
+                        Throw New ArgumentException("O arquivo '" & oInfo.Name & "' não é de um tipo permitido (" & String.Join(", ", gcExtensoesAnexoBaseConhecimento) & ").")
+                    End If
+
+                    If oInfo.Length > gcTamanhoMaximoAnexo Then
+                        Throw New ArgumentException("O arquivo '" & oInfo.Name & "' excede o limite de " & (gcTamanhoMaximoAnexo / 1048576) & " MB.")
+                    End If
+
+                    'Somente o nome do arquivo (sem acento) na pasta da web. Se já existir um arquivo
+                    'com o mesmo nome (de outro artigo), acrescenta um sufixo para não sobrescrevê-lo
+                    Dim sNome As String = NomeArquivoSeguro(oInfo.Name)
+                    Dim iSufixo As Integer = 1
+
+                    Do While oFtp.Existe(gcPastaFtpAnexoBaseConhecimento & sNome)
+                        sNome = System.IO.Path.GetFileNameWithoutExtension(NomeArquivoSeguro(oInfo.Name)) & "_" & iSufixo & System.IO.Path.GetExtension(NomeArquivoSeguro(oInfo.Name))
+                        iSufixo += 1
+                    Loop
+
+                    oFtp.Upload(gcPastaFtpAnexoBaseConhecimento & sNome, sCaminho)
+
+                    Try
+                        oClsUsrCadBaseConhecimento.InsertArquivo(lCodigoArtigo, sNome)
+                    Catch
+                        'Falha ao registrar no banco: remove somente o arquivo que acabou de ser enviado
+                        Try
+                            oFtp.Delete(gcPastaFtpAnexoBaseConhecimento & sNome)
+                        Catch
+                        End Try
+                        Throw
+                    End Try
+
+                    iEnviados += 1
+
+                Next
+
+            Finally
+
+                Call oClsUsrCadBaseConhecimento.LoadGridArquivo(grdArquivos, lCodigoArtigo)
+
+            End Try
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao(iEnviados & " arquivo(s) anexado(s) com sucesso!", Color.Blue)
+
+        Catch ex As Exception
+            Throw
+        End Try
+
+    End Sub
+
+    Private Sub ExcluirArquivo()
+
+        Try
+
+            With grdArquivos.CurrentRow.Cells
+
+                If MsgBox("Deseja excluir o anexo '" & .Item("arquivo").Value.ToString & "'?", _
+                          MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then Exit Sub
+
+                Cursor.Current = Cursors.WaitCursor
+
+                'Igual à web: remove o vínculo; o arquivo fica no FTP (outros artigos podem usar o mesmo nome)
+                oClsUsrCadBaseConhecimento.DeleteArquivo(CLng(.Item("codigo").Value))
+
+            End With
+
+            Call oClsUsrCadBaseConhecimento.LoadGridArquivo(grdArquivos, lCodigoArtigo)
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Anexo excluído com sucesso!", Color.Blue)
+
+        Catch ex As Exception
+            Throw
+        End Try
+
+    End Sub
+
+    Private Sub VisualizarArquivo()
+
+        Try
 
             Dim sArquivo As String = grdArquivos.CurrentRow.Cells.Item("arquivo").Value.ToString
 

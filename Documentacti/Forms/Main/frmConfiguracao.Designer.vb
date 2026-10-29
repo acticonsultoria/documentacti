@@ -40,7 +40,7 @@ Partial Class frmConfiguracao
         Me.grpNotificacao.Location = New System.Drawing.Point(12, 12)
         Me.grpNotificacao.Name = "grpNotificacao"
         Me.grpNotificacao.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.grpNotificacao.Size = New System.Drawing.Size(376, 96)
+        Me.grpNotificacao.Size = New System.Drawing.Size(376, 110)
         Me.grpNotificacao.TabIndex = 0
         Me.grpNotificacao.Text = "Notificações"
         Me.grpNotificacao.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
@@ -61,15 +61,15 @@ Partial Class frmConfiguracao
         Me.lblSilenciarNotificacao.ForeColor = System.Drawing.Color.DimGray
         Me.lblSilenciarNotificacao.Location = New System.Drawing.Point(29, 46)
         Me.lblSilenciarNotificacao.Name = "lblSilenciarNotificacao"
-        Me.lblSilenciarNotificacao.Size = New System.Drawing.Size(335, 42)
+        Me.lblSilenciarNotificacao.Size = New System.Drawing.Size(335, 56)
         Me.lblSilenciarNotificacao.TabIndex = 1
-        Me.lblSilenciarNotificacao.Text = "Os avisos no canto da tela deixam de aparecer. As mensagens continuam chegando normalmente na aba Chat de cada chamado."
+        Me.lblSilenciarNotificacao.Text = "Os avisos no canto da tela deixam de aparecer até você sair do sistema. Ao entrar de novo, as notificações voltam a ser ativadas automaticamente. As mensagens continuam chegando na aba Chat de cada chamado."
         '
         'btnSalvar
         '
         Me.btnSalvar.Image = Global.Documentacti.My.Resources.Resources.salvar
         Me.btnSalvar.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnSalvar.Location = New System.Drawing.Point(197, 120)
+        Me.btnSalvar.Location = New System.Drawing.Point(197, 134)
         Me.btnSalvar.Name = "btnSalvar"
         Me.btnSalvar.Size = New System.Drawing.Size(91, 23)
         Me.btnSalvar.TabIndex = 1
@@ -80,7 +80,7 @@ Partial Class frmConfiguracao
         '
         Me.btnSair.Image = Global.Documentacti.My.Resources.Resources.seta_esquerda
         Me.btnSair.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnSair.Location = New System.Drawing.Point(297, 120)
+        Me.btnSair.Location = New System.Drawing.Point(297, 134)
         Me.btnSair.Name = "btnSair"
         Me.btnSair.Size = New System.Drawing.Size(91, 23)
         Me.btnSair.TabIndex = 2
@@ -92,7 +92,7 @@ Partial Class frmConfiguracao
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 14.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ClientSize = New System.Drawing.Size(400, 155)
+        Me.ClientSize = New System.Drawing.Size(400, 169)
         Me.Controls.Add(Me.btnSair)
         Me.Controls.Add(Me.btnSalvar)
         Me.Controls.Add(Me.grpNotificacao)

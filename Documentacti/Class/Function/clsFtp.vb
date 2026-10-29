@@ -1,4 +1,4 @@
-'===============================================================================================
+﻿'===============================================================================================
 'Classe:        clsFtp
 'Objetivo:      Acesso ao servidor FTP dos anexos de chamado (FTP SSL/TLS)
 '               Endereço, usuário e senha vêm do XmlConfig\Config.xml (nunca do código-fonte)
@@ -63,9 +63,11 @@ Public Class clsFtp
     Public Function Existe(ByVal sRelativo As String) As Boolean
 
         'Verifica se já existe um arquivo com este nome no servidor (evita sobrescrever anexos de outros chamados)
+        'Usa a data do arquivo (MDTM): o servidor recusa o SIZE em modo ASCII ("550 SIZE not allowed in ASCII mode")
+        'e o arquivo pareceria não existir
         Try
 
-            Dim oRequest As FtpWebRequest = CriarRequest(sRelativo, WebRequestMethods.Ftp.GetFileSize)
+            Dim oRequest As FtpWebRequest = CriarRequest(sRelativo, WebRequestMethods.Ftp.GetDateTimestamp)
 
             Using oResponse As FtpWebResponse = DirectCast(oRequest.GetResponse(), FtpWebResponse)
                 Return True

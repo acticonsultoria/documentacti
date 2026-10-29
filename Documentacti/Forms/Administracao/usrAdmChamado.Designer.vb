@@ -112,8 +112,6 @@ Partial Class usrAdmChamado
         Me.grdComentarioDev = New Janus.Windows.GridEX.GridEX()
         Me.pagChat = New Janus.Windows.UI.Tab.UITabPage()
         Me.chtChat = New ChatUI.ChatBox()
-        Me.pagChatDev = New Janus.Windows.UI.Tab.UITabPage()
-        Me.chtChatDev = New ChatUI.ChatBox()
         Me.vsmMain = New Janus.Windows.Common.VisualStyleManager(Me.components)
         Me.grpDados = New Janus.Windows.EditControls.UIGroupBox()
         Me.chkExibirUsuario = New Janus.Windows.EditControls.UICheckBox()
@@ -228,7 +226,6 @@ Partial Class usrAdmChamado
         Me.pagComentarioDev.SuspendLayout()
         CType(Me.grdComentarioDev, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.pagChat.SuspendLayout()
-        Me.pagChatDev.SuspendLayout()
         CType(Me.grpDados, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.grpDados.SuspendLayout()
         Me.pagApontamento.SuspendLayout()
@@ -863,7 +860,7 @@ Partial Class usrAdmChamado
         Me.tabDadosChamado.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.tabDadosChamado.Size = New System.Drawing.Size(1182, 233)
         Me.tabDadosChamado.TabIndex = 1
-        Me.tabDadosChamado.TabPages.AddRange(New Janus.Windows.UI.Tab.UITabPage() {Me.pagArquivos, Me.pagChecklist, Me.pagComentario, Me.pagComentarioDev, Me.pagChat, Me.pagChatDev})
+        Me.tabDadosChamado.TabPages.AddRange(New Janus.Windows.UI.Tab.UITabPage() {Me.pagArquivos, Me.pagChecklist, Me.pagComentario, Me.pagComentarioDev, Me.pagChat})
         Me.tabDadosChamado.TabStop = False
         Me.tabDadosChamado.VisualStyleManager = Me.vsmMain
         '
@@ -1077,7 +1074,6 @@ Partial Class usrAdmChamado
         Me.chtChat.Dock = System.Windows.Forms.DockStyle.Fill
         Me.chtChat.Location = New System.Drawing.Point(0, 0)
         Me.chtChat.Name = "chtChat"
-        Me.chtChat.ShowComposer = False
         Me.chtChat.ShowHeader = False
         Me.chtChat.ShowRefreshButton = True
         Me.chtChat.Size = New System.Drawing.Size(1180, 210)
@@ -1111,56 +1107,6 @@ Partial Class usrAdmChamado
         Me.chtChat.Theme.TabSubTextColor = System.Drawing.Color.FromArgb(CType(CType(107, Byte), Integer), CType(CType(114, Byte), Integer), CType(CType(128, Byte), Integer))
         Me.chtChat.Theme.TabTextColor = System.Drawing.Color.FromArgb(CType(CType(31, Byte), Integer), CType(CType(35, Byte), Integer), CType(CType(40, Byte), Integer))
         Me.chtChat.Theme.TitleFont = New System.Drawing.Font("Segoe UI Semibold", 10.5!)
-        '
-        'pagChatDev
-        '
-        Me.pagChatDev.Controls.Add(Me.chtChatDev)
-        Me.pagChatDev.Key = "pagChatDev"
-        Me.pagChatDev.Location = New System.Drawing.Point(1, 22)
-        Me.pagChatDev.Name = "pagChatDev"
-        Me.pagChatDev.Size = New System.Drawing.Size(1180, 210)
-        Me.pagChatDev.TabStop = True
-        Me.pagChatDev.Text = "Chat DEV"
-        '
-        'chtChatDev
-        '
-        Me.chtChatDev.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.chtChatDev.Location = New System.Drawing.Point(0, 0)
-        Me.chtChatDev.Name = "chtChatDev"
-        Me.chtChatDev.ShowComposer = False
-        Me.chtChatDev.ShowHeader = False
-        Me.chtChatDev.ShowRefreshButton = True
-        Me.chtChatDev.Size = New System.Drawing.Size(1180, 210)
-        Me.chtChatDev.TabIndex = 0
-        Me.chtChatDev.Theme.AccentColor = System.Drawing.Color.FromArgb(CType(CType(37, Byte), Integer), CType(CType(99, Byte), Integer), CType(CType(235, Byte), Integer))
-        Me.chtChatDev.Theme.BackColor = System.Drawing.Color.FromArgb(CType(CType(244, Byte), Integer), CType(CType(245, Byte), Integer), CType(CType(247, Byte), Integer))
-        Me.chtChatDev.Theme.BorderColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(229, Byte), Integer), CType(CType(233, Byte), Integer))
-        Me.chtChatDev.Theme.ComposerBackColor = System.Drawing.Color.White
-        Me.chtChatDev.Theme.FailedColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(38, Byte), Integer), CType(CType(38, Byte), Integer))
-        Me.chtChatDev.Theme.HeaderBackColor = System.Drawing.Color.White
-        Me.chtChatDev.Theme.HeaderSubTextColor = System.Drawing.Color.FromArgb(CType(CType(107, Byte), Integer), CType(CType(114, Byte), Integer), CType(CType(128, Byte), Integer))
-        Me.chtChatDev.Theme.HeaderTextColor = System.Drawing.Color.FromArgb(CType(CType(17, Byte), Integer), CType(CType(24, Byte), Integer), CType(CType(39, Byte), Integer))
-        Me.chtChatDev.Theme.IncomingBubbleColor = System.Drawing.Color.White
-        Me.chtChatDev.Theme.IncomingTextColor = System.Drawing.Color.FromArgb(CType(CType(31, Byte), Integer), CType(CType(35, Byte), Integer), CType(CType(40, Byte), Integer))
-        Me.chtChatDev.Theme.InputBackColor = System.Drawing.Color.FromArgb(CType(CType(241, Byte), Integer), CType(CType(243, Byte), Integer), CType(CType(245, Byte), Integer))
-        Me.chtChatDev.Theme.InputTextColor = System.Drawing.Color.FromArgb(CType(CType(17, Byte), Integer), CType(CType(24, Byte), Integer), CType(CType(39, Byte), Integer))
-        Me.chtChatDev.Theme.MessageFont = New System.Drawing.Font("Segoe UI", 9.75!)
-        Me.chtChatDev.Theme.MetaColor = System.Drawing.Color.FromArgb(CType(CType(120, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(140, Byte), Integer))
-        Me.chtChatDev.Theme.MetaFont = New System.Drawing.Font("Segoe UI", 8.0!)
-        Me.chtChatDev.Theme.OnlineColor = System.Drawing.Color.FromArgb(CType(CType(34, Byte), Integer), CType(CType(197, Byte), Integer), CType(CType(94, Byte), Integer))
-        Me.chtChatDev.Theme.OutgoingBubbleColor = System.Drawing.Color.FromArgb(CType(CType(37, Byte), Integer), CType(CType(99, Byte), Integer), CType(CType(235, Byte), Integer))
-        Me.chtChatDev.Theme.OutgoingMetaColor = System.Drawing.Color.FromArgb(CType(CType(205, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(252, Byte), Integer))
-        Me.chtChatDev.Theme.OutgoingTextColor = System.Drawing.Color.White
-        Me.chtChatDev.Theme.PlaceholderColor = System.Drawing.Color.FromArgb(CType(CType(140, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(160, Byte), Integer))
-        Me.chtChatDev.Theme.ReadTicksColor = System.Drawing.Color.FromArgb(CType(CType(125, Byte), Integer), CType(CType(211, Byte), Integer), CType(CType(252, Byte), Integer))
-        Me.chtChatDev.Theme.SystemBackColor = System.Drawing.Color.FromArgb(CType(CType(228, Byte), Integer), CType(CType(231, Byte), Integer), CType(CType(236, Byte), Integer))
-        Me.chtChatDev.Theme.SystemTextColor = System.Drawing.Color.FromArgb(CType(CType(90, Byte), Integer), CType(CType(98, Byte), Integer), CType(CType(110, Byte), Integer))
-        Me.chtChatDev.Theme.TabHoverBackColor = System.Drawing.Color.FromArgb(CType(CType(222, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(231, Byte), Integer))
-        Me.chtChatDev.Theme.TabSelectedBackColor = System.Drawing.Color.White
-        Me.chtChatDev.Theme.TabStripBackColor = System.Drawing.Color.FromArgb(CType(CType(233, Byte), Integer), CType(CType(235, Byte), Integer), CType(CType(239, Byte), Integer))
-        Me.chtChatDev.Theme.TabSubTextColor = System.Drawing.Color.FromArgb(CType(CType(107, Byte), Integer), CType(CType(114, Byte), Integer), CType(CType(128, Byte), Integer))
-        Me.chtChatDev.Theme.TabTextColor = System.Drawing.Color.FromArgb(CType(CType(31, Byte), Integer), CType(CType(35, Byte), Integer), CType(CType(40, Byte), Integer))
-        Me.chtChatDev.Theme.TitleFont = New System.Drawing.Font("Segoe UI Semibold", 10.5!)
         '
         'vsmMain
         '
@@ -2292,7 +2238,6 @@ Partial Class usrAdmChamado
         Me.pagComentarioDev.ResumeLayout(False)
         CType(Me.grdComentarioDev, System.ComponentModel.ISupportInitialize).EndInit()
         Me.pagChat.ResumeLayout(False)
-        Me.pagChatDev.ResumeLayout(False)
         CType(Me.grpDados, System.ComponentModel.ISupportInitialize).EndInit()
         Me.grpDados.ResumeLayout(False)
         Me.grpDados.PerformLayout()
@@ -2472,9 +2417,7 @@ Partial Class usrAdmChamado
     Friend WithEvents ToolTip As System.Windows.Forms.ToolTip
     Friend WithEvents tmrApontamento As System.Windows.Forms.Timer
     Friend WithEvents pagChat As Janus.Windows.UI.Tab.UITabPage
-    Friend WithEvents pagChatDev As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents chtChat As ChatUI.ChatBox
-    Friend WithEvents chtChatDev As ChatUI.ChatBox
     Friend WithEvents tmrChat As System.Windows.Forms.Timer
 
 End Class

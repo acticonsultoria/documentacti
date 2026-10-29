@@ -28,14 +28,11 @@ Public Class usrAdmChamado
 
     'Chat do chamado: uma conversa por canal (1 = cliente / 2 = interno da equipe)
     Private Const gcCanalChatCliente As Integer = 1
-    Private Const gcCanalChatDev As Integer = 2
     Private lChamadoChat As Long = 0
     Private oUsuarioChat As ChatUser
     Private oConversaChat As ChatConversation
-    Private oConversaChatDev As ChatConversation
     Private oUsuariosChat As New Dictionary(Of Long, ChatUser)
     Private iLidaChat As Integer = 0
-    Private iLidaChatDev As Integer = 0
     Private bAtualizandoChat As Boolean = False
 
 #End Region
@@ -343,7 +340,7 @@ Public Class usrAdmChamado
                 Case "pagComentario" : Call LoadGridComentario()
                 Case "pagComentarioDev" : Call LoadGridComentarioDev()
                 Case "pagChecklist" : Call LoadGridChecklist()
-                Case "pagChat", "pagChatDev" : Call AtualizarLeituraChat()
+                Case "pagChat" : Call AtualizarLeituraChat()
 
             End Select
 
@@ -439,13 +436,13 @@ Public Class usrAdmChamado
 
 #Region "::: CHAT :::"
 
-    Private Sub chtChat_MessageSubmitted(sender As Object, e As ChatMessageSubmittedEventArgs) Handles chtChat.MessageSubmitted, chtChatDev.MessageSubmitted
+    Private Sub chtChat_MessageSubmitted(sender As Object, e As ChatMessageSubmittedEventArgs) Handles chtChat.MessageSubmitted
 
         Call EnviarMensagemChat(e.Conversation, e.Message)
 
     End Sub
 
-    Private Sub chtChat_RetryRequested(sender As Object, e As ChatMessageEventArgs) Handles chtChat.RetryRequested, chtChatDev.RetryRequested
+    Private Sub chtChat_RetryRequested(sender As Object, e As ChatMessageEventArgs) Handles chtChat.RetryRequested
 
         'Reenvio de mensagem com falha (clique no "!" do balão)
         If e.Message.Status <> MessageStatus.Failed Then Exit Sub
@@ -456,7 +453,7 @@ Public Class usrAdmChamado
 
     End Sub
 
-    Private Sub chtChat_RefreshRequested(sender As Object, e As ChatConversationEventArgs) Handles chtChat.RefreshRequested, chtChatDev.RefreshRequested
+    Private Sub chtChat_RefreshRequested(sender As Object, e As ChatConversationEventArgs) Handles chtChat.RefreshRequested
 
         'Atualização manual (sem conexão em tempo real): mesma busca do Timer, na hora
         If bAtualizandoChat OrElse lChamadoChat = 0 Then Exit Sub
@@ -484,7 +481,7 @@ Public Class usrAdmChamado
 
     End Sub
 
-    Private Sub chtChat_ImagePasted(sender As Object, e As ChatImageEventArgs) Handles chtChat.ImagePasted, chtChatDev.ImagePasted
+    Private Sub chtChat_ImagePasted(sender As Object, e As ChatImageEventArgs) Handles chtChat.ImagePasted
 
         Try
 
@@ -503,7 +500,7 @@ Public Class usrAdmChamado
 
     End Sub
 
-    Private Sub chtChat_AttachmentClick(sender As Object, e As ChatMessageEventArgs) Handles chtChat.AttachmentClick, chtChatDev.AttachmentClick
+    Private Sub chtChat_AttachmentClick(sender As Object, e As ChatMessageEventArgs) Handles chtChat.AttachmentClick
 
         Try
 
@@ -824,17 +821,15 @@ Public Class usrAdmChamado
 
             tabMain.TabPages.Remove(pagDados)
 
-            'Comentários e chat de DEV: somente usuário interno (as procs também validam no banco)
+            'Comentários de DEV: somente usuário interno (as procs também validam no banco)
             If goUsuario.bInterno = False Then
                 tabDadosChamado.TabPages.Remove(pagComentarioDev)
-                tabDadosChamado.TabPages.Remove(pagChatDev)
                 btnInserirComentarioDev.Visible = False
             End If
 
             'Chat: o usuário autenticado é o remetente das mensagens enviadas
             oUsuarioChat = New ChatUser(goUsuario.lUsuario.ToString, goUsuario.sNome)
             chtChat.CurrentUser = oUsuarioChat
-            chtChatDev.CurrentUser = oUsuarioChat
 
             Call ConfiguraGrid(grdListagem)
             Call ConfiguraGrid(grdArquivos)
@@ -1564,8 +1559,8 @@ Public Class usrAdmChamado
     Public Function ChatVisivel(ByVal lChamado As Long, ByVal iCanal As Integer) As Boolean
 
         'O usuário já está vendo esta conversa: não precisa de notificação
-        Return lChamadoChat = lChamado AndAlso tabMain.SelectedTab Is pagDados AndAlso _
-               tabDadosChamado.SelectedTab Is IIf(iCanal = gcCanalChatDev, pagChatDev, pagChat)
+        Return lChamadoChat = lChamado AndAlso iCanal = gcCanalChatCliente AndAlso tabMain.SelectedTab Is pagDados AndAlso _
+               tabDadosChamado.SelectedTab Is pagChat
 
     End Function
 
@@ -1595,11 +1590,7 @@ Public Class usrAdmChamado
                     grdListagem.Row = r
                     Call Editar()
 
-                    If iCanal = gcCanalChatDev AndAlso tabDadosChamado.TabPages.Contains(pagChatDev) Then
-                        tabDadosChamado.SelectedTab = pagChatDev
-                    Else
-                        tabDadosChamado.SelectedTab = pagChat
-                    End If
+                    tabDadosChamado.SelectedTab = pagChat
 
                     Call AtualizarLeituraChat()
 
@@ -1625,11 +1616,8 @@ Public Class usrAdmChamado
 
             lChamadoChat = 0
             oConversaChat = Nothing
-            oConversaChatDev = Nothing
             chtChat.Conversation = Nothing
-            chtChatDev.Conversation = Nothing
             pagChat.Text = "Chat"
-            pagChatDev.Text = "Chat DEV"
 
         Catch ex As Exception
             Throw ex
@@ -1647,7 +1635,6 @@ Public Class usrAdmChamado
 
             lChamadoChat = CLng(txtCodigo.Text)
             iLidaChat = 0
-            iLidaChatDev = 0
             oUsuariosChat.Clear()
 
             'Conversa em grupo: o nome de quem enviou aparece acima dos balões recebidos
@@ -1655,13 +1642,6 @@ Public Class usrAdmChamado
             oConversaChat.Tag = gcCanalChatCliente
             Call AdicionarMensagensChat(oConversaChat, oClsUsrAdmChamado.LoadChat(lChamadoChat, gcCanalChatCliente, 0))
             chtChat.Conversation = oConversaChat
-
-            If goUsuario.bInterno = True Then
-                oConversaChatDev = New ChatConversation("chatdev_" & lChamadoChat, "Chamado " & lChamadoChat & " (interno)", True)
-                oConversaChatDev.Tag = gcCanalChatDev
-                Call AdicionarMensagensChat(oConversaChatDev, oClsUsrAdmChamado.LoadChat(lChamadoChat, gcCanalChatDev, 0))
-                chtChatDev.Conversation = oConversaChatDev
-            End If
 
             Call AtualizarLeituraChat()
 
@@ -1678,10 +1658,6 @@ Public Class usrAdmChamado
         Try
 
             Call AdicionarMensagensChat(oConversaChat, oClsUsrAdmChamado.LoadChat(lChamadoChat, gcCanalChatCliente, UltimaMensagemChat(oConversaChat)))
-
-            If Not IsNothing(oConversaChatDev) Then
-                Call AdicionarMensagensChat(oConversaChatDev, oClsUsrAdmChamado.LoadChat(lChamadoChat, gcCanalChatDev, UltimaMensagemChat(oConversaChatDev)))
-            End If
 
             Call AtualizarLeituraChat()
 
@@ -1742,27 +1718,16 @@ Public Class usrAdmChamado
                 oClsUsrAdmChamado.UpdateChatLeitura(lChamadoChat, gcCanalChatCliente, iLidaChat)
             End If
 
-            If tabDadosChamado.SelectedTab Is pagChatDev AndAlso UltimaMensagemChat(oConversaChatDev) > iLidaChatDev Then
-                iLidaChatDev = UltimaMensagemChat(oConversaChatDev)
-                oClsUsrAdmChamado.UpdateChatLeitura(lChamadoChat, gcCanalChatDev, iLidaChatDev)
-            End If
-
-            'Leitura dos outros usuários (✓✓ nas mensagens enviadas) e contador de não lidas nas abas
+            'Leitura dos outros usuários (✓✓ nas mensagens enviadas) e contador de não lidas na aba
             For Each oRow As DataRow In oClsUsrAdmChamado.LoadChatLeitura(lChamadoChat).Rows
 
-                Dim bCliente As Boolean = (CInt(oRow.Item("canal")) = gcCanalChatCliente)
-                Dim oConversa As ChatConversation = If(bCliente, oConversaChat, oConversaChatDev)
+                If CInt(oRow.Item("canal")) <> gcCanalChatCliente OrElse IsNothing(oConversaChat) Then Continue For
+
                 Dim iNaoLidas As Integer = CInt(oRow.Item("nao_lidas"))
 
-                If IsNothing(oConversa) Then Continue For
+                Call AtualizarStatusChat(oConversaChat, CInt(oRow.Item("lida_outros")))
 
-                Call AtualizarStatusChat(oConversa, CInt(oRow.Item("lida_outros")))
-
-                If bCliente Then
-                    pagChat.Text = "Chat" & IIf(iNaoLidas > 0, " (" & iNaoLidas & ")", "")
-                Else
-                    pagChatDev.Text = "Chat DEV" & IIf(iNaoLidas > 0, " (" & iNaoLidas & ")", "")
-                End If
+                pagChat.Text = "Chat" & IIf(iNaoLidas > 0, " (" & iNaoLidas & ")", "")
 
             Next
 
@@ -1873,7 +1838,7 @@ Public Class usrAdmChamado
             oMensagem.Status = MessageStatus.Sent
 
             'Quem envia já leu a conversa até a própria mensagem
-            If CInt(oConversa.Tag) = gcCanalChatCliente Then iLidaChat = iCodigo Else iLidaChatDev = iCodigo
+            iLidaChat = iCodigo
 
             Cursor.Current = Cursors.Default
 

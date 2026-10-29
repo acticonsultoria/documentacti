@@ -1,4 +1,4 @@
-Public Class frmAlterarSenha
+﻿Public Class frmAlterarSenha
 
 #Region "::: VARIAVEIS :::"
 
@@ -83,8 +83,8 @@ Public Class frmAlterarSenha
             If ValidaCampo(txtNovaSenha, lblNovaSenha, TipoCampo.texto) = False Then Exit Function
             If ValidaCampo(txtConfirmacao, lblConfirmacao, TipoCampo.texto) = False Then Exit Function
 
-            If txtNovaSenha.Text.Length < 8 Then
-                frmMain.errInfo.SetError(lblNovaSenha, "A nova senha deve ter no mínimo 8 caracteres.")
+            If txtNovaSenha.Text.Length < 4 Then
+                frmMain.errInfo.SetError(lblNovaSenha, "A nova senha deve ter no mínimo 4 caracteres.")
                 txtNovaSenha.Focus()
                 Exit Function
             End If

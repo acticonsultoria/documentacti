@@ -31,6 +31,7 @@ Partial Class usrCadBaseConhecimento
         Dim cboMarcador_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdArquivos_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdArquivos_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
+        Dim grdArquivos_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column1.Image")
         Me.tabMain = New Janus.Windows.UI.Tab.UITab()
         Me.pagLista = New Janus.Windows.UI.Tab.UITabPage()
         Me.pagDados = New Janus.Windows.UI.Tab.UITabPage()
@@ -65,6 +66,7 @@ Partial Class usrCadBaseConhecimento
         Me.webDescricao = New System.Windows.Forms.WebBrowser()
         Me.txtDescricao = New Janus.Windows.GridEX.EditControls.EditBox()
         Me.grdArquivos = New Janus.Windows.GridEX.GridEX()
+        Me.btnArquivo = New Janus.Windows.EditControls.UIButton()
         Me.grpControl2 = New Janus.Windows.EditControls.UIGroupBox()
         Me.lblCaracteres = New System.Windows.Forms.Label()
         Me.btnNovo1 = New Janus.Windows.EditControls.UIButton()
@@ -471,6 +473,7 @@ Partial Class usrCadBaseConhecimento
         'pagArquivos
         '
         Me.pagArquivos.Controls.Add(Me.grdArquivos)
+        Me.pagArquivos.Controls.Add(Me.btnArquivo)
         Me.pagArquivos.Key = "pagArquivos"
         Me.pagArquivos.Location = New System.Drawing.Point(1, 22)
         Me.pagArquivos.Name = "pagArquivos"
@@ -503,13 +506,28 @@ Partial Class usrCadBaseConhecimento
         Me.txtDescricao.Size = New System.Drawing.Size(1180, 347)
         Me.txtDescricao.TabIndex = 0
         '
+        'btnArquivo
+        '
+        Me.btnArquivo.Image = Global.Documentacti.My.Resources.Resources.add
+        Me.btnArquivo.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
+        Me.btnArquivo.Location = New System.Drawing.Point(3, 3)
+        Me.btnArquivo.Name = "btnArquivo"
+        Me.btnArquivo.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.btnArquivo.Size = New System.Drawing.Size(130, 23)
+        Me.btnArquivo.TabIndex = 0
+        Me.btnArquivo.Text = "Anexar arquivo"
+        Me.btnArquivo.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
+        '
         'grdArquivos
         '
         Me.grdArquivos.AllowEdit = Janus.Windows.GridEX.InheritableBoolean.[False]
         Me.grdArquivos.AlternatingColors = True
-        Me.grdArquivos.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.grdArquivos.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         grdArquivos_DesignTimeLayout_Reference_0.Instance = CType(resources.GetObject("grdArquivos_DesignTimeLayout_Reference_0.Instance"), Object)
-        grdArquivos_DesignTimeLayout.LayoutReferences.AddRange(New Janus.Windows.Common.Layouts.JanusLayoutReference() {grdArquivos_DesignTimeLayout_Reference_0})
+        grdArquivos_DesignTimeLayout_Reference_1.Instance = CType(resources.GetObject("grdArquivos_DesignTimeLayout_Reference_1.Instance"), Object)
+        grdArquivos_DesignTimeLayout.LayoutReferences.AddRange(New Janus.Windows.Common.Layouts.JanusLayoutReference() {grdArquivos_DesignTimeLayout_Reference_0, grdArquivos_DesignTimeLayout_Reference_1})
         grdArquivos_DesignTimeLayout.LayoutString = resources.GetString("grdArquivos_DesignTimeLayout.LayoutString")
         Me.grdArquivos.DesignTimeLayout = grdArquivos_DesignTimeLayout
         Me.grdArquivos.FilterRowButtonStyle = Janus.Windows.GridEX.FilterRowButtonStyle.ConditionOperatorDropDown
@@ -518,14 +536,14 @@ Partial Class usrCadBaseConhecimento
         Me.grdArquivos.Font = New System.Drawing.Font("Arial", 8.25!)
         Me.grdArquivos.GridLineStyle = Janus.Windows.GridEX.GridLineStyle.Solid
         Me.grdArquivos.GroupByBoxVisible = False
-        Me.grdArquivos.Location = New System.Drawing.Point(0, 0)
+        Me.grdArquivos.Location = New System.Drawing.Point(0, 29)
         Me.grdArquivos.Name = "grdArquivos"
         Me.grdArquivos.Office2007ColorScheme = Janus.Windows.GridEX.Office2007ColorScheme.Silver
         Me.grdArquivos.ScrollBars = Janus.Windows.GridEX.ScrollBars.Both
         Me.grdArquivos.SelectedFormatStyle.BackColor = System.Drawing.Color.Empty
         Me.grdArquivos.SelectedFormatStyle.ForeColor = System.Drawing.Color.Empty
-        Me.grdArquivos.Size = New System.Drawing.Size(1180, 347)
-        Me.grdArquivos.TabIndex = 0
+        Me.grdArquivos.Size = New System.Drawing.Size(1180, 318)
+        Me.grdArquivos.TabIndex = 1
         Me.grdArquivos.TabStop = False
         Me.grdArquivos.VisualStyle = Janus.Windows.GridEX.VisualStyle.Office2007
         '
@@ -703,6 +721,7 @@ Partial Class usrCadBaseConhecimento
     Friend WithEvents webDescricao As System.Windows.Forms.WebBrowser
     Friend WithEvents txtDescricao As Janus.Windows.GridEX.EditControls.EditBox
     Friend WithEvents grdArquivos As Janus.Windows.GridEX.GridEX
+    Friend WithEvents btnArquivo As Janus.Windows.EditControls.UIButton
     Friend WithEvents grpControl2 As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents lblCaracteres As System.Windows.Forms.Label
     Friend WithEvents btnNovo1 As Janus.Windows.EditControls.UIButton

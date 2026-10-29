@@ -301,9 +301,11 @@ Public Class frmMain
             oToastManager.AppCaption = "Documentacti"
             oToastManager.MaxVisible = 4
 
-            'Preferência do usuário (Configurações): silenciar as notificações
+            'Silenciar (Configurações) vale só até sair do sistema: a cada login as notificações são religadas,
+            'para não ficarem desligadas por esquecimento
             Dim oClsConfiguracao As New clsFrmConfiguracao
-            bSilenciarNotificacao = oClsConfiguracao.SilenciarNotificacao()
+            oClsConfiguracao.Update(False)
+            bSilenciarNotificacao = False
 
             Call VerificarNotificacoes()
 
@@ -323,6 +325,11 @@ Public Class frmMain
             Dim oClsUsrAdmChamado As New clsUsrAdmChamado
             Dim oTabela As DataTable = oClsUsrAdmChamado.LoadChatNotificacao()
             Dim oNovas As New List(Of DataRow)
+
+            'Somente o chat do chamado (canal 1); o chat interno (DEV) não é mais usado
+            For Each oRow As DataRow In oTabela.Select("canal <> 1")
+                oTabela.Rows.Remove(oRow)
+            Next
 
             For Each oRow As DataRow In oTabela.Rows
                 Dim sChave As String = oRow.Item("codigo_atividade") & "|" & oRow.Item("canal") & "|" & oRow.Item("codigo_mensagem")
@@ -377,7 +384,7 @@ Public Class frmMain
             Dim sChave As String = lChamado & "|" & iCanal
             Dim sTexto As String = oRow.Item("mensagem").ToString
             If sTexto.Trim = "" Then sTexto = "Arquivo: " & oRow.Item("nome_arquivo").ToString
-            Dim sCaption As String = "Chamado #" & lChamado & IIf(iCanal = 2, "  ·  Chat DEV", "  ·  Chat").ToString
+            Dim sCaption As String = "Chamado #" & lChamado & "  ·  Chat"
 
             'Uma notificação por conversa: mensagens seguidas atualizam a mesma
             Dim oToast As Toast = Nothing
