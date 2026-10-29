@@ -159,6 +159,7 @@ Public Class usrAdmChamado
 
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
 
+            If IsNothing(grdListagem.CurrentColumn) Then Exit Sub
             Select Case grdListagem.CurrentColumn.Key
 
                 Case "editar" : Call Editar()
@@ -274,6 +275,7 @@ Public Class usrAdmChamado
 
             Dim oGrid As GridEX = sender
 
+            If IsNothing(oGrid.CurrentColumn) Then Exit Sub
             Select Case oGrid.CurrentColumn.Key
 
                 Case "visualizar" : Call VisualizarComentario(oGrid Is grdComentarioDev)
@@ -315,6 +317,7 @@ Public Class usrAdmChamado
 
             If FtpDisponivel() = False Then Exit Sub
 
+            If IsNothing(grdArquivos.CurrentColumn) Then Exit Sub
             Select Case grdArquivos.CurrentColumn.Key
 
                 Case "visualizar" : Call VisualizarArquivo()
@@ -424,6 +427,7 @@ Public Class usrAdmChamado
 
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
 
+            If IsNothing(grdChecklist.CurrentColumn) Then Exit Sub
             If grdChecklist.CurrentColumn.Key = "excluir" Then Call ExcluirItemChecklist()
 
         Catch ex As Exception
@@ -617,6 +621,7 @@ Public Class usrAdmChamado
 
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
 
+            If IsNothing(grdApontamentoAndamento.CurrentColumn) Then Exit Sub
             Select Case grdApontamentoAndamento.CurrentColumn.Key
 
                 Case "encerrar" : Call EncerrarApontamento()

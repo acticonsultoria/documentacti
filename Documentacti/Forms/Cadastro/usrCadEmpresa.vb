@@ -110,6 +110,7 @@ Public Class usrCadEmpresa
 
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
 
+            If IsNothing(grdListagem.CurrentColumn) Then Exit Sub
             If grdListagem.CurrentColumn.Key = "editar" Then Call Editar()
 
         Catch ex As Exception
@@ -124,6 +125,7 @@ Public Class usrCadEmpresa
 
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
 
+            If IsNothing(grdArquivos.CurrentColumn) Then Exit Sub
             If grdArquivos.CurrentColumn.Key = "visualizar" Then Call VisualizarArquivo()
 
         Catch ex As Exception

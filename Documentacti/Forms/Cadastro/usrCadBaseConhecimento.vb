@@ -132,6 +132,7 @@ Public Class usrCadBaseConhecimento
 
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
 
+            If IsNothing(grdListagem.CurrentColumn) Then Exit Sub
             If grdListagem.CurrentColumn.Key = "editar" Then Call Editar()
 
         Catch ex As Exception
@@ -169,6 +170,7 @@ Public Class usrCadBaseConhecimento
 
             If FtpDisponivel() = False Then Exit Sub
 
+            If IsNothing(grdArquivos.CurrentColumn) Then Exit Sub
             Select Case grdArquivos.CurrentColumn.Key
 
                 Case "visualizar" : Call VisualizarArquivo()

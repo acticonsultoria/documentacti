@@ -130,6 +130,7 @@ Public Class usrCadAviso
 
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
 
+            If IsNothing(grdListagem.CurrentColumn) Then Exit Sub
             If grdListagem.CurrentColumn.Key = "editar" Then Call Editar()
 
         Catch ex As Exception
