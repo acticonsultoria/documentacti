@@ -799,11 +799,15 @@ Public Class usrAdmChamado
             oTodos.Item("codigo") = -1
             oTodos.Item("descricao") = "TODOS"
             oTimes.Rows.InsertAt(oTodos, 0)
-            cboTimeFiltro.SelectedValue = IIf(goUsuario.iTime > 0 AndAlso oTimes.Select("codigo = " & goUsuario.iTime).Length > 0, goUsuario.iTime, -1)
+            'Seleção pela posição: o código vem do banco como Int16 e não casa com um Integer no SelectedValue
+            Dim oTimeUsuario() As DataRow = oTimes.Select("codigo = " & goUsuario.iTime)
+            cboTimeFiltro.SelectedIndex = If(goUsuario.iTime > 0 AndAlso oTimeUsuario.Length > 0, oTimes.Rows.IndexOf(oTimeUsuario(0)), 0)
             Call LoadCombo(cboEmpresaFiltro, "sp_select_combo_administracao_chamado_empresa")
             Call LoadCombo(cboTipoAtendimentoFiltro, "sp_select_combo_administracao_chamado_tipo_atendimento")
             Call LoadCombo(cboResponsavelFiltro, "sp_select_combo_administracao_chamado_usuario")
-            Call LoadCombo(cboEmpresa, "sp_select_combo_administracao_chamado_empresa")
+            'Responsáveis: começa marcado o usuário logado (pode marcar mais de um)
+            Call SetCheckedValues(cboResponsavelFiltro, goUsuario.lUsuario.ToString)
+            Call LoadCombo(cboEmpresa,"sp_select_combo_administracao_chamado_empresa")
             Call LoadCombo(cboPrioridade, "sp_select_combo_chamados_prioridade")
             Call LoadCombo(cboTipoAtividade, "sp_select_combo_tipo_atividade")
             Call LoadCombo(cboResponsavel, "sp_select_combo_administracao_chamado_usuario")
@@ -1206,11 +1210,41 @@ Public Class usrAdmChamado
                                            IIf(cboEmpresaFiltro.SelectedIndex = -1, -1, cboEmpresaFiltro.SelectedValue), _
                                            GetCheckedValues(cboStatusFiltro), _
                                            txtTituloFiltro.Text.Trim, _
-                                           IIf(cboResponsavelFiltro.SelectedIndex = -1, -1, cboResponsavelFiltro.SelectedValue), _
+                                           -1, _
                                            IIf(cboTipoAtendimentoFiltro.SelectedIndex = -1, -1, cboTipoAtendimentoFiltro.SelectedValue), _
                                            IIf(cboTimeFiltro.SelectedIndex = -1, -1, cboTimeFiltro.SelectedValue))
 
+            Call FiltrarResponsaveis()
+
             Cursor.Current = Cursors.Default
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub FiltrarResponsaveis()
+
+        'Um ou mais responsáveis marcados: mantém os chamados de qualquer um deles
+        '(a proc devolve todos os responsáveis do chamado em codigos_responsavel, ex.: "43,51")
+        Try
+
+            Dim sMarcados As String = GetCheckedValues(cboResponsavelFiltro)
+            If sMarcados = "" Then Exit Sub
+
+            Dim oMarcados As New List(Of String)(sMarcados.Split(","c))
+            Dim oTabela As DataTable = CType(grdListagem.DataSource, DataViewManager).DataSet.Tables(grdListagem.DataMember)
+
+            For Each oRow As DataRow In oTabela.Select()
+                Dim bManter As Boolean = False
+                For Each sCodigo As String In oRow.Item("codigos_responsavel").ToString.Split(","c)
+                    If oMarcados.Contains(sCodigo.Trim) Then bManter = True : Exit For
+                Next
+                If bManter = False Then oRow.Delete()
+            Next
+
+            oTabela.AcceptChanges()
 
         Catch ex As Exception
             Throw ex
@@ -1582,9 +1616,9 @@ Public Class usrAdmChamado
             txtTituloFiltro.Text = ""
             cboEmpresaFiltro.SelectedIndex = -1
             cboStatusFiltro.UncheckAll()
-            cboResponsavelFiltro.SelectedIndex = -1
+            cboResponsavelFiltro.UncheckAll()
             cboTipoAtendimentoFiltro.SelectedIndex = -1
-            cboTimeFiltro.SelectedValue = -1
+            cboTimeFiltro.SelectedIndex = 0 'TODOS
 
             Call LoadGrid()
             Call MostrarLista()

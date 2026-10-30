@@ -189,12 +189,17 @@ Public Class usrCadEmpresa
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
 
             'Combos - Filtro
+            'Padrão: somente empresas ativas, do mesmo time do usuário (TODOS quando o usuário não tem time)
             Call LoadComboLista(cboAtivoFiltro, "-1=TODOS;1=SIM;0=NÃO")
+            cboAtivoFiltro.SelectedValue = "1"
             Call LoadCombo(cboTimeFiltro, "sp_select_combo_tipo_time_empresa")
-            CType(cboTimeFiltro.DataSource, DataTable).Rows.InsertAt(CType(cboTimeFiltro.DataSource, DataTable).NewRow, 0)
-            CType(cboTimeFiltro.DataSource, DataTable).Rows(0).Item("codigo") = -1
-            CType(cboTimeFiltro.DataSource, DataTable).Rows(0).Item("descricao") = "TODOS"
-            cboTimeFiltro.SelectedIndex = 0
+            Dim oTimes As DataTable = CType(cboTimeFiltro.DataSource, DataTable)
+            oTimes.Rows.InsertAt(oTimes.NewRow, 0)
+            oTimes.Rows(0).Item("codigo") = -1
+            oTimes.Rows(0).Item("descricao") = "TODOS"
+            'Seleção pela posição: o código vem do banco como Int16 e não casa com um Integer no SelectedValue
+            Dim oTimeUsuario() As DataRow = oTimes.Select("codigo = " & goUsuario.iTime)
+            cboTimeFiltro.SelectedIndex = If(goUsuario.iTime > 0 AndAlso oTimeUsuario.Length > 0, oTimes.Rows.IndexOf(oTimeUsuario(0)), 0)
 
             'Combos - Dados
             Call LoadComboLista(cboAtivo, "1=SIM;0=NÃO")

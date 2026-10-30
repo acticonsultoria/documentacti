@@ -16,6 +16,9 @@ Imports My
 
 Public NotInheritable Class MySQLHelper
 
+    'Fuso horário de Brasília (sem horário de verão desde 2019)
+    Private Const gcFusoHorario As String = "-03:00"
+
 #Region "::: Métodos / Construtor :::"
 
     '-------------------------------------------------------------------------------------------'
@@ -25,6 +28,22 @@ Public NotInheritable Class MySQLHelper
     'DESENVOLVEDOR  :   Kleber Leonardo Pinto                                                   '
     '-------------------------------------------------------------------------------------------'
     Private Sub New()
+    End Sub
+
+    '-------------------------------------------------------------------------------------------'
+    'DESCRIÇÃO      :   Abre a conexão e ajusta o fuso horário da sessão para o de Brasília.    '
+    '                   O servidor da plataforma (PRD) roda em UTC: sem isso o NOW()/CURDATE()  '
+    '                   das procedures gravam 3 horas a mais.                                   '
+    'PARAMETRO      :   oConexao - Conexão a ser aberta                                         '
+    '-------------------------------------------------------------------------------------------'
+    Public Shared Sub AbrirConexao(ByVal oConexao As MySqlConnection)
+
+        oConexao.Open()
+
+        Using oComando As New MySqlCommand("SET time_zone = '" & gcFusoHorario & "'", oConexao)
+            oComando.ExecuteNonQuery()
+        End Using
+
     End Sub
 
     '-------------------------------------------------------------------------------------------'
@@ -165,7 +184,7 @@ Public NotInheritable Class MySQLHelper
         'Verifica se a Conexão não esta aberta
         If oMySQLConnection.State <> ConnectionState.Open Then
             'Abre a Conexão
-            oMySQLConnection.Open()
+            Call AbrirConexao(oMySQLConnection)
             bCloseConnection = True
         Else
             bCloseConnection = False
@@ -239,7 +258,7 @@ Public NotInheritable Class MySQLHelper
         Try
             oMySQLConnection = New MySqlConnection(sConnectionString)
 
-            oMySQLConnection.Open()
+            Call AbrirConexao(oMySQLConnection)
 
             'Chamar a sobrecarga que tenha uma conexão em vez da conexão string
             Return ExecuteNonQuery(oMySQLConnection, oCommandType, sCommandText, oMySQLParameters)
@@ -530,7 +549,7 @@ Public NotInheritable Class MySQLHelper
 
         Try
             oMySQLConnection = New MySqlConnection(sConnectionString)
-            oMySQLConnection.Open()
+            Call AbrirConexao(oMySQLConnection)
 
             'Executa a Função ExecuteDataSet passando a Conexão e não a String
             Return ExecuteDataset(oMySQLConnection, oCommandType, sCommandText, oMySQLParameters)
@@ -672,7 +691,7 @@ Public NotInheritable Class MySQLHelper
 
         Try
             oMySQLConnection = New MySqlConnection(sConnectionString)
-            oMySQLConnection.Open()
+            Call AbrirConexao(oMySQLConnection)
 
             'Verifica se foi passado uma Conexão
             If (oMySQLConnection Is Nothing) Then Throw New ArgumentNullException("connection")
@@ -886,7 +905,7 @@ Public NotInheritable Class MySQLHelper
 
 
             oMySQLConnection = New MySqlConnection(sConnectionString)
-            oMySQLConnection.Open()
+            Call AbrirConexao(oMySQLConnection)
 
             Dim i As Integer
 
@@ -1017,7 +1036,7 @@ Public NotInheritable Class MySQLHelper
         Dim connection As MySqlConnection
         Try
             connection = New MySqlConnection(connectionString)
-            connection.Open()
+            Call AbrirConexao(connection)
             ' Call the private overload that takes an internally owned connection in place of the connection string
             Return ExecuteReader(connection, CType(Nothing, MySqlTransaction), commandType, commandText, commandParameters, MySQLConnectionOwnership.Internal)
         Catch
@@ -1234,7 +1253,7 @@ Public NotInheritable Class MySQLHelper
         Dim connection As MySqlConnection
         Try
             connection = New MySqlConnection(connectionString)
-            connection.Open()
+            Call AbrirConexao(connection)
 
             ' Call the overload that takes a connection in place of the connection string
             Return ExecuteScalar(connection, commandType, commandText, commandParameters)
@@ -1470,7 +1489,7 @@ Public NotInheritable Class MySQLHelper
         Try
             connection = New MySqlConnection(connectionString)
 
-            connection.Open()
+            Call AbrirConexao(connection)
 
             ' Call the overload that takes a connection in place of the connection string
             FillDataset(connection, commandType, commandText, dataSet, tableNames)
@@ -1502,7 +1521,7 @@ Public NotInheritable Class MySQLHelper
         Try
             connection = New MySqlConnection(connectionString)
 
-            connection.Open()
+            Call AbrirConexao(connection)
 
             ' Call the overload that takes a connection in place of the connection string
             FillDataset(connection, commandType, commandText, dataSet, tableNames, commandParameters)
@@ -1535,7 +1554,7 @@ Public NotInheritable Class MySQLHelper
         Try
             connection = New MySqlConnection(connectionString)
 
-            connection.Open()
+            Call AbrirConexao(connection)
 
             ' Call the overload that takes a connection in place of the connection string
             FillDataset(connection, spName, dataSet, tableNames, parameterValues)
@@ -2222,7 +2241,7 @@ Public NotInheritable Class MySQLHelperParameterCache
         Dim cmd As New MySqlCommand(spName, connection)
         cmd.CommandType = CommandType.StoredProcedure
         Dim discoveredParameters() As MySqlParameter
-        connection.Open()
+        Call MySQLHelper.AbrirConexao(connection)
         MySqlCommandBuilder.DeriveParameters(cmd)
         connection.Close()
         If Not includeReturnValueParameter Then

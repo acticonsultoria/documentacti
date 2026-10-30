@@ -28,6 +28,7 @@ Partial Class usrAdmChamado
         Dim grdListagem_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdListagem_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column1.Image")
         Dim cboStatusFiltro_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim cboResponsavelFiltro_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdArquivos_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdArquivos_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdArquivos_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column1.Image")
@@ -71,7 +72,7 @@ Partial Class usrAdmChamado
         Me.grdListagem = New Janus.Windows.GridEX.GridEX()
         Me.grpFiltro = New Janus.Windows.EditControls.UIGroupBox()
         Me.btnFiltrar = New Janus.Windows.EditControls.UIButton()
-        Me.cboResponsavelFiltro = New Janus.Windows.EditControls.UIComboBox()
+        Me.cboResponsavelFiltro = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblResponsavelFiltro = New System.Windows.Forms.Label()
         Me.cboTipoAtendimentoFiltro = New Janus.Windows.EditControls.UIComboBox()
         Me.lblTipoAtendimentoFiltro = New System.Windows.Forms.Label()
@@ -562,13 +563,15 @@ Partial Class usrAdmChamado
         '
         'cboResponsavelFiltro
         '
-        Me.cboResponsavelFiltro.AutoSize = False
-        Me.cboResponsavelFiltro.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboResponsavelFiltro.ButtonCancelText = "Cancelar"
+        cboResponsavelFiltro_DesignTimeLayout.LayoutString = resources.GetString("cboResponsavelFiltro_DesignTimeLayout.LayoutString")
+        Me.cboResponsavelFiltro.DesignTimeLayout = cboResponsavelFiltro_DesignTimeLayout
         Me.cboResponsavelFiltro.Location = New System.Drawing.Point(708, 74)
         Me.cboResponsavelFiltro.Name = "cboResponsavelFiltro"
-        Me.cboResponsavelFiltro.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboResponsavelFiltro.SaveSettings = False
         Me.cboResponsavelFiltro.Size = New System.Drawing.Size(250, 20)
         Me.cboResponsavelFiltro.TabIndex = 16
+        Me.cboResponsavelFiltro.ValuesDataMember = Nothing
         '
         'lblResponsavelFiltro
         '
@@ -2295,7 +2298,7 @@ Partial Class usrAdmChamado
     Friend WithEvents lblTipoAtendimentoFiltro As System.Windows.Forms.Label
     Friend WithEvents cboTipoAtendimentoFiltro As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblResponsavelFiltro As System.Windows.Forms.Label
-    Friend WithEvents cboResponsavelFiltro As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents cboResponsavelFiltro As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents btnFiltrar As Janus.Windows.EditControls.UIButton
     Friend WithEvents grdListagem As Janus.Windows.GridEX.GridEX
     Friend WithEvents grpLegenda As Janus.Windows.EditControls.UIGroupBox
