@@ -60,6 +60,7 @@ Public Module modDeclaration
         Public bAdmin As Boolean
         Public bInterno As Boolean
         Public iTime As Integer 'time do usuário (tb_stc_tipo_time_empresa); 0 = sem time
+        Public bSuperAdm As Boolean 'tb_cad_usuario.super_adm (marcado manualmente no banco): acesso aos relatórios
     End Structure
 
     'FTP

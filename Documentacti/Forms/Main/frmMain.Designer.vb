@@ -48,6 +48,8 @@ Partial Class frmMain
         Me.mnuUsuarios = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuAvisos = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuBaseConhecimento = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuRelatorios = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuRelApontamentos = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuTrocarUsuario = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuAlterarSenha = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuConfiguracao = New System.Windows.Forms.ToolStripMenuItem()
@@ -201,7 +203,7 @@ Partial Class frmMain
         Me.mnuMain.BackColor = System.Drawing.Color.Transparent
         Me.mnuMain.Dock = System.Windows.Forms.DockStyle.None
         Me.mnuMain.GripMargin = New System.Windows.Forms.Padding(6, 2, 0, 6)
-        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuCadastros, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuConfiguracao, Me.mnuSair})
+        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuCadastros, Me.mnuRelatorios, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuConfiguracao, Me.mnuSair})
         Me.mnuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow
         Me.mnuMain.Location = New System.Drawing.Point(7, 8)
         Me.mnuMain.Name = "mnuMain"
@@ -250,6 +252,21 @@ Partial Class frmMain
         Me.mnuBaseConhecimento.Size = New System.Drawing.Size(180, 22)
         Me.mnuBaseConhecimento.Tag = "usrCadBaseConhecimento"
         Me.mnuBaseConhecimento.Text = "Base de Conhecimento"
+        '
+        'mnuRelatorios
+        '
+        Me.mnuRelatorios.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuRelApontamentos})
+        Me.mnuRelatorios.Name = "mnuRelatorios"
+        Me.mnuRelatorios.Size = New System.Drawing.Size(71, 20)
+        Me.mnuRelatorios.Text = "Relatórios"
+        Me.mnuRelatorios.Visible = False
+        '
+        'mnuRelApontamentos
+        '
+        Me.mnuRelApontamentos.Name = "mnuRelApontamentos"
+        Me.mnuRelApontamentos.Size = New System.Drawing.Size(180, 22)
+        Me.mnuRelApontamentos.Tag = "usrRelApontamento"
+        Me.mnuRelApontamentos.Text = "Apontamentos"
         '
         'mnuTrocarUsuario
         '
@@ -316,6 +333,8 @@ Partial Class frmMain
     Friend WithEvents mnuUsuarios As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuAvisos As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuBaseConhecimento As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuRelatorios As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuRelApontamentos As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuTrocarUsuario As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuAlterarSenha As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuConfiguracao As System.Windows.Forms.ToolStripMenuItem

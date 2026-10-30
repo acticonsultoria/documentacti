@@ -145,6 +145,7 @@
     <Compile Include="Class\Forms\Cadastro\clsUsrCadEmpresa.vb" />
     <Compile Include="Class\Forms\Cadastro\clsUsrCadUsuario.vb" />
     <Compile Include="Class\Forms\Cadastro\clsUsrCadAviso.vb" />
+    <Compile Include="Class\Forms\Relatorio\clsUsrRelApontamento.vb" />
     <Compile Include="Class\Forms\Cadastro\clsUsrCadBaseConhecimento.vb" />
     <Compile Include="Forms\Administracao\frmAdmChamadoComentario.Designer.vb">
       <DependentUpon>frmAdmChamadoComentario.vb</DependentUpon>
@@ -156,6 +157,12 @@
       <DependentUpon>usrAdmChamado.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\Administracao\usrAdmChamado.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Relatorio\usrRelApontamento.Designer.vb">
+      <DependentUpon>usrRelApontamento.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Relatorio\usrRelApontamento.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Forms\Cadastro\usrCadAviso.Designer.vb">
@@ -232,6 +239,9 @@
     <EmbeddedResource Include="Forms\Administracao\usrAdmChamado.resx">
       <DependentUpon>usrAdmChamado.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Relatorio\usrRelApontamento.resx">
+      <DependentUpon>usrRelApontamento.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Cadastro\usrCadAviso.resx">
       <DependentUpon>usrCadAviso.vb</DependentUpon>
     </EmbeddedResource>
@@ -293,6 +303,7 @@
     <None Include="Resources\interacti.png" />
     <None Include="Resources\logo_documentacti.png" />
     <None Include="Resources\logo_documentacti_fundo.png" />
+    <None Include="Resources\merge.png" />
     <None Include="Resources\login.png" />
     <None Include="Resources\logo_inicial.png" />
     <None Include="Resources\novo.bmp" />

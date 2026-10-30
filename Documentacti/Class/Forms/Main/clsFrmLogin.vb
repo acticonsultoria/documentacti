@@ -68,6 +68,8 @@ Public Class clsFrmLogin
                 goUsuario.bAdmin = (CInt(.Item("admin")) = 1)
                 goUsuario.bInterno = True 'a proc só autentica usuário interno
                 goUsuario.iTime = CInt(.Item("time_empresa"))
+                'Banco ainda sem a coluna super_adm: sem acesso aos relatórios
+                goUsuario.bSuperAdm = oDataSet.Tables(0).Columns.Contains("super_adm") AndAlso CInt(.Item("super_adm")) = 1
 
             End With
 

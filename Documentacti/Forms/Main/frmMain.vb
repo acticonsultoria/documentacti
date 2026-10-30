@@ -180,6 +180,18 @@ Public Class frmMain
 
     End Sub
 
+    Private Sub mnuRelApontamentos_Click(sender As Object, e As EventArgs) Handles mnuRelApontamentos.Click
+
+        Try
+
+            Call AbrirTela(New usrRelApontamento, "Relatório - Apontamentos")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
     Private Sub mnuTrocarUsuario_Click(sender As Object, e As EventArgs) Handles mnuTrocarUsuario.Click
 
         Try
@@ -301,6 +313,9 @@ Public Class frmMain
             stbMain.Panels("pnlUsuario").Text = goUsuario.sNome
             stbMain.Panels("pnlEmpresa").Text = goUsuario.sEmpresa & " | " & goDatabase.sServer & " / " & goDatabase.sDatabase
             Me.Text = gAplicacao & " - " & goUsuario.sNome & " - Versão: " & Application.ProductVersion.ToString
+
+            'Relatórios: somente super_adm (coluna marcada manualmente no banco)
+            mnuRelatorios.Visible = goUsuario.bSuperAdm
 
             'Seta Retorno da Função
             Login = True
