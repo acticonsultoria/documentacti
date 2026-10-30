@@ -32,10 +32,10 @@ Partial Class frmLogin
         Me.txtSenha = New Janus.Windows.GridEX.EditControls.EditBox()
         Me.btnSair = New Janus.Windows.EditControls.UIButton()
         Me.btnLogar = New Janus.Windows.EditControls.UIButton()
-        Me.picInteracti = New System.Windows.Forms.PictureBox()
+        Me.picLogo = New System.Windows.Forms.PictureBox()
         Me.picUser = New System.Windows.Forms.PictureBox()
         Me.picMain = New System.Windows.Forms.PictureBox()
-        CType(Me.picInteracti, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picLogo, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picUser, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picMain, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -118,16 +118,16 @@ Partial Class frmLogin
         Me.btnLogar.Text = "Logar"
         Me.btnLogar.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
-        'picInteracti
+        'picLogo
         '
-        Me.picInteracti.BackColor = System.Drawing.SystemColors.Window
-        Me.picInteracti.Image = Global.Documentacti.My.Resources.Resources.interacti
-        Me.picInteracti.Location = New System.Drawing.Point(6, 245)
-        Me.picInteracti.Name = "picInteracti"
-        Me.picInteracti.Size = New System.Drawing.Size(119, 39)
-        Me.picInteracti.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.picInteracti.TabIndex = 9
-        Me.picInteracti.TabStop = False
+        Me.picLogo.BackColor = System.Drawing.SystemColors.Window
+        Me.picLogo.Image = Global.Documentacti.My.Resources.Resources.logo_documentacti
+        Me.picLogo.Location = New System.Drawing.Point(314, 92)
+        Me.picLogo.Name = "picLogo"
+        Me.picLogo.Size = New System.Drawing.Size(275, 54)
+        Me.picLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.picLogo.TabIndex = 9
+        Me.picLogo.TabStop = False
         '
         'picUser
         '
@@ -161,7 +161,7 @@ Partial Class frmLogin
         Me.ClientSize = New System.Drawing.Size(695, 335)
         Me.Controls.Add(Me.btnSair)
         Me.Controls.Add(Me.btnLogar)
-        Me.Controls.Add(Me.picInteracti)
+        Me.Controls.Add(Me.picLogo)
         Me.Controls.Add(Me.txtSenha)
         Me.Controls.Add(Me.txtUsuario)
         Me.Controls.Add(Me.lblSistema)
@@ -180,7 +180,7 @@ Partial Class frmLogin
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Documentacti - Identificação de Usuário"
-        CType(Me.picInteracti, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.picLogo, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.picUser, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.picMain, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
@@ -190,7 +190,7 @@ Partial Class frmLogin
     Friend WithEvents lblSistema As System.Windows.Forms.Label
     Friend WithEvents txtSenha As Janus.Windows.GridEX.EditControls.EditBox
     Friend WithEvents txtUsuario As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents picInteracti As System.Windows.Forms.PictureBox
+    Friend WithEvents picLogo As System.Windows.Forms.PictureBox
     Friend WithEvents picMain As System.Windows.Forms.PictureBox
     Friend WithEvents btnSair As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnLogar As Janus.Windows.EditControls.UIButton
