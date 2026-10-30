@@ -17,6 +17,9 @@ Public Class frmMain
     Private bSilenciarNotificacao As Boolean = False
     Private Const gcIntervaloNotificacao As Integer = 30000 'milissegundos
 
+    'Logo de fundo da aba principal (carregada uma vez; o My.Resources cria uma cópia a cada leitura)
+    Private oLogoFundo As Image = My.Resources.logo_documentacti_fundo
+
 #End Region
 
 #Region "::: CONTROLES :::"
@@ -43,6 +46,37 @@ Public Class frmMain
         Catch
             'Falha ao registrar o logout não impede o fechamento
         End Try
+
+    End Sub
+
+    Private Sub pagPrincipal_Paint(sender As Object, e As PaintEventArgs) Handles pagPrincipal.Paint
+
+        'Logo do Documentacti ao fundo da aba principal (o que aparece quando todas as telas estão fechadas)
+        Try
+
+            Dim oLogo As Image = oLogoFundo
+            Dim oArea As Rectangle = pagPrincipal.ClientRectangle
+
+            'Margem proporcional ao tamanho da janela: 14% nas laterais e 20% em cima/embaixo
+            oArea.Inflate(-CInt(oArea.Width * 0.14), -CInt(oArea.Height * 0.2))
+            If oArea.Width <= 0 OrElse oArea.Height <= 0 Then Exit Sub
+
+            Dim dEscala As Double = Math.Min(oArea.Width / oLogo.Width, oArea.Height / oLogo.Height)
+            Dim iLargura As Integer = CInt(oLogo.Width * dEscala)
+            Dim iAltura As Integer = CInt(oLogo.Height * dEscala)
+
+            e.Graphics.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
+            e.Graphics.DrawImage(oLogo, oArea.X + (oArea.Width - iLargura) \ 2, oArea.Y + (oArea.Height - iAltura) \ 2, iLargura, iAltura)
+
+        Catch
+            'Falha ao desenhar a logo não afeta o sistema
+        End Try
+
+    End Sub
+
+    Private Sub pagPrincipal_Resize(sender As Object, e As EventArgs) Handles pagPrincipal.Resize
+
+        pagPrincipal.Invalidate()
 
     End Sub
 

@@ -292,6 +292,7 @@
     <None Include="Resources\excel_14.png" />
     <None Include="Resources\interacti.png" />
     <None Include="Resources\logo_documentacti.png" />
+    <None Include="Resources\logo_documentacti_fundo.png" />
     <None Include="Resources\login.png" />
     <None Include="Resources\logo_inicial.png" />
     <None Include="Resources\novo.bmp" />

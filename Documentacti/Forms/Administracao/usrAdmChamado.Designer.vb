@@ -1568,6 +1568,7 @@ Partial Class usrAdmChamado
         Me.grdApontamentoHistorico.Location = New System.Drawing.Point(11, 41)
         Me.grdApontamentoHistorico.Name = "grdApontamentoHistorico"
         Me.grdApontamentoHistorico.Office2007ColorScheme = Janus.Windows.GridEX.Office2007ColorScheme.Silver
+        Me.grdApontamentoHistorico.RecordNavigator = True
         Me.grdApontamentoHistorico.ScrollBars = Janus.Windows.GridEX.ScrollBars.Both
         Me.grdApontamentoHistorico.SelectedFormatStyle.BackColor = System.Drawing.Color.Empty
         Me.grdApontamentoHistorico.SelectedFormatStyle.ForeColor = System.Drawing.Color.Empty
@@ -1609,6 +1610,7 @@ Partial Class usrAdmChamado
         Me.grdApontamentoAndamento.Location = New System.Drawing.Point(11, 41)
         Me.grdApontamentoAndamento.Name = "grdApontamentoAndamento"
         Me.grdApontamentoAndamento.Office2007ColorScheme = Janus.Windows.GridEX.Office2007ColorScheme.Silver
+        Me.grdApontamentoAndamento.RecordNavigator = True
         Me.grdApontamentoAndamento.ScrollBars = Janus.Windows.GridEX.ScrollBars.Both
         Me.grdApontamentoAndamento.SelectedFormatStyle.BackColor = System.Drawing.Color.Empty
         Me.grdApontamentoAndamento.SelectedFormatStyle.ForeColor = System.Drawing.Color.Empty

@@ -102,6 +102,13 @@ Namespace My.Resources
             End Get
         End Property
 
+        Public ReadOnly Property logo_documentacti_fundo() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("logo_documentacti_fundo", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+
         Public ReadOnly Property login() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("login", resourceCulture)
