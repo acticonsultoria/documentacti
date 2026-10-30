@@ -1522,14 +1522,14 @@ Partial Class usrAdmChamado
         Me.tlpApontamento.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.tlpApontamento.ColumnCount = 2
-        Me.tlpApontamento.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 62.0!))
-        Me.tlpApontamento.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 38.0!))
-        Me.tlpApontamento.Controls.Add(Me.grpApontamentoHistorico, 0, 0)
-        Me.tlpApontamento.Controls.Add(Me.grpApontamentoAndamento, 1, 0)
+        Me.tlpApontamento.ColumnCount = 1
+        Me.tlpApontamento.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.tlpApontamento.Controls.Add(Me.grpApontamentoAndamento, 0, 0)
+        Me.tlpApontamento.Controls.Add(Me.grpApontamentoHistorico, 0, 1)
         Me.tlpApontamento.Location = New System.Drawing.Point(7, 140)
         Me.tlpApontamento.Name = "tlpApontamento"
-        Me.tlpApontamento.RowCount = 1
+        Me.tlpApontamento.RowCount = 2
+        Me.tlpApontamento.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150.0!))
         Me.tlpApontamento.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.tlpApontamento.Size = New System.Drawing.Size(1182, 340)
         Me.tlpApontamento.TabIndex = 2
@@ -1540,13 +1540,13 @@ Partial Class usrAdmChamado
         Me.grpApontamentoHistorico.Controls.Add(Me.grdApontamentoHistorico)
         Me.grpApontamentoHistorico.Dock = System.Windows.Forms.DockStyle.Fill
         Me.grpApontamentoHistorico.FormatStyle.ForeColor = System.Drawing.Color.Blue
-        Me.grpApontamentoHistorico.Location = New System.Drawing.Point(3, 3)
+        Me.grpApontamentoHistorico.Location = New System.Drawing.Point(3, 153)
         Me.grpApontamentoHistorico.Name = "grpApontamentoHistorico"
         Me.grpApontamentoHistorico.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.grpApontamentoHistorico.Padding = New System.Windows.Forms.Padding(8, 22, 8, 8)
-        Me.grpApontamentoHistorico.Size = New System.Drawing.Size(726, 334)
-        Me.grpApontamentoHistorico.TabIndex = 0
-        Me.grpApontamentoHistorico.Text = "Histórico de Apontamentos (edite Início, Término e Observação na própria célula)"
+        Me.grpApontamentoHistorico.Size = New System.Drawing.Size(1176, 184)
+        Me.grpApontamentoHistorico.TabIndex = 1
+        Me.grpApontamentoHistorico.Text = "Histórico de Apontamentos por Chamado (expanda o chamado e edite Início, Término, Duração, Horas e Observação na própria célula)"
         Me.grpApontamentoHistorico.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
         '
         'grdApontamentoHistorico
@@ -1565,6 +1565,7 @@ Partial Class usrAdmChamado
         Me.grdApontamentoHistorico.Font = New System.Drawing.Font("Arial", 8.25!)
         Me.grdApontamentoHistorico.GridLineStyle = Janus.Windows.GridEX.GridLineStyle.Solid
         Me.grdApontamentoHistorico.GroupByBoxVisible = False
+        Me.grdApontamentoHistorico.Hierarchical = True
         Me.grdApontamentoHistorico.Location = New System.Drawing.Point(11, 41)
         Me.grdApontamentoHistorico.Name = "grdApontamentoHistorico"
         Me.grdApontamentoHistorico.Office2007ColorScheme = Janus.Windows.GridEX.Office2007ColorScheme.Silver
@@ -1572,7 +1573,7 @@ Partial Class usrAdmChamado
         Me.grdApontamentoHistorico.ScrollBars = Janus.Windows.GridEX.ScrollBars.Both
         Me.grdApontamentoHistorico.SelectedFormatStyle.BackColor = System.Drawing.Color.Empty
         Me.grdApontamentoHistorico.SelectedFormatStyle.ForeColor = System.Drawing.Color.Empty
-        Me.grdApontamentoHistorico.Size = New System.Drawing.Size(704, 282)
+        Me.grdApontamentoHistorico.Size = New System.Drawing.Size(1154, 132)
         Me.grdApontamentoHistorico.TabIndex = 0
         Me.grdApontamentoHistorico.TotalRowPosition = Janus.Windows.GridEX.TotalRowPosition.BottomFixed
         Me.grdApontamentoHistorico.VisualStyle = Janus.Windows.GridEX.VisualStyle.Office2007
@@ -1583,11 +1584,11 @@ Partial Class usrAdmChamado
         Me.grpApontamentoAndamento.Controls.Add(Me.grdApontamentoAndamento)
         Me.grpApontamentoAndamento.Dock = System.Windows.Forms.DockStyle.Fill
         Me.grpApontamentoAndamento.FormatStyle.ForeColor = System.Drawing.Color.Blue
-        Me.grpApontamentoAndamento.Location = New System.Drawing.Point(735, 3)
+        Me.grpApontamentoAndamento.Location = New System.Drawing.Point(3, 3)
         Me.grpApontamentoAndamento.Name = "grpApontamentoAndamento"
         Me.grpApontamentoAndamento.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.grpApontamentoAndamento.Padding = New System.Windows.Forms.Padding(8, 22, 8, 8)
-        Me.grpApontamentoAndamento.Size = New System.Drawing.Size(444, 334)
+        Me.grpApontamentoAndamento.Size = New System.Drawing.Size(1176, 144)
         Me.grpApontamentoAndamento.TabIndex = 0
         Me.grpApontamentoAndamento.Text = "Apontamentos em Andamento (contando horas)"
         Me.grpApontamentoAndamento.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
@@ -1614,7 +1615,7 @@ Partial Class usrAdmChamado
         Me.grdApontamentoAndamento.ScrollBars = Janus.Windows.GridEX.ScrollBars.Both
         Me.grdApontamentoAndamento.SelectedFormatStyle.BackColor = System.Drawing.Color.Empty
         Me.grdApontamentoAndamento.SelectedFormatStyle.ForeColor = System.Drawing.Color.Empty
-        Me.grdApontamentoAndamento.Size = New System.Drawing.Size(422, 282)
+        Me.grdApontamentoAndamento.Size = New System.Drawing.Size(1154, 92)
         Me.grdApontamentoAndamento.TabIndex = 0
         Me.grdApontamentoAndamento.TabStop = False
         Me.grdApontamentoAndamento.TotalRowPosition = Janus.Windows.GridEX.TotalRowPosition.BottomFixed

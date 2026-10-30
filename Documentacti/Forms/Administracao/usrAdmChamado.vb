@@ -591,11 +591,13 @@ Public Class usrAdmChamado
 
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
 
-            'A coluna do botão fica fixa à esquerda; CurrentColumn pode vir vazio na grid editável,
-            'então a coluna é identificada pela posição do clique
-            Dim iColuna As Integer = grdApontamentoHistorico.PointToClient(Control.MousePosition).X
+            'Reapontar fica na linha do chamado (grid pai); CurrentColumn pode vir vazio,
+            'então a coluna é identificada pelo ponto do clique
+            If e.Row.Table IsNot grdApontamentoHistorico.RootTable Then Exit Sub
 
-            If iColuna <= grdApontamentoHistorico.RootTable.Columns("reapontar").Width + 6 Then Call Reapontar()
+            Dim oColuna As GridEXColumn = grdApontamentoHistorico.ColumnFromPoint()
+
+            If IsNothing(oColuna) = False AndAlso oColuna.Key = "reapontar" Then Call Reapontar()
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -638,10 +640,17 @@ Public Class usrAdmChamado
 
         Try
 
+            'Somente a grid filha (apontamentos) é editável
+            If e.Column.Table Is grdApontamentoHistorico.RootTable Then Exit Sub
+
             Select Case e.Column.Key
 
                 Case "data_hora_inicio", "data_hora_fim", "observacao"
                     Call AtualizarApontamento(grdApontamentoHistorico.CurrentRow)
+
+                Case "duracao", "horas"
+                    'Mantém o início e recalcula o término com a nova duração
+                    Call AtualizarApontamento(grdApontamentoHistorico.CurrentRow, TerminoPelaDuracao(grdApontamentoHistorico.CurrentRow, e.Column.Key))
 
                 Case "anulado"
                     Call AtualizarSituacaoApontamento(grdApontamentoHistorico.CurrentRow)
@@ -661,7 +670,7 @@ Public Class usrAdmChamado
         Try
 
             'Combo de situação: grava ao escolher, sem precisar sair da célula
-            If e.Column.Key = "anulado" Then grdApontamentoHistorico.UpdateData()
+            If e.Column.Key = "anulado" AndAlso e.Column.Table IsNot grdApontamentoHistorico.RootTable Then grdApontamentoHistorico.UpdateData()
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -850,7 +859,7 @@ Public Class usrAdmChamado
             Call ConfiguraGrid(grdApontamentoAndamento)
 
             'Observação do apontamento no padrão maiúsculo dos campos de texto
-            grdApontamentoHistorico.RootTable.Columns("observacao").CharacterCasing = CharacterCasing.Upper
+            grdApontamentoHistorico.RootTable.ChildTables(0).Columns("observacao").CharacterCasing = CharacterCasing.Upper
 
             dtpDataChamado.Value = Date.Now
             dtpDataInicioFiltro.Value = DateAdd(DateInterval.Month, -1, Now.Date) : dtpDataInicioFiltro.Checked = True
@@ -2177,12 +2186,36 @@ Public Class usrAdmChamado
 
             Cursor.Current = Cursors.WaitCursor
 
+            'Guarda os chamados expandidos e o apontamento selecionado para restaurar após recarregar
+            Dim oExpandidos As New List(Of String)
+            Dim sSelecionado As String = ""
+
+            For Each oRow As GridEXRow In grdApontamentoHistorico.GetRows
+                If oRow.RowType = RowType.Record AndAlso oRow.Expanded Then oExpandidos.Add(oRow.Cells("codigo_chamado").Value.ToString)
+            Next
+
+            If IsNothing(grdApontamentoHistorico.CurrentRow) = False AndAlso grdApontamentoHistorico.CurrentRow.RowType = RowType.Record _
+               AndAlso grdApontamentoHistorico.CurrentRow.Table IsNot grdApontamentoHistorico.RootTable Then
+                sSelecionado = ChaveApontamento(grdApontamentoHistorico.CurrentRow)
+            End If
+
             Call oClsUsrAdmChamado.LoadGridApontamentoHistorico(grdApontamentoHistorico, _
                                                                 IIf(cboResponsavelApontamento.SelectedIndex = -1, -1, cboResponsavelApontamento.SelectedValue), _
                                                                 IIf(cboEmpresaApontamento.SelectedIndex = -1, -1, cboEmpresaApontamento.SelectedValue), _
                                                                 -1, _
                                                                 IIf(dtpInicioApontamento.Checked = False, Nothing, dtpInicioApontamento.Value.Date), _
                                                                 IIf(dtpTerminoApontamento.Checked = False, Nothing, dtpTerminoApontamento.Value.Date))
+
+            For Each oRow As GridEXRow In grdApontamentoHistorico.GetRows
+                If oRow.RowType = RowType.Record AndAlso oExpandidos.Contains(oRow.Cells("codigo_chamado").Value.ToString) Then
+                    oRow.Expanded = True
+                    If sSelecionado <> "" Then
+                        For Each oFilha As GridEXRow In oRow.GetChildRecords
+                            If ChaveApontamento(oFilha) = sSelecionado Then grdApontamentoHistorico.MoveTo(oFilha) : Exit For
+                        Next
+                    End If
+                End If
+            Next
 
             Call AtualizarTotalApontamento()
 
@@ -2212,10 +2245,9 @@ Public Class usrAdmChamado
 
             Dim lTotal As Long = 0
 
-            'Apontamentos anulados ficam só como histórico: não entram no total
+            'Soma pelos chamados (grid pai), que já desconsideram os apontamentos anulados
             For Each oRow As GridEXRow In grdApontamentoHistorico.GetRows
-                If oRow.RowType = RowType.Record AndAlso IsDBNull(oRow.Cells("duracao_segundos").Value) = False _
-                   AndAlso ApontamentoAnulado(oRow) = False Then
+                If oRow.RowType = RowType.Record AndAlso IsDBNull(oRow.Cells("duracao_segundos").Value) = False Then
                     lTotal += CLng(oRow.Cells("duracao_segundos").Value)
                 End If
             Next
@@ -2411,14 +2443,15 @@ Public Class usrAdmChamado
 
     End Sub
 
-    Private Sub AtualizarApontamento(ByVal oRow As GridEXRow)
+    Private Sub AtualizarApontamento(ByVal oRow As GridEXRow, _
+                                     Optional ByVal oTermino As Object = Nothing)
 
         Try
 
             If IsNothing(oRow) OrElse oRow.RowType <> RowType.Record Then Exit Sub
 
             Dim oInicio As Object = oRow.Cells("data_hora_inicio").Value
-            Dim oFim As Object = oRow.Cells("data_hora_fim").Value
+            Dim oFim As Object = IIf(IsNothing(oTermino), oRow.Cells("data_hora_fim").Value, oTermino)
             Dim dAgora As Date = Date.Now.Add(oDiferencaServidor)
 
             'Validação antes de persistir (o banco valida novamente)
@@ -2461,6 +2494,53 @@ Public Class usrAdmChamado
         End Try
 
     End Sub
+
+    Private Function TerminoPelaDuracao(ByVal oRow As GridEXRow, ByVal sColuna As String) As Date
+
+        Try
+
+            Dim oInicio As Object = oRow.Cells("data_hora_inicio").Value
+            Dim sValor As String = oRow.Cells(sColuna).Value.ToString.Trim
+            Dim lSegundos As Long = -1
+
+            If IsDBNull(oInicio) OrElse IsNothing(oInicio) OrElse IsDate(oInicio) = False Then
+                Throw New ArgumentException("Informe uma data/hora de início válida antes de alterar a duração.")
+            End If
+
+            If sColuna = "horas" Then
+
+                'Horas decimais (ex.: 1,5 = 1h30)
+                Dim dHoras As Decimal
+                If Decimal.TryParse(sValor, dHoras) AndAlso dHoras > 0 Then lSegundos = CLng(Math.Round(dHoras * 3600))
+
+            Else
+
+                'Duração HH:mm:ss (aceita também HH:mm ou só as horas)
+                Dim sPartes() As String = sValor.Split(":"c)
+                Dim iParte(2) As Integer
+                Dim bValido As Boolean = (sPartes.Length >= 1 And sPartes.Length <= 3)
+
+                For i As Integer = 0 To sPartes.Length - 1
+                    If bValido = False OrElse Integer.TryParse(sPartes(i).Trim, iParte(i)) = False OrElse iParte(i) < 0 Then bValido = False : Exit For
+                    If i > 0 AndAlso iParte(i) > 59 Then bValido = False : Exit For
+                Next
+
+                If bValido Then lSegundos = iParte(0) * 3600L + iParte(1) * 60L + iParte(2)
+
+            End If
+
+            If lSegundos <= 0 Then
+                Throw New ArgumentException(IIf(sColuna = "horas", "Informe as horas do apontamento maiores que zero (ex.: 1,50).", _
+                                                                   "Informe a duração do apontamento no formato HH:mm:ss, maior que zero.").ToString)
+            End If
+
+            Return CDate(oInicio).AddSeconds(lSegundos)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
 
 #End Region
 

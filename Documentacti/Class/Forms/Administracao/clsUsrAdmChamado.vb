@@ -1418,10 +1418,69 @@ Public Class clsUsrAdmChamado
             'Executa Query
             oDataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_apontamento_historico", oMySqlParameter)
 
+            'Grid pai: um registro por chamado, montado a partir dos apontamentos (grid filha)
+            Dim oApontamento As DataTable = oDataSet.Tables(0)
+            Dim oChamado As New DataTable("chamado")
+
+            'Duração e horas são editáveis na grid filha (recalculam o término)
+            oApontamento.Columns("duracao").ReadOnly = False
+            oApontamento.Columns("duracao").MaxLength = -1
+            oApontamento.Columns("horas").ReadOnly = False
+
+            For Each sColuna As String In New String() {"codigo_empresa", "codigo_chamado", "codigo_empresa_cliente", "titulo", "empresa", "tipos_atendimento", "status_chamado"}
+                oChamado.Columns.Add(sColuna, oApontamento.Columns(sColuna).DataType)
+            Next
+            oChamado.Columns.Add("quantidade", GetType(Integer))
+            oChamado.Columns.Add("ultimo_apontamento", GetType(Date))
+            oChamado.Columns.Add("duracao_segundos", GetType(Long))
+            oChamado.Columns.Add("duracao", GetType(String))
+            oChamado.Columns.Add("horas", GetType(Decimal))
+            oChamado.PrimaryKey = New DataColumn() {oChamado.Columns("codigo_empresa"), oChamado.Columns("codigo_chamado")}
+
+            For Each oLinha As DataRow In oApontamento.Rows
+
+                Dim oLinhaChamado As DataRow = oChamado.Rows.Find(New Object() {oLinha("codigo_empresa"), oLinha("codigo_chamado")})
+
+                If IsNothing(oLinhaChamado) Then
+                    oLinhaChamado = oChamado.NewRow
+                    For Each sColuna As String In New String() {"codigo_empresa", "codigo_chamado", "codigo_empresa_cliente", "titulo", "empresa", "tipos_atendimento", "status_chamado"}
+                        oLinhaChamado(sColuna) = oLinha(sColuna)
+                    Next
+                    oLinhaChamado("quantidade") = 0
+                    oLinhaChamado("ultimo_apontamento") = oLinha("data_hora_inicio")
+                    oLinhaChamado("duracao_segundos") = 0
+                    oChamado.Rows.Add(oLinhaChamado)
+                End If
+
+                oLinhaChamado("quantidade") = CInt(oLinhaChamado("quantidade")) + 1
+                If CDate(oLinha("data_hora_inicio")) > CDate(oLinhaChamado("ultimo_apontamento")) Then oLinhaChamado("ultimo_apontamento") = oLinha("data_hora_inicio")
+
+                'Apontamentos anulados ficam só como histórico: não entram nas horas do chamado
+                If IsDBNull(oLinha("duracao_segundos")) = False AndAlso (IsDBNull(oLinha("anulado")) OrElse CLng(oLinha("anulado")) <> 1) Then
+                    oLinhaChamado("duracao_segundos") = CLng(oLinhaChamado("duracao_segundos")) + CLng(oLinha("duracao_segundos"))
+                End If
+
+            Next
+
+            For Each oLinhaChamado As DataRow In oChamado.Rows
+                oLinhaChamado("duracao") = FormatarDuracao(CLng(oLinhaChamado("duracao_segundos")))
+                oLinhaChamado("horas") = Math.Round(CDec(oLinhaChamado("duracao_segundos")) / 3600, 2)
+            Next
+
+            'Chamados com apontamento mais recente primeiro
+            oChamado = New DataView(oChamado, "", "ultimo_apontamento DESC", DataViewRowState.CurrentRows).ToTable("chamado")
+            oDataSet.Tables.Add(oChamado)
+
+            'Adiciona Relacionamento
+            oDataSet.Relations.Add("apontamento", _
+                                   New DataColumn() {oChamado.Columns("codigo_empresa"), oChamado.Columns("codigo_chamado")}, _
+                                   New DataColumn() {oApontamento.Columns("codigo_empresa"), oApontamento.Columns("codigo_chamado")})
+
             'Carrega Grid
             Call ConfigurarDataMemberGrid(oGrid)
             oGrid.DataSource = oDataSet.DefaultViewManager
-            oGrid.DataMember = oDataSet.Tables(0).TableName
+            oGrid.RootTable.ChildTables(0).DataMember = "apontamento"
+            oGrid.DataMember = oChamado.TableName
 
         Catch MySqlEx As MySqlException
             Throw MySqlEx
