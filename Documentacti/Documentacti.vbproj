@@ -137,6 +137,7 @@
     <Compile Include="Class\Database\MySQLHelper.vb" />
     <Compile Include="Class\Forms\Administracao\clsUsrAdmChamado.vb" />
     <Compile Include="Class\Forms\Main\clsFrmLogin.vb" />
+    <Compile Include="Class\Forms\Main\clsFrmMain.vb" />
     <Compile Include="Class\Forms\Main\clsFrmConfiguracao.vb" />
     <Compile Include="Class\Function\clsConfigXML.vb" />
     <Compile Include="Class\Function\clsDllEmbutida.vb" />

@@ -32,7 +32,8 @@ Public Class frmMain
         Try
 
             tmrNotificacao.Stop()
-            oToastManager.CloseAll()
+            'Dispose fecha as notificações na hora (o CloseAll só inicia a animação de saída e mantém as janelas abertas)
+            oToastManager.Dispose()
 
             If goUsuario.sUsuario <> "" Then
                 Dim oClsFrmLogin As New clsFrmLogin
@@ -229,6 +230,12 @@ Public Class frmMain
 
             'Autentica Usuário
             If Login() = False Then
+                End
+            End If
+
+            'Verifica Versão do Aplicativo (se atualizou, o exe novo já foi aberto)
+            Dim oClsFrmMain As New clsFrmMain
+            If oClsFrmMain.VerificaVersaoAplicativo() = True Then
                 End
             End If
 
