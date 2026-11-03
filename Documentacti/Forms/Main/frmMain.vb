@@ -17,6 +17,10 @@ Public Class frmMain
     Private bSilenciarNotificacao As Boolean = False
     Private Const gcIntervaloNotificacao As Integer = 30000 'milissegundos
 
+    'Chamados criados sem responsável para o time do usuário (notificados uma vez; marcados no banco)
+    Private oChamadosNotificados As New HashSet(Of Long)
+    Private bNotificacaoChamadoIndisponivel As Boolean = False
+
     'Logo de fundo da aba principal (carregada uma vez; o My.Resources cria uma cópia a cada leitura)
     Private oLogoFundo As Image = My.Resources.logo_documentacti_fundo
 
@@ -352,6 +356,8 @@ Public Class frmMain
 
             oMensagensNotificadas.Clear()
             oToastsChat.Clear()
+            oChamadosNotificados.Clear()
+            bNotificacaoChamadoIndisponivel = False
             bNotificacaoIniciada = False
 
             oToastManager.AppCaption = "Documentacti"
@@ -377,6 +383,8 @@ Public Class frmMain
     Private Sub VerificarNotificacoes()
 
         Try
+
+            Call VerificarChamadosSemResponsavel()
 
             Dim oClsUsrAdmChamado As New clsUsrAdmChamado
             Dim oTabela As DataTable = oClsUsrAdmChamado.LoadChatNotificacao()
@@ -423,6 +431,54 @@ Public Class frmMain
 
         Catch ex As Exception
             Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub VerificarChamadosSemResponsavel()
+
+        'Falha aqui (ex.: banco ainda sem a proc) não pode derrubar as notificações do chat
+        If bNotificacaoChamadoIndisponivel Then Exit Sub
+
+        Try
+
+            Dim oClsUsrAdmChamado As New clsUsrAdmChamado
+            Dim oTabela As DataTable = oClsUsrAdmChamado.LoadChamadoNotificacao()
+            Dim oNovos As New List(Of DataRow)
+
+            For Each oRow As DataRow In oTabela.Rows
+                If oChamadosNotificados.Add(CLng(oRow.Item("codigo_atividade"))) Then oNovos.Add(oRow)
+            Next
+
+            If oNovos.Count = 0 Then Exit Sub
+
+            'Muitos pendentes (ex.: ao entrar no sistema): um resumo em vez de uma notificação por chamado
+            If oNovos.Count > 3 Then
+                Dim oToast As New Toast("Chamados sem responsável", _
+                                        oNovos.Count & " chamado(s) do seu time aguardando responsável.", _
+                                        ToastType.Warning) With {.Caption = "Chamados", .Duration = 10000}
+                AddHandler oToast.Click, Sub(s, a) AbrirChamado(CLng(oNovos(0).Item("codigo_atividade")))
+                oToastManager.Show(oToast)
+            Else
+                For Each oRow As DataRow In oNovos
+                    Dim lChamado As Long = CLng(oRow.Item("codigo_atividade"))
+                    Dim oToast As New Toast("Novo chamado sem responsável", _
+                                            "#" & lChamado & " - " & oRow.Item("titulo").ToString & vbCrLf & _
+                                            oRow.Item("empresa").ToString & IIf(oRow.Item("criador").ToString = "", "", "  ·  por " & oRow.Item("criador").ToString), _
+                                            ToastType.Warning) With {.Caption = "Chamado #" & lChamado, .Duration = 10000}
+                    AddHandler oToast.Click, Sub(s, a) AbrirChamado(lChamado)
+                    oToastManager.Show(oToast)
+                Next
+            End If
+
+            'Exibidas: não voltam a aparecer (nem no próximo login)
+            For Each oRow As DataRow In oNovos
+                oClsUsrAdmChamado.UpdateChamadoNotificacao(CLng(oRow.Item("codigo_atividade")))
+            Next
+
+        Catch ex As Exception
+            bNotificacaoChamadoIndisponivel = True
+            Informacao("Notificações de chamados sem responsável indisponíveis: " & ex.Message, gColorInformacaoErro)
         End Try
 
     End Sub
@@ -506,6 +562,25 @@ Public Class frmMain
 
             Dim oTela As usrAdmChamado = TelaChamados()
             If Not IsNothing(oTela) Then oTela.AbrirChat(lChamado, iCanal)
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub AbrirChamado(ByVal lChamado As Long)
+
+        'Clique na notificação de chamado sem responsável: traz o sistema para frente e abre o chamado
+        Try
+
+            If WindowState = FormWindowState.Minimized Then WindowState = FormWindowState.Maximized
+            Activate()
+
+            Call AbrirTela(New usrAdmChamado, "Chamados")
+
+            Dim oTela As usrAdmChamado = TelaChamados()
+            If Not IsNothing(oTela) Then oTela.AbrirChamado(lChamado)
 
         Catch ex As Exception
             Call TratamentoErro(ex.Message, Me.Text)

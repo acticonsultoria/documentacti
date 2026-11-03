@@ -1191,7 +1191,11 @@ Public Class usrAdmChamado
                 Call LoadGridComentario()
                 Call CarregarChat()
 
-                frmMain.Informacao("Registro inserido com sucesso! Chamado " & txtCodigo.Text & " disponível para apontamento.", Color.Blue)
+                If GetCheckedValues(cboResponsavel) = "" Then
+                    Call InformarChamadoSemResponsavel(CLng(txtCodigo.Text))
+                Else
+                    frmMain.Informacao("Registro inserido com sucesso! Chamado " & txtCodigo.Text & " disponível para apontamento.", Color.Blue)
+                End If
 
             End If
 
@@ -1261,6 +1265,36 @@ Public Class usrAdmChamado
 
     End Sub
 
+    Private Sub InformarChamadoSemResponsavel(ByVal lChamado As Long)
+
+        'Chamado criado sem responsável: informa quem do time da empresa foi notificado
+        Try
+
+            Dim oTabela As DataTable = oClsUsrAdmChamado.LoadChamadoNotificacaoResumo(lChamado)
+            Dim sTime As String = ""
+            Dim iQuantidade As Integer = 0
+
+            If oTabela.Rows.Count > 0 Then
+                sTime = oTabela.Rows(0).Item("time").ToString
+                iQuantidade = CInt(oTabela.Rows(0).Item("quantidade"))
+            End If
+
+            If iQuantidade > 0 Then
+                frmMain.Informacao("Chamado " & lChamado & " inserido sem responsável: " & iQuantidade & " usuário(s) do time " & sTime & " notificado(s).", Color.Blue)
+            ElseIf sTime = "" Then
+                frmMain.Informacao("Chamado " & lChamado & " inserido sem responsável. A empresa não tem time: ninguém foi notificado.", gColorInformacaoErro)
+                MsgBox("Chamado " & lChamado & " inserido sem responsável." & vbCrLf & vbCrLf & _
+                       "A empresa não tem time cadastrado, então ninguém foi notificado.", MsgBoxStyle.Exclamation, gAplicacao)
+            Else
+                frmMain.Informacao("Chamado " & lChamado & " inserido sem responsável. Nenhum outro usuário ativo no time " & sTime & " para notificar.", gColorInformacaoErro)
+            End If
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
     Private Function Validacao() As Boolean
 
         Try
@@ -1271,7 +1305,7 @@ Public Class usrAdmChamado
             If ValidaCampo(cboPrioridade, lblPrioridade) = False Then Exit Function
             If ValidaCampo(txtTitulo, lblTitulo, TipoCampo.texto) = False Then Exit Function
             If ValidaCampo(cboTipoAtividade, lblTipoChamado) = False Then Exit Function
-            If ValidaCampo(cboResponsavel, lblResponsavel) = False Then Exit Function
+            'Responsável é opcional: chamado sem responsável notifica o time da empresa
             If ValidaCampo(cboTipoAtendimento, lblTipoAtendimento) = False Then Exit Function
             If ValidaCampo(txtDescricao, lblDefinicao, TipoCampo.texto) = False Then Exit Function
 
@@ -1614,8 +1648,27 @@ Public Class usrAdmChamado
 
     Public Sub AbrirChat(ByVal lChamado As Long, ByVal iCanal As Integer)
 
-        'Chamado vindo da notificação: filtra somente pelo código e abre direto na aba do chat
+        'Chamado vindo da notificação do chat: abre o chamado direto na aba do chat
         Try
+
+            If AbrirChamado(lChamado) = False Then Exit Sub
+
+            tabDadosChamado.SelectedTab = pagChat
+
+            Call AtualizarLeituraChat()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Public Function AbrirChamado(ByVal lChamado As Long) As Boolean
+
+        'Chamado vindo de notificação: filtra somente pelo código e abre o chamado
+        Try
+
+            AbrirChamado = False
 
             Cursor.Current = Cursors.WaitCursor
 
@@ -1638,12 +1691,8 @@ Public Class usrAdmChamado
                     grdListagem.Row = r
                     Call Editar()
 
-                    tabDadosChamado.SelectedTab = pagChat
-
-                    Call AtualizarLeituraChat()
-
                     Cursor.Current = Cursors.Default
-                    Exit Sub
+                    Return True
 
                 End If
             Next
@@ -1656,7 +1705,7 @@ Public Class usrAdmChamado
             Call TratarErro(ex)
         End Try
 
-    End Sub
+    End Function
 
     Private Sub LimparChat()
 
