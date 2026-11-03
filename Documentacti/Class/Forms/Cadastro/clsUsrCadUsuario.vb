@@ -18,11 +18,12 @@ Public Class clsUsrCadUsuario
     Public Sub LoadGrid(ByVal oGrid As GridEX, _
                         ByVal sUsuario As String, _
                         ByVal sNome As String, _
-                        ByVal iAtivo As Integer)
+                        ByVal iAtivo As Integer, _
+                        ByVal iTime As Integer)
 
         Try
 
-            Dim oDataSet As DataSet = SelectUsuarios(sUsuario, sNome, iAtivo)
+            Dim oDataSet As DataSet = SelectUsuarios(sUsuario, sNome, iAtivo, iTime)
 
             'Carrega Grid
             Call ConfigurarDataMemberGrid(oGrid)
@@ -43,7 +44,7 @@ Public Class clsUsrCadUsuario
         'O login é único: a proc da web (sp_integracao_cadastro_basico_usuario) sobrescreve quem tiver o mesmo login
         Try
 
-            For Each oRow As DataRow In SelectUsuarios(sUsuario, "", -1).Tables(0).Rows
+            For Each oRow As DataRow In SelectUsuarios(sUsuario, "", -1, -1).Tables(0).Rows
                 If String.Equals(oRow.Item("usuario").ToString.Trim, sUsuario.Trim, StringComparison.OrdinalIgnoreCase) _
                    AndAlso CLng(oRow.Item("codigo")) <> lCodigoIgnorar Then
                     Return True
@@ -347,7 +348,8 @@ Public Class clsUsrCadUsuario
 
     Private Function SelectUsuarios(ByVal sUsuario As String, _
                                     ByVal sNome As String, _
-                                    ByVal iAtivo As Integer) As DataSet
+                                    ByVal iAtivo As Integer, _
+                                    ByVal iTime As Integer) As DataSet
 
         'Variaveis Locais
         Dim oMySqlParameter(0) As MySqlParameter
@@ -381,10 +383,17 @@ Public Class clsUsrCadUsuario
             oMySqlParameter(i).ParameterName = "@p_ativo"
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
-            oMySqlParameter(i).Value = iAtivo
+            oMySqlParameter(i).Value = iAtivo : i += 1 : ReDim Preserve oMySqlParameter(i)
 
-            'Executa Query
-            Return ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_cadastro_usuario", oMySqlParameter)
+            'Seta Parametros - Time (-1 = todos, 0 = sem time)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_tipo_time"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iTime
+
+            'Executa Query (proc do Documentacti: a sp_select_cadastro_usuario é da plataforma web)
+            Return ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_cadastro_usuario", oMySqlParameter)
 
         Catch MySqlEx As MySqlException
             Throw MySqlEx

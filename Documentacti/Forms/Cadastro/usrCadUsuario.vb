@@ -179,6 +179,9 @@ Public Class usrCadUsuario
             oSemTime.Item("descricao") = "SEM TIME"
             oTimes.Rows.InsertAt(oSemTime, 0)
 
+            'Filtro de time: vem com o time do usuário logado (sem time = todos)
+            Call LoadComboTimeFiltro()
+
             tabMain.TabPages.Remove(pagDados)
 
             Call ConfiguraGrid(grdListagem)
@@ -233,9 +236,38 @@ Public Class usrCadUsuario
             Call oClsUsrCadUsuario.LoadGrid(grdListagem, _
                                             txtUsuarioFiltro.Text.Trim, _
                                             txtNomeFiltro.Text.Trim, _
-                                            CInt(cboAtivoFiltro.SelectedValue))
+                                            CInt(cboAtivoFiltro.SelectedValue), _
+                                            CInt(cboTimeFiltro.SelectedValue))
 
             Cursor.Current = Cursors.Default
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub LoadComboTimeFiltro()
+
+        Try
+
+            Call LoadCombo(cboTimeFiltro, "sp_select_combo_tipo_time_empresa")
+
+            Dim oTimes As DataTable = CType(cboTimeFiltro.DataSource, DataTable)
+
+            Dim oSemTime As DataRow = oTimes.NewRow
+            oSemTime.Item("codigo") = 0
+            oSemTime.Item("descricao") = "SEM TIME"
+            oTimes.Rows.InsertAt(oSemTime, 0)
+
+            Dim oTodos As DataRow = oTimes.NewRow
+            oTodos.Item("codigo") = -1
+            oTodos.Item("descricao") = "TODOS"
+            oTimes.Rows.InsertAt(oTodos, 0)
+
+            'Seleção pela posição: o código vem do banco como Int16 e não casa com um Integer no SelectedValue
+            Dim oTimeUsuario() As DataRow = oTimes.Select("codigo = " & goUsuario.iTime)
+            cboTimeFiltro.SelectedIndex = If(goUsuario.iTime > 0 AndAlso oTimeUsuario.Length > 0, oTimes.Rows.IndexOf(oTimeUsuario(0)), 0)
 
         Catch ex As Exception
             Throw ex

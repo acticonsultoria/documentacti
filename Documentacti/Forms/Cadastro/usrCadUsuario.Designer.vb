@@ -37,6 +37,8 @@ Partial Class usrCadUsuario
         Me.txtNomeFiltro = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.lblAtivoFiltro = New System.Windows.Forms.Label()
         Me.cboAtivoFiltro = New Janus.Windows.EditControls.UIComboBox()
+        Me.lblTimeFiltro = New System.Windows.Forms.Label()
+        Me.cboTimeFiltro = New Janus.Windows.EditControls.UIComboBox()
         Me.btnFiltrar = New Janus.Windows.EditControls.UIButton()
         Me.grdListagem = New Janus.Windows.GridEX.GridEX()
         Me.grpControl = New Janus.Windows.EditControls.UIGroupBox()
@@ -125,6 +127,8 @@ Partial Class usrCadUsuario
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpFiltro.BackColor = System.Drawing.Color.Transparent
         Me.grpFiltro.Controls.Add(Me.btnFiltrar)
+        Me.grpFiltro.Controls.Add(Me.cboTimeFiltro)
+        Me.grpFiltro.Controls.Add(Me.lblTimeFiltro)
         Me.grpFiltro.Controls.Add(Me.cboAtivoFiltro)
         Me.grpFiltro.Controls.Add(Me.lblAtivoFiltro)
         Me.grpFiltro.Controls.Add(Me.txtNomeFiltro)
@@ -192,6 +196,26 @@ Partial Class usrCadUsuario
         Me.cboAtivoFiltro.Size = New System.Drawing.Size(100, 20)
         Me.cboAtivoFiltro.TabIndex = 5
         '
+        'lblTimeFiltro
+        '
+        Me.lblTimeFiltro.AutoSize = True
+        Me.lblTimeFiltro.BackColor = System.Drawing.Color.Transparent
+        Me.lblTimeFiltro.Location = New System.Drawing.Point(674, 17)
+        Me.lblTimeFiltro.Name = "lblTimeFiltro"
+        Me.lblTimeFiltro.TabIndex = 6
+        Me.lblTimeFiltro.Text = "Time:"
+        '
+        'cboTimeFiltro
+        '
+        Me.cboTimeFiltro.AutoSize = False
+        Me.cboTimeFiltro.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboTimeFiltro.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
+        Me.cboTimeFiltro.Location = New System.Drawing.Point(677, 34)
+        Me.cboTimeFiltro.Name = "cboTimeFiltro"
+        Me.cboTimeFiltro.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboTimeFiltro.Size = New System.Drawing.Size(150, 20)
+        Me.cboTimeFiltro.TabIndex = 7
+        '
         'btnFiltrar
         '
         Me.btnFiltrar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
@@ -201,7 +225,7 @@ Partial Class usrCadUsuario
         Me.btnFiltrar.Name = "btnFiltrar"
         Me.btnFiltrar.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnFiltrar.Size = New System.Drawing.Size(91, 23)
-        Me.btnFiltrar.TabIndex = 6
+        Me.btnFiltrar.TabIndex = 8
         Me.btnFiltrar.Text = "Filtrar"
         Me.btnFiltrar.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
@@ -590,6 +614,8 @@ Partial Class usrCadUsuario
     Friend WithEvents txtNomeFiltro As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents lblAtivoFiltro As System.Windows.Forms.Label
     Friend WithEvents cboAtivoFiltro As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents lblTimeFiltro As System.Windows.Forms.Label
+    Friend WithEvents cboTimeFiltro As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents btnFiltrar As Janus.Windows.EditControls.UIButton
     Friend WithEvents grdListagem As Janus.Windows.GridEX.GridEX
     Friend WithEvents grpControl As Janus.Windows.EditControls.UIGroupBox
