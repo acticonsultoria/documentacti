@@ -187,6 +187,7 @@ Public Class usrCadEmpresa
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrCadEmpresa_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
+            Call AddComboAutoComplete(New UIComboBox() {cboAtivoFiltro, cboTimeFiltro, cboAtivo, cboTime})
 
             'Combos - Filtro
             'Padrão: somente empresas ativas, do mesmo time do usuário (TODOS quando o usuário não tem time)

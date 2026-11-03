@@ -204,6 +204,7 @@ Public Class usrCadAviso
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrCadAviso_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
+            Call AddComboAutoComplete(New UIComboBox() {cboAtivoFiltro})
 
             Call LoadComboLista(cboAtivoFiltro, "-1=TODOS;1=SIM;0=NÃO")
 

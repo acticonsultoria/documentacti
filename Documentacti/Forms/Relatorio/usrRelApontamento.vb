@@ -194,6 +194,7 @@ Public Class usrRelApontamento
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrRelApontamento_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
+            Call AddComboAutoComplete(New UIComboBox() {cboTimeAtual, cboTimeHistorico, cboEmpresaHistorico, cboTipoAtendimentoHistorico, cboSituacaoHistorico})
 
             'Time: começa no time do usuário logado; sem time, traz todos
             Call LoadComboTime(cboTimeAtual)

@@ -554,7 +554,6 @@ Partial Class usrAdmChamado
         '
         Me.cboTimeFiltro.AutoSize = False
         Me.cboTimeFiltro.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboTimeFiltro.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboTimeFiltro.Location = New System.Drawing.Point(964, 34)
         Me.cboTimeFiltro.Name = "cboTimeFiltro"
         Me.cboTimeFiltro.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -813,7 +812,7 @@ Partial Class usrAdmChamado
         Me.btnInserirComentarioDev.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnInserirComentarioDev.Size = New System.Drawing.Size(140, 23)
         Me.btnInserirComentarioDev.TabIndex = 4
-        Me.btnInserirComentarioDev.Text = "Comentário DEV"
+        Me.btnInserirComentarioDev.Text = "Resolução"
         Me.btnInserirComentarioDev.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'btnInserirComentario
@@ -1031,7 +1030,7 @@ Partial Class usrAdmChamado
         Me.pagComentarioDev.Name = "pagComentarioDev"
         Me.pagComentarioDev.Size = New System.Drawing.Size(1180, 210)
         Me.pagComentarioDev.TabStop = True
-        Me.pagComentarioDev.Text = "Comentários de DEV"
+        Me.pagComentarioDev.Text = "Resolução"
         '
         'grdComentarioDev
         '
@@ -1301,7 +1300,6 @@ Partial Class usrAdmChamado
         '
         Me.cboTipoAtividade.AutoSize = False
         Me.cboTipoAtividade.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboTipoAtividade.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboTipoAtividade.Location = New System.Drawing.Point(671, 69)
         Me.cboTipoAtividade.Name = "cboTipoAtividade"
         Me.cboTipoAtividade.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -1341,7 +1339,6 @@ Partial Class usrAdmChamado
         '
         Me.cboPrioridade.AutoSize = False
         Me.cboPrioridade.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboPrioridade.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboPrioridade.Location = New System.Drawing.Point(977, 29)
         Me.cboPrioridade.Name = "cboPrioridade"
         Me.cboPrioridade.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -1362,7 +1359,6 @@ Partial Class usrAdmChamado
         '
         Me.cboEmpresa.AutoSize = False
         Me.cboEmpresa.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboEmpresa.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboEmpresa.Location = New System.Drawing.Point(671, 29)
         Me.cboEmpresa.Name = "cboEmpresa"
         Me.cboEmpresa.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -1771,7 +1767,6 @@ Partial Class usrAdmChamado
         '
         Me.cboChamadoApontamento.AutoSize = False
         Me.cboChamadoApontamento.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboChamadoApontamento.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboChamadoApontamento.Location = New System.Drawing.Point(265, 32)
         Me.cboChamadoApontamento.Name = "cboChamadoApontamento"
         Me.cboChamadoApontamento.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -2032,7 +2027,6 @@ Partial Class usrAdmChamado
         '
         Me.cboGraficoRelatorio.AutoSize = False
         Me.cboGraficoRelatorio.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboGraficoRelatorio.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboGraficoRelatorio.Location = New System.Drawing.Point(237, 74)
         Me.cboGraficoRelatorio.Name = "cboGraficoRelatorio"
         Me.cboGraficoRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -2053,7 +2047,6 @@ Partial Class usrAdmChamado
         '
         Me.cboAgruparRelatorio.AutoSize = False
         Me.cboAgruparRelatorio.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboAgruparRelatorio.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboAgruparRelatorio.Location = New System.Drawing.Point(9, 74)
         Me.cboAgruparRelatorio.Name = "cboAgruparRelatorio"
         Me.cboAgruparRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver

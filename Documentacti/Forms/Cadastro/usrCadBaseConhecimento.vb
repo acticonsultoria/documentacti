@@ -269,6 +269,7 @@ Public Class usrCadBaseConhecimento
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrCadBaseConhecimento_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
+            Call AddComboAutoComplete(New UIComboBox() {cboModuloFiltro, cboEmpresaFiltro, cboModulo})
 
             'Combos - Filtro
             Call LoadCombo(cboModuloFiltro, "sp_select_combo_cadastro_basico_modulo")

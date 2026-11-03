@@ -79,8 +79,8 @@ Public Class frmAdmChamadoComentario
             Me.Icon = frmMain.Icon
 
             If bComentarioDev = True Then
-                Me.Text = "Chamado - Comentário de DEV (interno)"
-                pagTabela.Text = "Comentário de DEV"
+                Me.Text = "Chamado - Resolução (interno)"
+                pagTabela.Text = "Resolução"
             End If
 
             If bVisualizacao = True Then

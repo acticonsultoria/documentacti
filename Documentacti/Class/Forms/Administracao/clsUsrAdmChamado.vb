@@ -432,6 +432,17 @@ Public Class clsUsrAdmChamado
             'Executa Query
             oDataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_lista", oMySqlParameter)
 
+            'Chamados em que o usuário logado é um dos responsáveis (destacados em laranja na grid)
+            Dim oTabela As DataTable = oDataSet.Tables(0)
+            oTabela.Columns.Add("responsavel_usuario", GetType(Integer))
+            For Each oRow As DataRow In oTabela.Rows
+                oRow.Item("responsavel_usuario") = 0
+                For Each sResponsavel As String In oRow.Item("codigos_responsavel").ToString.Split(","c)
+                    If sResponsavel.Trim = goUsuario.lUsuario.ToString Then oRow.Item("responsavel_usuario") = 1 : Exit For
+                Next
+            Next
+            oTabela.AcceptChanges()
+
             'Carrega Grid
             Call ConfigurarDataMemberGrid(oGrid)
             oGrid.DataSource = oDataSet.DefaultViewManager

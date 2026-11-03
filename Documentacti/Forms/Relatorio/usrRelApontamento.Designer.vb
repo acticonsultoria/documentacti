@@ -153,7 +153,6 @@ Partial Class usrRelApontamento
         '
         Me.cboTimeAtual.AutoSize = False
         Me.cboTimeAtual.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboTimeAtual.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboTimeAtual.Location = New System.Drawing.Point(9, 34)
         Me.cboTimeAtual.Name = "cboTimeAtual"
         Me.cboTimeAtual.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -351,7 +350,6 @@ Partial Class usrRelApontamento
         '
         Me.cboTimeHistorico.AutoSize = False
         Me.cboTimeHistorico.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboTimeHistorico.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboTimeHistorico.Location = New System.Drawing.Point(240, 34)
         Me.cboTimeHistorico.Name = "cboTimeHistorico"
         Me.cboTimeHistorico.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -410,7 +408,6 @@ Partial Class usrRelApontamento
         '
         Me.cboEmpresaHistorico.AutoSize = False
         Me.cboEmpresaHistorico.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboEmpresaHistorico.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboEmpresaHistorico.Location = New System.Drawing.Point(9, 75)
         Me.cboEmpresaHistorico.Name = "cboEmpresaHistorico"
         Me.cboEmpresaHistorico.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -430,7 +427,6 @@ Partial Class usrRelApontamento
         '
         Me.cboTipoAtendimentoHistorico.AutoSize = False
         Me.cboTipoAtendimentoHistorico.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboTipoAtendimentoHistorico.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboTipoAtendimentoHistorico.Location = New System.Drawing.Point(318, 75)
         Me.cboTipoAtendimentoHistorico.Name = "cboTipoAtendimentoHistorico"
         Me.cboTipoAtendimentoHistorico.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -450,7 +446,6 @@ Partial Class usrRelApontamento
         '
         Me.cboSituacaoHistorico.AutoSize = False
         Me.cboSituacaoHistorico.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboSituacaoHistorico.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboSituacaoHistorico.Location = New System.Drawing.Point(577, 75)
         Me.cboSituacaoHistorico.Name = "cboSituacaoHistorico"
         Me.cboSituacaoHistorico.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver

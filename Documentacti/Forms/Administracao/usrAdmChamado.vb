@@ -796,6 +796,7 @@ Public Class usrAdmChamado
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrAdmChamado_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
+            Call AddComboAutoComplete(New UIComboBox() {cboTimeFiltro, cboTipoAtividade, cboPrioridade, cboEmpresa, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio})
 
             'Combos - Chamados
             Call LoadCombo(cboStatusFiltro, "sp_select_combo_status_atividade")
@@ -814,8 +815,7 @@ Public Class usrAdmChamado
             Call LoadCombo(cboEmpresaFiltro, "sp_select_combo_administracao_chamado_empresa")
             Call LoadCombo(cboTipoAtendimentoFiltro, "sp_select_combo_administracao_chamado_tipo_atendimento")
             Call LoadCombo(cboResponsavelFiltro, "sp_select_combo_administracao_chamado_usuario")
-            'Responsáveis: começa marcado o usuário logado (pode marcar mais de um)
-            Call SetCheckedValues(cboResponsavelFiltro, goUsuario.lUsuario.ToString)
+            'Responsáveis: começa sem nenhum marcado (traz todos); os do usuário logado ficam em laranja na grid
             Call LoadCombo(cboEmpresa,"sp_select_combo_administracao_chamado_empresa")
             Call LoadCombo(cboPrioridade, "sp_select_combo_chamados_prioridade")
             Call LoadCombo(cboTipoAtividade, "sp_select_combo_tipo_atividade")
@@ -2370,23 +2370,33 @@ Public Class usrAdmChamado
                 Exit Sub
             End If
 
+            'Lê a chave antes da confirmação: com a pergunta aberta o Timer recarrega a grid e a linha deixa de existir
+            Dim oEmpresa As Object = Nothing
+            Dim oUsuario As Object = Nothing
+            Dim oChamado As Object = Nothing
+            Dim oApontamento As Object = Nothing
+            Dim sTitulo As String = ""
+
             With grdApontamentoAndamento.CurrentRow.Cells
-
-                If MsgBox("Deseja encerrar o apontamento do chamado " & .Item("codigo_chamado").Value & " - " & .Item("titulo").Value & "?" & vbCrLf & vbCrLf & _
-                          "O chamado NÃO será fechado; somente este apontamento será encerrado.", _
-                          MsgBoxStyle.Question + MsgBoxStyle.YesNo, gAplicacao) = MsgBoxResult.No Then Exit Sub
-
-                Cursor.Current = Cursors.WaitCursor
-
-                'Encerra somente o registro da chave composta selecionada
-                Call oClsUsrAdmChamado.EncerrarApontamento(.Item("codigo_empresa").Value, _
-                                                           .Item("codigo_usuario").Value, _
-                                                           .Item("codigo_chamado").Value, _
-                                                           .Item("codigo_apontamento").Value)
-
-                frmMain.Informacao("Apontamento do chamado " & .Item("codigo_chamado").Value & " encerrado com sucesso!", Color.Blue)
-
+                oEmpresa = .Item("codigo_empresa").Value
+                oUsuario = .Item("codigo_usuario").Value
+                oChamado = .Item("codigo_chamado").Value
+                oApontamento = .Item("codigo_apontamento").Value
+                sTitulo = .Item("titulo").Value.ToString
             End With
+
+            tmrApontamento.Stop()
+
+            If MsgBox("Deseja encerrar o apontamento do chamado " & oChamado & " - " & sTitulo & "?" & vbCrLf & vbCrLf & _
+                      "O chamado NÃO será fechado; somente este apontamento será encerrado.", _
+                      MsgBoxStyle.Question + MsgBoxStyle.YesNo, gAplicacao) = MsgBoxResult.No Then Exit Sub
+
+            Cursor.Current = Cursors.WaitCursor
+
+            'Encerra somente o registro da chave composta selecionada
+            Call oClsUsrAdmChamado.EncerrarApontamento(oEmpresa, oUsuario, oChamado, oApontamento)
+
+            frmMain.Informacao("Apontamento do chamado " & oChamado & " encerrado com sucesso!", Color.Blue)
 
             Call LoadGridApontamentoAndamento()
             Call LoadGridApontamentoHistorico()
@@ -2395,6 +2405,9 @@ Public Class usrAdmChamado
 
         Catch ex As Exception
             Throw ex
+        Finally
+            'Retoma o Timer pausado durante a confirmação
+            If tmrApontamento.Enabled = False AndAlso bCarregando = False Then tmrApontamento.Start()
         End Try
 
     End Sub

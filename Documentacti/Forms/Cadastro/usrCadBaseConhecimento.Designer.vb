@@ -203,7 +203,6 @@ Partial Class usrCadBaseConhecimento
         '
         Me.cboModuloFiltro.AutoSize = False
         Me.cboModuloFiltro.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboModuloFiltro.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboModuloFiltro.Location = New System.Drawing.Point(551, 34)
         Me.cboModuloFiltro.Name = "cboModuloFiltro"
         Me.cboModuloFiltro.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -223,7 +222,6 @@ Partial Class usrCadBaseConhecimento
         '
         Me.cboEmpresaFiltro.AutoSize = False
         Me.cboEmpresaFiltro.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboEmpresaFiltro.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboEmpresaFiltro.Location = New System.Drawing.Point(757, 34)
         Me.cboEmpresaFiltro.Name = "cboEmpresaFiltro"
         Me.cboEmpresaFiltro.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -384,7 +382,6 @@ Partial Class usrCadBaseConhecimento
         Me.cboModulo.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.cboModulo.AutoSize = False
         Me.cboModulo.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboModulo.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboModulo.Location = New System.Drawing.Point(915, 32)
         Me.cboModulo.Name = "cboModulo"
         Me.cboModulo.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver

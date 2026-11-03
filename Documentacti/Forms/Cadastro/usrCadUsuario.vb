@@ -166,6 +166,7 @@ Public Class usrCadUsuario
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrCadUsuario_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
+            Call AddComboAutoComplete(New UIComboBox() {cboAtivoFiltro, cboTimeFiltro, cboEmpresa, cboTime})
 
             'Combos
             Call LoadComboLista(cboAtivoFiltro, "-1=TODOS;1=SIM;0=NÃO")

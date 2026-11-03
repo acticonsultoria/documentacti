@@ -253,6 +253,55 @@ Public Module modFunction
 
     End Sub
 
+    Public Sub AddComboAutoComplete(ByVal oComboBox() As UIComboBox)
+
+        'Combos digitáveis com autocomplete (como no INTERACTI): ao sair do combo com um texto que não
+        'corresponde a nenhum item (ou em branco), volta a seleção que ele tinha ao receber o foco
+        Try
+
+            For Each oCombo As UIComboBox In oComboBox
+                Call AddComboAutoComplete(oCombo)
+            Next
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AddComboAutoComplete(ByVal oCombo As UIComboBox)
+
+        Try
+
+            Dim iIndiceEntrada As Integer = -1
+
+            AddHandler oCombo.Enter, Sub(sender As Object, e As EventArgs)
+                                         iIndiceEntrada = oCombo.SelectedIndex
+                                     End Sub
+
+            AddHandler oCombo.Leave, Sub(sender As Object, e As EventArgs)
+
+                                         If oCombo.SelectedIndex <> -1 Then Exit Sub
+
+                                         'Texto digitado igual a um item (sem diferenciar maiúsculas)
+                                         For i As Integer = 0 To oCombo.Items.Count - 1
+                                             If String.Equals(oCombo.Items(i).Text, oCombo.Text.Trim, StringComparison.OrdinalIgnoreCase) Then
+                                                 oCombo.SelectedIndex = i
+                                                 Exit Sub
+                                             End If
+                                         Next
+
+                                         oCombo.SelectedIndex = IIf(iIndiceEntrada < oCombo.Items.Count, iIndiceEntrada, -1)
+                                         If oCombo.SelectedIndex = -1 Then oCombo.Text = ""
+
+                                     End Sub
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
     Public Sub AddGotFocus(ByVal oControlParent As Control, _
                            ByRef oDelegate As DelegateGotFocus)
 

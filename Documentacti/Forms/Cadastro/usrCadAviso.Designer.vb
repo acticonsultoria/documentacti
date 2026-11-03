@@ -164,7 +164,6 @@ Partial Class usrCadAviso
         '
         Me.cboAtivoFiltro.AutoSize = False
         Me.cboAtivoFiltro.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboAtivoFiltro.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboAtivoFiltro.Location = New System.Drawing.Point(415, 34)
         Me.cboAtivoFiltro.Name = "cboAtivoFiltro"
         Me.cboAtivoFiltro.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver

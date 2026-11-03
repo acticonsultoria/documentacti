@@ -189,7 +189,6 @@ Partial Class usrCadUsuario
         '
         Me.cboAtivoFiltro.AutoSize = False
         Me.cboAtivoFiltro.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboAtivoFiltro.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboAtivoFiltro.Location = New System.Drawing.Point(571, 34)
         Me.cboAtivoFiltro.Name = "cboAtivoFiltro"
         Me.cboAtivoFiltro.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -209,7 +208,6 @@ Partial Class usrCadUsuario
         '
         Me.cboTimeFiltro.AutoSize = False
         Me.cboTimeFiltro.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboTimeFiltro.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboTimeFiltro.Location = New System.Drawing.Point(677, 34)
         Me.cboTimeFiltro.Name = "cboTimeFiltro"
         Me.cboTimeFiltro.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -391,7 +389,6 @@ Partial Class usrCadUsuario
         '
         Me.cboEmpresa.AutoSize = False
         Me.cboEmpresa.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboEmpresa.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboEmpresa.Location = New System.Drawing.Point(641, 32)
         Me.cboEmpresa.Name = "cboEmpresa"
         Me.cboEmpresa.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
@@ -467,7 +464,6 @@ Partial Class usrCadUsuario
         '
         Me.cboTime.AutoSize = False
         Me.cboTime.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboTime.ComboStyle = Janus.Windows.EditControls.ComboStyle.DropDownList
         Me.cboTime.Location = New System.Drawing.Point(641, 70)
         Me.cboTime.Name = "cboTime"
         Me.cboTime.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
