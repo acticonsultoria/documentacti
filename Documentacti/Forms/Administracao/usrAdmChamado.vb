@@ -119,22 +119,6 @@ Public Class usrAdmChamado
 
     End Sub
 
-    Private Sub btnSair_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSair.Click, btnSair2.Click, btnSair3.Click, btnSair4.Click
-
-        Try
-
-            tmrApontamento.Stop()
-            tmrChat.Stop()
-
-            If TypeOf Me.Parent Is Form Then Me.Parent.Dispose() Else frmMain.tabMain.TabPages.Remove(Me.Parent)
-            Me.Dispose()
-
-        Catch ex As Exception
-            Call TratamentoErro(ex.Message, "Chamados")
-        End Try
-
-    End Sub
-
     Private Sub btnVoltar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnVoltar.Click
 
         Try
@@ -661,6 +645,23 @@ Public Class usrAdmChamado
             Call TratarErro(ex)
             'Recarrega para descartar o valor não gravado
             Me.BeginInvoke(New MethodInvoker(AddressOf RecarregarHistorico))
+        End Try
+
+    End Sub
+
+    Private Sub grdApontamentoHistorico_FormattingRow(sender As Object, e As RowLoadEventArgs) Handles grdApontamentoHistorico.FormattingRow
+
+        Try
+
+            'Total da Duração (texto HH:mm:ss): soma da duração em segundos dos chamados, respeitando o filtro da grid
+            If e.Row.RowType <> RowType.TotalRow OrElse e.Row.Table IsNot grdApontamentoHistorico.RootTable Then Exit Sub
+
+            Dim oTotal As Object = grdApontamentoHistorico.GetTotal(grdApontamentoHistorico.RootTable.Columns("duracao_segundos"), AggregateFunction.Sum)
+
+            e.Row.Cells("duracao").Text = FormatarDuracao(IIf(IsNumeric(oTotal), CLng(oTotal), 0))
+
+        Catch
+            'Evento de pintura: sem mensagem (repetiria a cada redesenho); o total fica em branco
         End Try
 
     End Sub

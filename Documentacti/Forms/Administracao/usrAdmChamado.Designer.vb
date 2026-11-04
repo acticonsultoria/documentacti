@@ -55,7 +55,6 @@ Partial Class usrAdmChamado
         Me.tabMain = New Janus.Windows.UI.Tab.UITab()
         Me.pagLista = New Janus.Windows.UI.Tab.UITabPage()
         Me.grpControl = New Janus.Windows.EditControls.UIGroupBox()
-        Me.btnSair = New Janus.Windows.EditControls.UIButton()
         Me.btnNovo1 = New Janus.Windows.EditControls.UIButton()
         Me.btnExcel = New Janus.Windows.EditControls.UIButton()
         Me.grpLegenda = New Janus.Windows.EditControls.UIGroupBox()
@@ -91,7 +90,6 @@ Partial Class usrAdmChamado
         Me.lblDataFiltro = New System.Windows.Forms.Label()
         Me.pagDados = New Janus.Windows.UI.Tab.UITabPage()
         Me.grpControl2 = New Janus.Windows.EditControls.UIGroupBox()
-        Me.btnSair2 = New Janus.Windows.EditControls.UIButton()
         Me.btnVoltar = New Janus.Windows.EditControls.UIButton()
         Me.btnSalvar = New Janus.Windows.EditControls.UIButton()
         Me.btnNovo = New Janus.Windows.EditControls.UIButton()
@@ -146,7 +144,6 @@ Partial Class usrAdmChamado
         Me.lblCodigo = New System.Windows.Forms.Label()
         Me.pagApontamento = New Janus.Windows.UI.Tab.UITabPage()
         Me.grpControl3 = New Janus.Windows.EditControls.UIGroupBox()
-        Me.btnSair3 = New Janus.Windows.EditControls.UIButton()
         Me.btnExcelApontamento = New Janus.Windows.EditControls.UIButton()
         Me.tlpApontamento = New System.Windows.Forms.TableLayoutPanel()
         Me.grpApontamentoHistorico = New Janus.Windows.EditControls.UIGroupBox()
@@ -170,7 +167,6 @@ Partial Class usrAdmChamado
         Me.lblEmpresaApontamento = New System.Windows.Forms.Label()
         Me.pagRelatorio = New Janus.Windows.UI.Tab.UITabPage()
         Me.grpControl4 = New Janus.Windows.EditControls.UIGroupBox()
-        Me.btnSair4 = New Janus.Windows.EditControls.UIButton()
         Me.btnExcelRelatorio = New Janus.Windows.EditControls.UIButton()
         Me.tlpRelatorio = New System.Windows.Forms.TableLayoutPanel()
         Me.grpGraficoRelatorio = New Janus.Windows.EditControls.UIGroupBox()
@@ -290,7 +286,6 @@ Partial Class usrAdmChamado
         Me.grpControl.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpControl.BackColor = System.Drawing.Color.Transparent
-        Me.grpControl.Controls.Add(Me.btnSair)
         Me.grpControl.Controls.Add(Me.btnNovo1)
         Me.grpControl.Controls.Add(Me.btnExcel)
         Me.grpControl.Location = New System.Drawing.Point(418, 484)
@@ -300,27 +295,13 @@ Partial Class usrAdmChamado
         Me.grpControl.TabIndex = 3
         Me.grpControl.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
         '
-        'btnSair
-        '
-        Me.btnSair.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSair.Image = CType(resources.GetObject("btnSair.Image"), System.Drawing.Image)
-        Me.btnSair.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnSair.ImageSize = New System.Drawing.Size(19, 16)
-        Me.btnSair.Location = New System.Drawing.Point(671, 17)
-        Me.btnSair.Name = "btnSair"
-        Me.btnSair.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.btnSair.Size = New System.Drawing.Size(91, 23)
-        Me.btnSair.TabIndex = 3
-        Me.btnSair.Text = "Sair"
-        Me.btnSair.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
-        '
         'btnNovo1
         '
         Me.btnNovo1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnNovo1.Image = Global.Documentacti.My.Resources.Resources.Novo
         Me.btnNovo1.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
         Me.btnNovo1.ImageSize = New System.Drawing.Size(13, 16)
-        Me.btnNovo1.Location = New System.Drawing.Point(574, 17)
+        Me.btnNovo1.Location = New System.Drawing.Point(671, 17)
         Me.btnNovo1.Name = "btnNovo1"
         Me.btnNovo1.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnNovo1.Size = New System.Drawing.Size(91, 23)
@@ -333,7 +314,7 @@ Partial Class usrAdmChamado
         Me.btnExcel.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnExcel.Image = Global.Documentacti.My.Resources.Resources.excel
         Me.btnExcel.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnExcel.Location = New System.Drawing.Point(477, 17)
+        Me.btnExcel.Location = New System.Drawing.Point(574, 17)
         Me.btnExcel.Name = "btnExcel"
         Me.btnExcel.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnExcel.Size = New System.Drawing.Size(91, 23)
@@ -734,7 +715,6 @@ Partial Class usrAdmChamado
         Me.grpControl2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpControl2.BackColor = System.Drawing.Color.Transparent
-        Me.grpControl2.Controls.Add(Me.btnSair2)
         Me.grpControl2.Controls.Add(Me.btnVoltar)
         Me.grpControl2.Controls.Add(Me.btnSalvar)
         Me.grpControl2.Controls.Add(Me.btnNovo)
@@ -749,26 +729,12 @@ Partial Class usrAdmChamado
         Me.grpControl2.TabIndex = 2
         Me.grpControl2.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
         '
-        'btnSair2
-        '
-        Me.btnSair2.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSair2.Image = CType(resources.GetObject("btnSair2.Image"), System.Drawing.Image)
-        Me.btnSair2.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnSair2.ImageSize = New System.Drawing.Size(19, 16)
-        Me.btnSair2.Location = New System.Drawing.Point(1081, 17)
-        Me.btnSair2.Name = "btnSair2"
-        Me.btnSair2.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.btnSair2.Size = New System.Drawing.Size(91, 23)
-        Me.btnSair2.TabIndex = 8
-        Me.btnSair2.Text = "Sair"
-        Me.btnSair2.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
-        '
         'btnVoltar
         '
         Me.btnVoltar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnVoltar.Image = Global.Documentacti.My.Resources.Resources.seta_esquerda
         Me.btnVoltar.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnVoltar.Location = New System.Drawing.Point(984, 17)
+        Me.btnVoltar.Location = New System.Drawing.Point(1081, 17)
         Me.btnVoltar.Name = "btnVoltar"
         Me.btnVoltar.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnVoltar.Size = New System.Drawing.Size(91, 23)
@@ -781,7 +747,7 @@ Partial Class usrAdmChamado
         Me.btnSalvar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnSalvar.Image = Global.Documentacti.My.Resources.Resources.salvar
         Me.btnSalvar.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnSalvar.Location = New System.Drawing.Point(887, 17)
+        Me.btnSalvar.Location = New System.Drawing.Point(984, 17)
         Me.btnSalvar.Name = "btnSalvar"
         Me.btnSalvar.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnSalvar.Size = New System.Drawing.Size(91, 23)
@@ -795,7 +761,7 @@ Partial Class usrAdmChamado
         Me.btnNovo.Image = Global.Documentacti.My.Resources.Resources.Novo
         Me.btnNovo.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
         Me.btnNovo.ImageSize = New System.Drawing.Size(13, 16)
-        Me.btnNovo.Location = New System.Drawing.Point(790, 17)
+        Me.btnNovo.Location = New System.Drawing.Point(887, 17)
         Me.btnNovo.Name = "btnNovo"
         Me.btnNovo.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnNovo.Size = New System.Drawing.Size(91, 23)
@@ -1477,7 +1443,6 @@ Partial Class usrAdmChamado
         Me.grpControl3.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpControl3.BackColor = System.Drawing.Color.Transparent
-        Me.grpControl3.Controls.Add(Me.btnSair3)
         Me.grpControl3.Controls.Add(Me.btnExcelApontamento)
         Me.grpControl3.Location = New System.Drawing.Point(7, 486)
         Me.grpControl3.Name = "grpControl3"
@@ -1486,26 +1451,12 @@ Partial Class usrAdmChamado
         Me.grpControl3.TabIndex = 3
         Me.grpControl3.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
         '
-        'btnSair3
-        '
-        Me.btnSair3.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSair3.Image = CType(resources.GetObject("btnSair3.Image"), System.Drawing.Image)
-        Me.btnSair3.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnSair3.ImageSize = New System.Drawing.Size(19, 16)
-        Me.btnSair3.Location = New System.Drawing.Point(1081, 17)
-        Me.btnSair3.Name = "btnSair3"
-        Me.btnSair3.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.btnSair3.Size = New System.Drawing.Size(91, 23)
-        Me.btnSair3.TabIndex = 2
-        Me.btnSair3.Text = "Sair"
-        Me.btnSair3.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
-        '
         'btnExcelApontamento
         '
         Me.btnExcelApontamento.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnExcelApontamento.Image = Global.Documentacti.My.Resources.Resources.excel
         Me.btnExcelApontamento.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnExcelApontamento.Location = New System.Drawing.Point(984, 17)
+        Me.btnExcelApontamento.Location = New System.Drawing.Point(1081, 17)
         Me.btnExcelApontamento.Name = "btnExcelApontamento"
         Me.btnExcelApontamento.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnExcelApontamento.Size = New System.Drawing.Size(91, 23)
@@ -1820,7 +1771,6 @@ Partial Class usrAdmChamado
         Me.grpControl4.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpControl4.BackColor = System.Drawing.Color.Transparent
-        Me.grpControl4.Controls.Add(Me.btnSair4)
         Me.grpControl4.Controls.Add(Me.btnExcelRelatorio)
         Me.grpControl4.Location = New System.Drawing.Point(7, 486)
         Me.grpControl4.Name = "grpControl4"
@@ -1829,26 +1779,12 @@ Partial Class usrAdmChamado
         Me.grpControl4.TabIndex = 2
         Me.grpControl4.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
         '
-        'btnSair4
-        '
-        Me.btnSair4.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSair4.Image = CType(resources.GetObject("btnSair4.Image"), System.Drawing.Image)
-        Me.btnSair4.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnSair4.ImageSize = New System.Drawing.Size(19, 16)
-        Me.btnSair4.Location = New System.Drawing.Point(1081, 17)
-        Me.btnSair4.Name = "btnSair4"
-        Me.btnSair4.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.btnSair4.Size = New System.Drawing.Size(91, 23)
-        Me.btnSair4.TabIndex = 2
-        Me.btnSair4.Text = "Sair"
-        Me.btnSair4.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
-        '
         'btnExcelRelatorio
         '
         Me.btnExcelRelatorio.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnExcelRelatorio.Image = Global.Documentacti.My.Resources.Resources.excel
         Me.btnExcelRelatorio.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnExcelRelatorio.Location = New System.Drawing.Point(984, 17)
+        Me.btnExcelRelatorio.Location = New System.Drawing.Point(1081, 17)
         Me.btnExcelRelatorio.Name = "btnExcelRelatorio"
         Me.btnExcelRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnExcelRelatorio.Size = New System.Drawing.Size(91, 23)
@@ -2311,7 +2247,6 @@ Partial Class usrAdmChamado
     Friend WithEvents grpControl As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents btnExcel As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnNovo1 As Janus.Windows.EditControls.UIButton
-    Friend WithEvents btnSair As Janus.Windows.EditControls.UIButton
     Friend WithEvents grpDados As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents lblCodigo As System.Windows.Forms.Label
     Friend WithEvents txtCodigo As Janus.Windows.GridEX.EditControls.MaskedEditBox
@@ -2362,7 +2297,6 @@ Partial Class usrAdmChamado
     Friend WithEvents btnNovo As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnSalvar As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnVoltar As Janus.Windows.EditControls.UIButton
-    Friend WithEvents btnSair2 As Janus.Windows.EditControls.UIButton
     Friend WithEvents grpApontamento As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents lblEmpresaApontamento As System.Windows.Forms.Label
     Friend WithEvents cboEmpresaApontamento As Janus.Windows.EditControls.UIComboBox
@@ -2385,7 +2319,6 @@ Partial Class usrAdmChamado
     Friend WithEvents grdApontamentoAndamento As Janus.Windows.GridEX.GridEX
     Friend WithEvents grpControl3 As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents btnExcelApontamento As Janus.Windows.EditControls.UIButton
-    Friend WithEvents btnSair3 As Janus.Windows.EditControls.UIButton
     Friend WithEvents grpFiltroRelatorio As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents lblPeriodoRelatorio As System.Windows.Forms.Label
     Friend WithEvents dtpInicioRelatorio As Janus.Windows.CalendarCombo.CalendarCombo
@@ -2411,7 +2344,6 @@ Partial Class usrAdmChamado
     Friend WithEvents grdRelatorio As Janus.Windows.GridEX.GridEX
     Friend WithEvents grpControl4 As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents btnExcelRelatorio As Janus.Windows.EditControls.UIButton
-    Friend WithEvents btnSair4 As Janus.Windows.EditControls.UIButton
     Friend WithEvents vsmMain As Janus.Windows.Common.VisualStyleManager
     Friend WithEvents ToolTip As System.Windows.Forms.ToolTip
     Friend WithEvents tmrApontamento As System.Windows.Forms.Timer
