@@ -52,16 +52,19 @@ Public Class clsFrmMain
 
     End Function
 
-    Public Function VerificaVersaoAplicativo() As Boolean
+    Public Function VerificaVersaoAplicativo(Optional ByVal bManual As Boolean = False) As Boolean
 
         'Retorna True quando a atualização foi disparada e o sistema precisa fechar
+        'bManual = True: chamada pelo menu "Verificar Versão", informa o resultado mesmo quando não há atualização
         Try
 
             VerificaVersaoAplicativo = False
 
             'Executando pelo Visual Studio ou de uma pasta bin do projeto: não troca o exe do desenvolvedor
-            If Debugger.IsAttached Then Exit Function
-            If Application.ExecutablePath.ToUpper.Contains("\BIN\DEBUG\") OrElse Application.ExecutablePath.ToUpper.Contains("\BIN\RELEASE\") Then Exit Function
+            If Debugger.IsAttached OrElse Application.ExecutablePath.ToUpper.Contains("\BIN\DEBUG\") OrElse Application.ExecutablePath.ToUpper.Contains("\BIN\RELEASE\") Then
+                If bManual = True Then MsgBox("Executando em ambiente de desenvolvimento (Visual Studio ou pasta bin): a versão não é atualizada.", MsgBoxStyle.Information, "Verificar Versão")
+                Exit Function
+            End If
 
             Dim oTabela As DataTable
 
@@ -69,15 +72,22 @@ Public Class clsFrmMain
                 oTabela = LoadVersaoAplicativo()
             Catch
                 'Base sem a tabela/proc de versão: segue sem verificar
+                If bManual = True Then MsgBox("Não foi possível consultar a versão publicada no banco de dados.", MsgBoxStyle.Exclamation, "Verificar Versão")
                 Exit Function
             End Try
 
-            If oTabela.Rows.Count = 0 Then Exit Function
+            If oTabela.Rows.Count = 0 Then
+                If bManual = True Then MsgBox("Nenhuma versão publicada no banco de dados para o " & gAplicacao & ".", MsgBoxStyle.Information, "Verificar Versão")
+                Exit Function
+            End If
 
             Dim sVersaoBanco As String = oTabela.Rows(0).Item("versao").ToString.Trim
             Dim sCaminho As String = oTabela.Rows(0).Item("caminho").ToString.Trim
 
-            If sVersaoBanco = "" OrElse sVersaoBanco = Application.ProductVersion.ToString Then Exit Function
+            If sVersaoBanco = "" OrElse sVersaoBanco = Application.ProductVersion.ToString Then
+                If bManual = True Then MsgBox("O " & gAplicacao & " já está na versão atual (" & Application.ProductVersion.ToString & ").", MsgBoxStyle.Information, "Verificar Versão")
+                Exit Function
+            End If
 
             If File.Exists(sCaminho) = False Then
                 frmMain.Informacao("Versão " & sVersaoBanco & " disponível, mas o executável não foi encontrado ou seu login não tem acesso a " & sCaminho, gColorInformacaoErro)

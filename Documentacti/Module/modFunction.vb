@@ -550,15 +550,126 @@ Public Module modFunction
                 RemoveHandler .RowCountChanged, AddressOf ConfigurarFiltroContainsGrid
                 AddHandler .RowCountChanged, AddressOf ConfigurarFiltroContainsGrid
 
+                'Copiar o conteúdo da célula: Ctrl+C e clique direito (mesmo padrão do INTERACTI)
+                RemoveHandler .KeyDown, AddressOf Grid_KeyDownCopiar
+                AddHandler .KeyDown, AddressOf Grid_KeyDownCopiar
+                RemoveHandler .MouseDown, AddressOf Grid_MouseDownCopiar
+                AddHandler .MouseDown, AddressOf Grid_MouseDownCopiar
+
             End With
 
             Call ConfigurarFiltroContains(oGrid.RootTable)
+            Call ConfigurarMenuCopiar(oGrid)
 
         Catch ex As Exception
             Throw ex
         End Try
 
     End Sub
+
+    Private Sub ConfigurarMenuCopiar(ByVal oGrid As GridEX)
+
+        Try
+
+            'Grid que já tem menu próprio fica como está
+            If IsNothing(oGrid.ContextMenuStrip) = False OrElse IsNothing(oGrid.ContextMenu) = False Then Exit Sub
+
+            Dim oMenu As New ContextMenuStrip
+            Dim oItem As New ToolStripMenuItem("Copiar Conteúdo da Célula")
+
+            oItem.ShortcutKeyDisplayString = "Ctrl+C"
+            oItem.Tag = oGrid
+            AddHandler oItem.Click, AddressOf MenuCopiar_Click
+
+            oMenu.Items.Add(oItem)
+            oGrid.ContextMenuStrip = oMenu
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub MenuCopiar_Click(ByVal sender As Object, ByVal e As EventArgs)
+
+        Try
+
+            Call CopiarCelulaGrid(CType(CType(sender, ToolStripMenuItem).Tag, GridEX))
+
+        Catch ex As Exception
+            MsgBox(ex.Message, MsgBoxStyle.Exclamation, gAplicacao)
+        End Try
+
+    End Sub
+
+    Private Sub Grid_KeyDownCopiar(ByVal sender As Object, ByVal e As KeyEventArgs)
+
+        Try
+
+            Dim oGrid As GridEX = CType(sender, GridEX)
+
+            'Célula em edição: o próprio campo copia o texto selecionado
+            If e.Control AndAlso e.KeyCode = Keys.C AndAlso oGrid.EditMode = EditMode.EditOff Then
+                If CopiarCelulaGrid(oGrid) Then
+                    e.Handled = True
+                    e.SuppressKeyPress = True
+                End If
+            End If
+
+        Catch ex As Exception
+            MsgBox(ex.Message, MsgBoxStyle.Exclamation, gAplicacao)
+        End Try
+
+    End Sub
+
+    Private Sub Grid_MouseDownCopiar(ByVal sender As Object, ByVal e As MouseEventArgs)
+
+        Try
+
+            If e.Button <> MouseButtons.Right Then Exit Sub
+
+            Dim oGrid As GridEX = CType(sender, GridEX)
+
+            'Clique direito posiciona na célula clicada antes de abrir o menu
+            Dim iLinha As Integer = oGrid.RowPositionFromPoint(e.X, e.Y)
+            Dim oColuna As GridEXColumn = oGrid.ColumnFromPoint(e.X, e.Y)
+
+            If iLinha >= 0 AndAlso iLinha < oGrid.RowCount Then oGrid.Row = iLinha
+            If IsNothing(oColuna) = False Then oGrid.CurrentColumn = oColuna
+
+        Catch ex As Exception
+            'Somente posicionamento: não interrompe o clique
+        End Try
+
+    End Sub
+
+    Private Function CopiarCelulaGrid(ByVal oGrid As GridEX) As Boolean
+
+        Try
+
+            CopiarCelulaGrid = False
+
+            If IsNothing(oGrid.CurrentRow) OrElse IsNothing(oGrid.CurrentColumn) Then Exit Function
+            If oGrid.CurrentRow.RowType <> RowType.Record Then Exit Function
+
+            Dim oCelula As GridEXCell = oGrid.CurrentRow.Cells(oGrid.CurrentColumn.Key)
+            If IsNothing(oCelula) Then Exit Function
+
+            'Texto exibido (com formatação/lista), senão o valor
+            Dim sTexto As String = oCelula.Text
+            If String.IsNullOrEmpty(sTexto) AndAlso IsNothing(oCelula.Value) = False AndAlso IsDBNull(oCelula.Value) = False Then sTexto = oCelula.Value.ToString
+
+            If String.IsNullOrEmpty(sTexto) Then Exit Function
+
+            Clipboard.SetDataObject(sTexto, True)
+
+            Return True
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
 
     Private Sub ConfigurarFiltroContainsGrid(ByVal sender As Object, ByVal e As EventArgs)
 

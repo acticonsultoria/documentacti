@@ -251,6 +251,23 @@ Public Class frmMain
 
     End Sub
 
+    Private Sub mnuVerificarVersao_Click(sender As Object, e As EventArgs) Handles mnuVerificarVersao.Click
+
+        Try
+
+            'Mesma verificação da abertura do sistema: se a versão do banco for diferente, troca o exe e reabre
+            Dim oClsFrmMain As New clsFrmMain
+            If oClsFrmMain.VerificaVersaoAplicativo(True) = True Then
+                'Fecha pelo FormClosing (registra o logout); o processo oculto espera o fechamento para trocar o exe
+                Me.Close()
+            End If
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
     Private Sub mnuSair_Click(sender As Object, e As EventArgs) Handles mnuSair.Click
 
         Me.Close()
