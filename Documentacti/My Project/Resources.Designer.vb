@@ -81,6 +81,13 @@ Namespace My.Resources
             End Get
         End Property
 
+        Public ReadOnly Property lapis() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("lapis", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+
         Public ReadOnly Property integracao() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("integracao", resourceCulture)

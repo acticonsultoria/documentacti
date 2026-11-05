@@ -35,6 +35,11 @@ Public Class usrAdmChamado
     Private iLidaChat As Integer = 0
     Private bAtualizandoChat As Boolean = False
 
+    'Checklist: item em edição no campo de texto (0 = campo inclui item novo)
+    Private lChecklistEdicao As Long = 0
+    'Checklist: menu de times do botão Template
+    Private oMenuTemplateChecklist As ContextMenuStrip
+
 #End Region
 
 #Region "::: CONTROLES :::"
@@ -357,10 +362,13 @@ Public Class usrAdmChamado
 
         Try
 
-            'Enter adiciona o item, sem precisar do botão
+            'Enter adiciona (ou salva o item em edição), sem precisar do botão; Esc desiste da edição
             If e.KeyCode = Keys.Enter Then
                 e.SuppressKeyPress = True
                 Call AdicionarItemChecklist()
+            ElseIf e.KeyCode = Keys.Escape AndAlso lChecklistEdicao > 0 Then
+                e.SuppressKeyPress = True
+                Call CancelarEdicaoChecklist()
             End If
 
         Catch ex As Exception
@@ -412,7 +420,36 @@ Public Class usrAdmChamado
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
 
             If IsNothing(grdChecklist.CurrentColumn) Then Exit Sub
-            If grdChecklist.CurrentColumn.Key = "excluir" Then Call ExcluirItemChecklist()
+
+            Select Case grdChecklist.CurrentColumn.Key
+                Case "excluir" : Call ExcluirItemChecklist()
+                Case "editar" : Call EditarItemChecklist()
+            End Select
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub btnTemplateChecklist_Click(sender As Object, e As EventArgs) Handles btnTemplateChecklist.Click
+
+        Try
+
+            Call MostrarTemplateChecklist()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub mnuTemplateChecklist_Click(sender As Object, e As EventArgs)
+
+        Try
+
+            Dim oItem As ToolStripMenuItem = CType(sender, ToolStripMenuItem)
+            Call AplicarTemplateChecklist(CInt(oItem.Tag), oItem.Text)
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -1134,7 +1171,7 @@ Public Class usrAdmChamado
             grdComentario.DataSource = Nothing
             grdComentarioDev.DataSource = Nothing
             grdChecklist.DataSource = Nothing
-            txtChecklist.Text = ""
+            Call CancelarEdicaoChecklist()
             Call LimparChat()
 
             'Sugere o usuário autenticado como responsável
@@ -1598,15 +1635,132 @@ Public Class usrAdmChamado
 
             Cursor.Current = Cursors.WaitCursor
 
-            oClsUsrAdmChamado.InsertChecklist(CLng(txtCodigo.Text), txtChecklist.Text.Trim)
+            If lChecklistEdicao > 0 Then
+                'Item em edição: grava só o texto
+                oClsUsrAdmChamado.UpdateChecklistTexto(lChecklistEdicao, txtChecklist.Text.Trim)
+                Call CancelarEdicaoChecklist()
+                frmMain.Informacao("Item do checklist alterado.", Color.Blue)
+            Else
+                oClsUsrAdmChamado.InsertChecklist(CLng(txtCodigo.Text), txtChecklist.Text.Trim)
+                txtChecklist.Text = ""
+            End If
 
-            txtChecklist.Text = ""
             Call LoadGridChecklist()
             txtChecklist.Focus()
 
             Cursor.Current = Cursors.Default
 
         Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub EditarItemChecklist()
+
+        Try
+
+            'Leva o item para o campo de texto; Enter / "Salvar item" grava, Esc desiste
+            With grdChecklist.CurrentRow.Cells
+                lChecklistEdicao = CLng(.Item("codigo").Value)
+                txtChecklist.Text = .Item("texto").Value.ToString
+            End With
+
+            btnAdicionarChecklist.Text = "Salvar item"
+            btnAdicionarChecklist.Image = My.Resources.salvar
+
+            txtChecklist.Focus()
+            txtChecklist.SelectAll()
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub CancelarEdicaoChecklist()
+
+        Try
+
+            lChecklistEdicao = 0
+            txtChecklist.Text = ""
+            btnAdicionarChecklist.Text = "Adicionar item"
+            btnAdicionarChecklist.Image = My.Resources.add
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub MostrarTemplateChecklist()
+
+        Try
+
+            If IsNumeric(txtCodigo.Text) = False Then
+                frmMain.Informacao("Salve o chamado antes de montar o checklist.", gColorInformacaoErro)
+                Exit Sub
+            End If
+
+            'Menu com os times, aberto logo abaixo do botão (criado uma vez; descartado junto com a tela)
+            If IsNothing(oMenuTemplateChecklist) Then
+                oMenuTemplateChecklist = New ContextMenuStrip
+                components.Add(oMenuTemplateChecklist)
+            End If
+
+            oMenuTemplateChecklist.Items.Clear()
+
+            For Each oTime As DataRow In oClsUsrAdmChamado.LoadTimeChecklist().Rows
+                Dim oItem As New ToolStripMenuItem(oTime.Item("descricao").ToString)
+                oItem.Tag = oTime.Item("codigo")
+                AddHandler oItem.Click, AddressOf mnuTemplateChecklist_Click
+                oMenuTemplateChecklist.Items.Add(oItem)
+            Next
+
+            If oMenuTemplateChecklist.Items.Count = 0 Then
+                frmMain.Informacao("Nenhum time cadastrado.", gColorInformacaoErro)
+                Exit Sub
+            End If
+
+            oMenuTemplateChecklist.Show(btnTemplateChecklist, New Point(0, btnTemplateChecklist.Height))
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AplicarTemplateChecklist(ByVal iTime As Integer, ByVal sTime As String)
+
+        'Variaveis Locais
+        Dim iIncluidos As Integer = 0
+        Dim iIgnorados As Integer = 0
+
+        Try
+
+            If IsNumeric(txtCodigo.Text) = False Then Exit Sub
+
+            If MsgBox("Deseja incluir no checklist as empresas ativas do time '" & sTime & "'?", _
+                      MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then Exit Sub
+
+            Cursor.Current = Cursors.WaitCursor
+
+            iIncluidos = oClsUsrAdmChamado.InsertChecklistTemplate(CLng(txtCodigo.Text), iTime, iIgnorados)
+
+            Call LoadGridChecklist()
+
+            Cursor.Current = Cursors.Default
+
+            If iIncluidos = 0 AndAlso iIgnorados = 0 Then
+                frmMain.Informacao("O time '" & sTime & "' não tem empresa ativa.", gColorInformacaoErro)
+            ElseIf iIgnorados = 0 Then
+                frmMain.Informacao(iIncluidos & " empresa(s) do time '" & sTime & "' incluída(s) no checklist.", Color.Blue)
+            Else
+                frmMain.Informacao(iIncluidos & " empresa(s) do time '" & sTime & "' incluída(s) no checklist (" & iIgnorados & " já estava(m) na lista).", Color.Blue)
+            End If
+
+        Catch ex As Exception
+            Cursor.Current = Cursors.Default
             Throw ex
         End Try
 
@@ -1622,6 +1776,9 @@ Public Class usrAdmChamado
                           MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then Exit Sub
 
                 oClsUsrAdmChamado.DeleteChecklist(CLng(.Item("codigo").Value))
+
+                'Excluiu o item que estava em edição: volta o campo para inclusão
+                If CLng(.Item("codigo").Value) = lChecklistEdicao Then Call CancelarEdicaoChecklist()
 
             End With
 

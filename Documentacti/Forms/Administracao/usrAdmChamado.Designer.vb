@@ -34,6 +34,7 @@ Partial Class usrAdmChamado
         Dim grdArquivos_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column1.Image")
         Dim grdChecklist_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdChecklist_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
+        Dim grdChecklist_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column7.Image")
         Dim grdComentario_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdComentario_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdComentarioDev_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
@@ -102,6 +103,7 @@ Partial Class usrAdmChamado
         Me.pagChecklist = New Janus.Windows.UI.Tab.UITabPage()
         Me.txtChecklist = New Janus.Windows.GridEX.EditControls.EditBox()
         Me.btnAdicionarChecklist = New Janus.Windows.EditControls.UIButton()
+        Me.btnTemplateChecklist = New Janus.Windows.EditControls.UIButton()
         Me.grdChecklist = New Janus.Windows.GridEX.GridEX()
         Me.grdArquivos = New Janus.Windows.GridEX.GridEX()
         Me.btnArquivo = New Janus.Windows.EditControls.UIButton()
@@ -889,6 +891,7 @@ Partial Class usrAdmChamado
         '
         Me.pagChecklist.Controls.Add(Me.grdChecklist)
         Me.pagChecklist.Controls.Add(Me.btnAdicionarChecklist)
+        Me.pagChecklist.Controls.Add(Me.btnTemplateChecklist)
         Me.pagChecklist.Controls.Add(Me.txtChecklist)
         Me.pagChecklist.Key = "pagChecklist"
         Me.pagChecklist.Location = New System.Drawing.Point(1, 22)
@@ -904,9 +907,23 @@ Partial Class usrAdmChamado
         Me.txtChecklist.Location = New System.Drawing.Point(3, 4)
         Me.txtChecklist.MaxLength = 500
         Me.txtChecklist.Name = "txtChecklist"
-        Me.txtChecklist.Size = New System.Drawing.Size(1038, 20)
+        Me.txtChecklist.Size = New System.Drawing.Size(932, 20)
         Me.txtChecklist.TabIndex = 0
         Me.txtChecklist.VisualStyle = Janus.Windows.GridEX.VisualStyle.VS2005
+        '
+        'btnTemplateChecklist
+        '
+        Me.btnTemplateChecklist.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnTemplateChecklist.Image = Global.Documentacti.My.Resources.Resources.config
+        Me.btnTemplateChecklist.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
+        Me.btnTemplateChecklist.Location = New System.Drawing.Point(941, 3)
+        Me.btnTemplateChecklist.Name = "btnTemplateChecklist"
+        Me.btnTemplateChecklist.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.btnTemplateChecklist.Size = New System.Drawing.Size(100, 23)
+        Me.btnTemplateChecklist.TabIndex = 1
+        Me.btnTemplateChecklist.Text = "Template"
+        Me.btnTemplateChecklist.ToolTipText = "Inclui as empresas ativas de um time no checklist"
+        Me.btnTemplateChecklist.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'btnAdicionarChecklist
         '
@@ -917,7 +934,7 @@ Partial Class usrAdmChamado
         Me.btnAdicionarChecklist.Name = "btnAdicionarChecklist"
         Me.btnAdicionarChecklist.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnAdicionarChecklist.Size = New System.Drawing.Size(130, 23)
-        Me.btnAdicionarChecklist.TabIndex = 1
+        Me.btnAdicionarChecklist.TabIndex = 2
         Me.btnAdicionarChecklist.Text = "Adicionar item"
         Me.btnAdicionarChecklist.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
@@ -929,7 +946,8 @@ Partial Class usrAdmChamado
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         grdChecklist_DesignTimeLayout_Reference_0.Instance = CType(resources.GetObject("grdChecklist_DesignTimeLayout_Reference_0.Instance"), Object)
-        grdChecklist_DesignTimeLayout.LayoutReferences.AddRange(New Janus.Windows.Common.Layouts.JanusLayoutReference() {grdChecklist_DesignTimeLayout_Reference_0})
+        grdChecklist_DesignTimeLayout_Reference_1.Instance = CType(resources.GetObject("grdChecklist_DesignTimeLayout_Reference_1.Instance"), Object)
+        grdChecklist_DesignTimeLayout.LayoutReferences.AddRange(New Janus.Windows.Common.Layouts.JanusLayoutReference() {grdChecklist_DesignTimeLayout_Reference_0, grdChecklist_DesignTimeLayout_Reference_1})
         grdChecklist_DesignTimeLayout.LayoutString = resources.GetString("grdChecklist_DesignTimeLayout.LayoutString")
         Me.grdChecklist.DesignTimeLayout = grdChecklist_DesignTimeLayout
         Me.grdChecklist.FilterRowButtonStyle = Janus.Windows.GridEX.FilterRowButtonStyle.ConditionOperatorDropDown
@@ -945,7 +963,7 @@ Partial Class usrAdmChamado
         Me.grdChecklist.SelectedFormatStyle.BackColor = System.Drawing.Color.Empty
         Me.grdChecklist.SelectedFormatStyle.ForeColor = System.Drawing.Color.Empty
         Me.grdChecklist.Size = New System.Drawing.Size(1174, 173)
-        Me.grdChecklist.TabIndex = 2
+        Me.grdChecklist.TabIndex = 3
         Me.grdChecklist.TabStop = False
         Me.grdChecklist.VisualStyle = Janus.Windows.GridEX.VisualStyle.Office2007
         '
@@ -2286,6 +2304,7 @@ Partial Class usrAdmChamado
     Friend WithEvents pagChecklist As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents txtChecklist As Janus.Windows.GridEX.EditControls.EditBox
     Friend WithEvents btnAdicionarChecklist As Janus.Windows.EditControls.UIButton
+    Friend WithEvents btnTemplateChecklist As Janus.Windows.EditControls.UIButton
     Friend WithEvents grdChecklist As Janus.Windows.GridEX.GridEX
     Friend WithEvents grdComentario As Janus.Windows.GridEX.GridEX
     Friend WithEvents grdComentarioDev As Janus.Windows.GridEX.GridEX

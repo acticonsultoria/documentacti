@@ -1048,6 +1048,112 @@ Public Class clsUsrAdmChamado
 
     End Sub
 
+    Public Sub UpdateChecklistTexto(ByVal lCodigo As Long, _
+                                    ByVal sTexto As String)
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código do item
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = lCodigo : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Texto do item
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_texto"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sTexto
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_administracao_chamado_checklist_texto", oMySqlParameter)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Function LoadTimeChecklist() As DataTable
+
+        'Times (mesma lista do cadastro de empresa) para o template do checklist
+        Try
+
+            Return ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_combo_tipo_time_empresa", ParametroEmpresa()).Tables(0)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Public Function InsertChecklistTemplate(ByVal lCodigoAtividade As Long, _
+                                            ByVal iTipoTime As Integer, _
+                                            ByRef iIgnorados As Integer) As Integer
+
+        'Inclui um item por empresa ativa do time; retorna quantos foram incluídos (iIgnorados = já estavam no checklist)
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Atividade
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigoAtividade : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Time
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_tipo_time"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iTipoTime : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Usuário
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Quantidade incluída (OUT)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_quantidade"
+            oMySqlParameter(i).Direction = ParameterDirection.Output
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32 : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Quantidade ignorada (OUT)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_ignorados"
+            oMySqlParameter(i).Direction = ParameterDirection.Output
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_insert_administracao_chamado_checklist_template", oMySqlParameter)
+
+            iIgnorados = CInt(oMySqlParameter(i).Value)
+            Return CInt(oMySqlParameter(i - 1).Value)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
 #End Region
 
 #Region "::: CHAT :::"

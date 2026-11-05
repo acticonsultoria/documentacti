@@ -301,6 +301,7 @@
     <None Include="Resources\config2.png" />
     <None Include="Resources\excel_14.png" />
     <None Include="Resources\interacti.png" />
+    <None Include="Resources\lapis.png" />
     <None Include="Resources\logo_documentacti.png" />
     <None Include="Resources\logo_documentacti_fundo.png" />
     <None Include="Resources\merge.png" />
