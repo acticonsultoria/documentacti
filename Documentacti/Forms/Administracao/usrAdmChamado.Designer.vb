@@ -46,6 +46,7 @@ Partial Class usrAdmChamado
         Dim cboEmpresa_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdApontamentoHistorico_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdApontamentoHistorico_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
+        Dim grdApontamentoHistorico_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column13.Image")
         Dim grdApontamentoAndamento_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdApontamentoAndamento_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim ChartArea1 As Dundas.Charting.WinControl.ChartArea = New Dundas.Charting.WinControl.ChartArea()
@@ -1564,7 +1565,8 @@ Partial Class usrAdmChamado
         '
         Me.grdApontamentoHistorico.AlternatingColors = True
         grdApontamentoHistorico_DesignTimeLayout_Reference_0.Instance = CType(resources.GetObject("grdApontamentoHistorico_DesignTimeLayout_Reference_0.Instance"), Object)
-        grdApontamentoHistorico_DesignTimeLayout.LayoutReferences.AddRange(New Janus.Windows.Common.Layouts.JanusLayoutReference() {grdApontamentoHistorico_DesignTimeLayout_Reference_0})
+        grdApontamentoHistorico_DesignTimeLayout_Reference_1.Instance = CType(resources.GetObject("grdApontamentoHistorico_DesignTimeLayout_Reference_1.Instance"), Object)
+        grdApontamentoHistorico_DesignTimeLayout.LayoutReferences.AddRange(New Janus.Windows.Common.Layouts.JanusLayoutReference() {grdApontamentoHistorico_DesignTimeLayout_Reference_0, grdApontamentoHistorico_DesignTimeLayout_Reference_1})
         grdApontamentoHistorico_DesignTimeLayout.LayoutString = resources.GetString("grdApontamentoHistorico_DesignTimeLayout.LayoutString")
         Me.grdApontamentoHistorico.DesignTimeLayout = grdApontamentoHistorico_DesignTimeLayout
         Me.grdApontamentoHistorico.Dock = System.Windows.Forms.DockStyle.Fill

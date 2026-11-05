@@ -37,6 +37,8 @@ Public Class usrAdmChamado
 
     'Checklist: item em edição no campo de texto (0 = campo inclui item novo)
     Private lChecklistEdicao As Long = 0
+    'Checklist: chamado carregado na grid (a posição só é mantida ao recarregar o mesmo chamado)
+    Private lChamadoChecklist As Long = 0
     'Checklist Empresa: menu de times do botão Template (ao lado do combo Empresa)
     Private oMenuTemplateEmpresa As ContextMenuStrip
     'Iniciar chamado com mais de uma empresa: menu para escolher a empresa do apontamento
@@ -207,6 +209,9 @@ Public Class usrAdmChamado
     Private Sub btnFinalizarChamado_Click(sender As Object, e As EventArgs) Handles btnFinalizarChamado.Click
 
         Try
+
+            'Regra: o chamado só é concluído com resolução informada
+            If ExisteResolucao() = False Then Exit Sub
 
             Dim sMensagem As String = "Deseja concluir o chamado?"
 
@@ -687,7 +692,16 @@ Public Class usrAdmChamado
 
             Dim oColuna As GridEXColumn = grdApontamentoHistorico.ColumnFromPoint()
 
-            If IsNothing(oColuna) = False AndAlso oColuna.Key = "reapontar" Then Call Reapontar()
+            If IsNothing(oColuna) = False Then
+
+                Select Case oColuna.Key
+
+                    Case "reapontar" : Call Reapontar()
+                    Case "visualizar_chamado" : Call VisualizarChamado()
+
+                End Select
+
+            End If
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -1146,6 +1160,12 @@ Public Class usrAdmChamado
 
             If iNovo = iStatusAtual Then Exit Sub
 
+            'Regra: o chamado só é concluído com resolução informada
+            If iNovo = gcStatusChamadoConcluido AndAlso ExisteResolucao() = False Then
+                Call DefinirStatus(iStatusAtual)
+                Exit Sub
+            End If
+
             Dim sMensagem As String = "Deseja alterar o status do chamado para '" & cboStatus.Text & "'?"
 
             If (iNovo = gcStatusChamadoConcluido OrElse iNovo = gcStatusChamadoCancelado) AndAlso QuantidadeApontamentoAndamento() > 0 Then
@@ -1192,6 +1212,34 @@ Public Class usrAdmChamado
             Cursor.Current = Cursors.Default
 
             Return iEncerrados
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Private Function ExisteResolucao() As Boolean
+
+        Try
+
+            ExisteResolucao = False
+
+            If IsNumeric(txtCodigo.Text) = False Then Return True 'AlterarStatus já avisa para salvar o chamado
+
+            'Recarrega do banco para considerar resolução incluída por outro usuário/web
+            Call oClsUsrAdmChamado.LoadGridComentarioDev(grdComentarioDev, CLng(txtCodigo.Text))
+
+            For Each oRow As GridEXRow In grdComentarioDev.GetRows
+                If oRow.RowType = RowType.Record Then Return True
+            Next
+
+            frmMain.Informacao("Informe a resolução do chamado antes de concluí-lo.", gColorInformacaoErro)
+
+            MsgBox("O chamado não pode ser concluído sem resolução." & vbCrLf & vbCrLf & _
+                   "Inclua um registro na aba 'Resolução' e tente novamente.", MsgBoxStyle.Exclamation, gAplicacao)
+
+            If tabDadosChamado.TabPages.Contains(pagComentarioDev) Then tabDadosChamado.SelectedTab = pagComentarioDev
 
         Catch ex As Exception
             Throw ex
@@ -1692,10 +1740,35 @@ Public Class usrAdmChamado
 
             If IsNumeric(txtCodigo.Text) = False Then
                 grdChecklist.DataSource = Nothing
+                lChamadoChecklist = 0
                 Exit Sub
             End If
 
+            'Guarda a posição para recarregar sem "mexer" nos itens (rolagem e linha atual)
+            Dim iPrimeiraLinha As Integer = 0
+            Dim lCodigoAtual As Long = 0
+
+            If lChamadoChecklist = CLng(txtCodigo.Text) AndAlso IsNothing(grdChecklist.DataSource) = False AndAlso grdChecklist.RowCount > 0 Then
+                iPrimeiraLinha = grdChecklist.FirstRow
+                If IsNothing(grdChecklist.CurrentRow) = False AndAlso grdChecklist.CurrentRow.RowType = RowType.Record Then
+                    lCodigoAtual = CLng(grdChecklist.CurrentRow.Cells("codigo").Value)
+                End If
+            End If
+
+            'A ordem vem da proc (ordem do item); só muda se o usuário ordenar pelo cabeçalho da coluna
             Call oClsUsrAdmChamado.LoadGridChecklist(grdChecklist, CLng(txtCodigo.Text))
+            lChamadoChecklist = CLng(txtCodigo.Text)
+
+            If lCodigoAtual > 0 Then
+                For Each oRow As GridEXRow In grdChecklist.GetRows
+                    If oRow.RowType = RowType.Record AndAlso CLng(oRow.Cells("codigo").Value) = lCodigoAtual Then
+                        grdChecklist.MoveTo(oRow)
+                        Exit For
+                    End If
+                Next
+            End If
+
+            If iPrimeiraLinha > 0 AndAlso iPrimeiraLinha < grdChecklist.RowCount Then grdChecklist.FirstRow = iPrimeiraLinha
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -2774,6 +2847,21 @@ Public Class usrAdmChamado
             Cursor.Current = Cursors.Default
 
             frmMain.Informacao("Apontamento " & iApontamento & " do chamado " & lChamado & " iniciado com sucesso!", Color.Blue)
+
+        Catch ex As Exception
+            Throw
+        End Try
+
+    End Sub
+
+    Private Sub VisualizarChamado()
+
+        Try
+
+            Dim lChamado As Long = CLng(grdApontamentoHistorico.CurrentRow.Cells("codigo_chamado").Value)
+
+            'Abre o chamado na aba de Chamados (mesmo caminho da notificação do chat)
+            Call AbrirChamado(lChamado)
 
         Catch ex As Exception
             Throw

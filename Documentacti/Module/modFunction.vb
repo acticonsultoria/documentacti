@@ -539,13 +539,56 @@ Public Module modFunction
                         Case "cancelar" : oColumn.CellToolTipText = "Duplo clique para cancelar." : oColumn.CellToolTip = CellToolTip.UseCellToolTipText : oColumn.Width = 20
                         Case "visualizar" : oColumn.CellToolTipText = "Duplo clique para visualizar." : oColumn.CellToolTip = CellToolTip.UseCellToolTipText : oColumn.Width = 20
                         Case "reapontar" : oColumn.CellToolTipText = "Duplo clique para reapontar este chamado." : oColumn.CellToolTip = CellToolTip.UseCellToolTipText : oColumn.Width = 20
+                        Case "visualizar_chamado" : oColumn.CellToolTipText = "Duplo clique para visualizar o chamado." : oColumn.CellToolTip = CellToolTip.UseCellToolTipText : oColumn.Width = 20
                         Case "excluir" : oColumn.CellToolTipText = "Duplo clique para excluir o anexo." : oColumn.CellToolTip = CellToolTip.UseCellToolTipText : oColumn.Width = 20
                         Case "encerrar" : oColumn.CellToolTipText = "Duplo clique para encerrar o apontamento." : oColumn.CellToolTip = CellToolTip.UseCellToolTipText : oColumn.Width = 20
                     End Select
 
                 Next
 
+                'Filtro de texto com "Contains" por padrão: o tipo da coluna só é conhecido depois do bind
+                RemoveHandler .RowCountChanged, AddressOf ConfigurarFiltroContainsGrid
+                AddHandler .RowCountChanged, AddressOf ConfigurarFiltroContainsGrid
+
             End With
+
+            Call ConfigurarFiltroContains(oGrid.RootTable)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub ConfigurarFiltroContainsGrid(ByVal sender As Object, ByVal e As EventArgs)
+
+        Try
+
+            Call ConfigurarFiltroContains(CType(sender, GridEX).RootTable)
+
+        Catch ex As Exception
+            'Somente o padrão do filtro: não interrompe o carregamento da grid
+        End Try
+
+    End Sub
+
+    Private Sub ConfigurarFiltroContains(ByVal oTable As GridEXTable)
+
+        Try
+
+            If IsNothing(oTable) Then Exit Sub
+
+            'Somente colunas de texto; número/data continuam com o padrão do Janus (Equal)
+            For Each oColumn As GridEXColumn In oTable.Columns
+                If oColumn.DataTypeCode = TypeCode.String AndAlso oColumn.DefaultFilterRowComparison = FilterConditionOperator.Default Then
+                    oColumn.DefaultFilterRowComparison = FilterConditionOperator.Contains
+                End If
+            Next
+
+            'Grids hierárquicas (ex.: histórico de apontamentos)
+            For Each oChild As GridEXTable In oTable.ChildTables
+                Call ConfigurarFiltroContains(oChild)
+            Next
 
         Catch ex As Exception
             Throw ex

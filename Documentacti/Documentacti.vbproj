@@ -308,6 +308,7 @@
     <None Include="Resources\login.png" />
     <None Include="Resources\logo_inicial.png" />
     <None Include="Resources\novo.bmp" />
+    <None Include="Resources\preview.png" />
     <None Include="Resources\procurar.gif" />
     <None Include="Resources\run.png" />
     <None Include="Resources\salvar.bmp" />
