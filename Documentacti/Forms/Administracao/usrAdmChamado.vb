@@ -37,8 +37,10 @@ Public Class usrAdmChamado
 
     'Checklist: item em edição no campo de texto (0 = campo inclui item novo)
     Private lChecklistEdicao As Long = 0
-    'Checklist: menu de times do botão Template
-    Private oMenuTemplateChecklist As ContextMenuStrip
+    'Checklist Empresa: menu de times do botão Template (ao lado do combo Empresa)
+    Private oMenuTemplateEmpresa As ContextMenuStrip
+    'Iniciar chamado com mais de uma empresa: menu para escolher a empresa do apontamento
+    Private oMenuEmpresaApontamento As ContextMenuStrip
 
 #End Region
 
@@ -147,6 +149,7 @@ Public Class usrAdmChamado
         Try
 
             If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
+            If e.Row.Table IsNot grdListagem.RootTable Then Exit Sub 'Grid filha (apontamentos): só consulta
 
             If IsNothing(grdListagem.CurrentColumn) Then Exit Sub
             Select Case grdListagem.CurrentColumn.Key
@@ -170,9 +173,30 @@ Public Class usrAdmChamado
 
                 Call AlterarStatus(gcStatusChamadoIniciado)
 
+                If IsNumeric(txtCodigo.Text) = False Then Exit Sub
+
                 frmMain.Informacao("Chamado iniciado com sucesso!", Color.Blue)
 
+                'Iniciar pode ser só controle: pergunta se já começa a apontar as horas
+                If MsgBox("Deseja iniciar o apontamento de horas deste chamado agora?", _
+                          MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.Yes Then
+                    Call IniciarApontamentoChamado()
+                End If
+
             End If
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub mnuEmpresaApontamento_Click(sender As Object, e As EventArgs)
+
+        Try
+
+            Dim oItem As ToolStripMenuItem = CType(sender, ToolStripMenuItem)
+            Call ApontarChamado(CInt(oItem.Tag), oItem.Text)
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -332,6 +356,7 @@ Public Class usrAdmChamado
                 Case "pagComentario" : Call LoadGridComentario()
                 Case "pagComentarioDev" : Call LoadGridComentarioDev()
                 Case "pagChecklist" : Call LoadGridChecklist()
+                Case "pagChecklistEmpresa" : Call LoadGridChecklistEmpresa()
                 Case "pagChat" : Call AtualizarLeituraChat()
 
             End Select
@@ -432,11 +457,15 @@ Public Class usrAdmChamado
 
     End Sub
 
-    Private Sub btnTemplateChecklist_Click(sender As Object, e As EventArgs) Handles btnTemplateChecklist.Click
+#End Region
+
+#Region "::: CHECKLIST EMPRESA :::"
+
+    Private Sub btnTemplateEmpresa_Click(sender As Object, e As EventArgs) Handles btnTemplateEmpresa.Click
 
         Try
 
-            Call MostrarTemplateChecklist()
+            Call MostrarTemplateEmpresa()
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -444,15 +473,52 @@ Public Class usrAdmChamado
 
     End Sub
 
-    Private Sub mnuTemplateChecklist_Click(sender As Object, e As EventArgs)
+    Private Sub mnuTemplateEmpresa_Click(sender As Object, e As EventArgs)
 
         Try
 
             Dim oItem As ToolStripMenuItem = CType(sender, ToolStripMenuItem)
-            Call AplicarTemplateChecklist(CInt(oItem.Tag), oItem.Text)
+            Call AplicarTemplateEmpresa(CInt(oItem.Tag), oItem.Text)
 
         Catch ex As Exception
             Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub grdChecklistEmpresa_CellValueChanged(sender As Object, e As ColumnActionEventArgs) Handles grdChecklistEmpresa.CellValueChanged
+
+        Try
+
+            'Check gravado na hora
+            If e.Column.Key = "concluido" Then grdChecklistEmpresa.UpdateData()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub grdChecklistEmpresa_CellUpdated(sender As Object, e As ColumnActionEventArgs) Handles grdChecklistEmpresa.CellUpdated
+
+        Try
+
+            If e.Column.Key = "concluido" Then
+
+                With grdChecklistEmpresa.CurrentRow.Cells
+                    oClsUsrAdmChamado.UpdateChecklistEmpresa(CLng(txtCodigo.Text), _
+                                                             CInt(.Item("empresa").Value), _
+                                                             IsDBNull(.Item("concluido").Value) = False AndAlso CBool(.Item("concluido").Value))
+                End With
+
+                'Recarrega após o evento para mostrar quem concluiu e quando
+                Me.BeginInvoke(New MethodInvoker(AddressOf LoadGridChecklistEmpresa))
+
+            End If
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+            Me.BeginInvoke(New MethodInvoker(AddressOf LoadGridChecklistEmpresa))
         End Try
 
     End Sub
@@ -589,10 +655,13 @@ Public Class usrAdmChamado
 
             Cursor.Current = Cursors.WaitCursor
 
-            Dim lChamado As Long = cboChamadoApontamento.SelectedValue
+            'Item da combo = chamado x empresa (valor 'chamado;empresa'): a empresa escolhida recebe as horas
+            Dim sItem() As String = cboChamadoApontamento.SelectedValue.ToString.Split(";"c)
+            Dim lChamado As Long = CLng(sItem(0))
+            Dim iEmpresaCliente As Integer = IIf(sItem.Length > 1, CInt(sItem(1)), 0)
 
             'Grava o início no banco (horário do servidor MySQL)
-            Dim iApontamento As Integer = oClsUsrAdmChamado.InsertApontamento(lChamado)
+            Dim iApontamento As Integer = oClsUsrAdmChamado.InsertApontamento(lChamado, iEmpresaCliente)
 
             Call LoadGridApontamentoAndamento()
 
@@ -666,7 +735,7 @@ Public Class usrAdmChamado
 
             Select Case e.Column.Key
 
-                Case "data_hora_inicio", "data_hora_fim", "observacao"
+                Case "data_hora_inicio", "data_hora_fim", "observacao", "codigo_empresa_cliente"
                     Call AtualizarApontamento(grdApontamentoHistorico.CurrentRow)
 
                 Case "duracao", "horas"
@@ -707,8 +776,8 @@ Public Class usrAdmChamado
 
         Try
 
-            'Combo de situação: grava ao escolher, sem precisar sair da célula
-            If e.Column.Key = "anulado" AndAlso e.Column.Table IsNot grdApontamentoHistorico.RootTable Then grdApontamentoHistorico.UpdateData()
+            'Combos de situação e empresa: gravam ao escolher, sem precisar sair da célula
+            If (e.Column.Key = "anulado" OrElse e.Column.Key = "codigo_empresa_cliente") AndAlso e.Column.Table IsNot grdApontamentoHistorico.RootTable Then grdApontamentoHistorico.UpdateData()
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -834,7 +903,7 @@ Public Class usrAdmChamado
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrAdmChamado_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
-            Call AddComboAutoComplete(New UIComboBox() {cboTimeFiltro, cboTipoAtividade, cboPrioridade, cboEmpresa, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio})
+            Call AddComboAutoComplete(New UIComboBox() {cboTimeFiltro, cboTipoAtividade, cboPrioridade, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio, cboTimeRelatorio})
 
             'Combos - Chamados
             Call LoadCombo(cboStatusFiltro, "sp_select_combo_status_atividade")
@@ -854,7 +923,8 @@ Public Class usrAdmChamado
             Call LoadCombo(cboTipoAtendimentoFiltro, "sp_select_combo_administracao_chamado_tipo_atendimento")
             Call LoadCombo(cboResponsavelFiltro, "sp_select_combo_administracao_chamado_usuario")
             'Responsáveis: começa sem nenhum marcado (traz todos); os do usuário logado ficam em laranja na grid
-            Call LoadCombo(cboEmpresa,"sp_select_combo_administracao_chamado_empresa")
+            'Empresas do chamado: multisseleção (a primeira marcada vira a principal; as horas são apontadas por empresa)
+            Call LoadCombo(cboEmpresa, "sp_select_combo_administracao_chamado_empresa")
             Call LoadCombo(cboPrioridade, "sp_select_combo_chamados_prioridade")
             Call LoadCombo(cboTipoAtividade, "sp_select_combo_tipo_atividade")
             Call LoadCombo(cboResponsavel, "sp_select_combo_administracao_chamado_usuario")
@@ -866,6 +936,14 @@ Public Class usrAdmChamado
 
             'Combos - Relatório
             Call LoadCombo(cboEmpresaRelatorio, "sp_select_combo_administracao_chamado_empresa")
+            'Time da empresa do apontamento: começa em TODOS (-1)
+            Call LoadCombo(cboTimeRelatorio, "sp_select_combo_tipo_time_empresa")
+            Dim oTimesRelatorio As DataTable = CType(cboTimeRelatorio.DataSource, DataTable)
+            Dim oTodosRelatorio As DataRow = oTimesRelatorio.NewRow
+            oTodosRelatorio.Item("codigo") = -1
+            oTodosRelatorio.Item("descricao") = "TODOS"
+            oTimesRelatorio.Rows.InsertAt(oTodosRelatorio, 0)
+            cboTimeRelatorio.SelectedIndex = 0
             Call LoadCombo(cboTipoAtividadeRelatorio, "sp_select_combo_tipo_atividade")
             Call LoadCombo(cboTipoAtendimentoRelatorio, "sp_select_combo_administracao_chamado_tipo_atendimento")
             Call LoadCombo(cboResponsavelRelatorio, "sp_select_combo_administracao_chamado_usuario")
@@ -971,7 +1049,7 @@ Public Class usrAdmChamado
                 txtCodigo.Text = .Item("codigo_atividade").Value
                 If IsDBNull(.Item("data_criacao").Value) = False Then dtpDataChamado.Value = .Item("data_criacao").Value
                 txtSolicitante.Text = .Item("solicitante").Value.ToString
-                If IsDBNull(.Item("codigo_empresa_cliente").Value) = False Then cboEmpresa.SelectedValue = .Item("codigo_empresa_cliente").Value
+                Call SetCheckedValues(cboEmpresa, .Item("codigos_empresa").Value.ToString)
                 If IsDBNull(.Item("codigo_tipo_atividade").Value) = False Then cboTipoAtividade.SelectedValue = .Item("codigo_tipo_atividade").Value
                 If IsDBNull(.Item("codigo_prioridade").Value) = False Then cboPrioridade.SelectedValue = .Item("codigo_prioridade").Value
                 txtTitulo.Text = .Item("titulo").Value.ToString
@@ -992,6 +1070,7 @@ Public Class usrAdmChamado
 
             Call LoadGridArquivo()
             Call LoadGridChecklist()
+            Call LoadGridChecklistEmpresa()
             Call LoadGridComentario()
             If goUsuario.bInterno = True Then Call LoadGridComentarioDev()
             Call CarregarChat()
@@ -1154,7 +1233,7 @@ Public Class usrAdmChamado
             btnInserirComentarioDev.Enabled = False
             dtpDataChamado.Value = Date.Now()
             txtSolicitante.Text = goUsuario.sNome
-            cboEmpresa.SelectedIndex = -1
+            cboEmpresa.UncheckAll()
             cboTipoAtividade.SelectedIndex = -1
             cboPrioridade.SelectedIndex = -1
             cboResponsavel.UncheckAll()
@@ -1172,6 +1251,8 @@ Public Class usrAdmChamado
             grdComentarioDev.DataSource = Nothing
             grdChecklist.DataSource = Nothing
             Call CancelarEdicaoChecklist()
+            grdChecklistEmpresa.DataSource = Nothing
+            pagChecklistEmpresa.TabVisible = False
             Call LimparChat()
 
             'Sugere o usuário autenticado como responsável
@@ -1192,7 +1273,7 @@ Public Class usrAdmChamado
             If IsNumeric(txtCodigo.Text) Then
 
                 oClsUsrAdmChamado.Update(txtCodigo.Text, _
-                                         cboEmpresa.SelectedValue, _
+                                         GetCheckedValues(cboEmpresa), _
                                          txtTitulo.Text.Trim, _
                                          txtDescricao.Text.Trim, _
                                          txtSolicitante.Text.Trim, _
@@ -1209,7 +1290,7 @@ Public Class usrAdmChamado
 
             Else
 
-                txtCodigo.Text = oClsUsrAdmChamado.Insert(cboEmpresa.SelectedValue, _
+                txtCodigo.Text = oClsUsrAdmChamado.Insert(GetCheckedValues(cboEmpresa), _
                                                           txtTitulo.Text.Trim, _
                                                           txtDescricao.Text.Trim, _
                                                           txtSolicitante.Text.Trim, _
@@ -1236,6 +1317,9 @@ Public Class usrAdmChamado
                 End If
 
             End If
+
+            'Empresas vinculadas: mostra/oculta a aba Checklist Empresa
+            Call LoadGridChecklistEmpresa()
 
             'Chamado novo/alterado fica disponível automaticamente no combo de apontamentos
             Call LoadComboChamadoApontamento()
@@ -1693,79 +1777,6 @@ Public Class usrAdmChamado
 
     End Sub
 
-    Private Sub MostrarTemplateChecklist()
-
-        Try
-
-            If IsNumeric(txtCodigo.Text) = False Then
-                frmMain.Informacao("Salve o chamado antes de montar o checklist.", gColorInformacaoErro)
-                Exit Sub
-            End If
-
-            'Menu com os times, aberto logo abaixo do botão (criado uma vez; descartado junto com a tela)
-            If IsNothing(oMenuTemplateChecklist) Then
-                oMenuTemplateChecklist = New ContextMenuStrip
-                components.Add(oMenuTemplateChecklist)
-            End If
-
-            oMenuTemplateChecklist.Items.Clear()
-
-            For Each oTime As DataRow In oClsUsrAdmChamado.LoadTimeChecklist().Rows
-                Dim oItem As New ToolStripMenuItem(oTime.Item("descricao").ToString)
-                oItem.Tag = oTime.Item("codigo")
-                AddHandler oItem.Click, AddressOf mnuTemplateChecklist_Click
-                oMenuTemplateChecklist.Items.Add(oItem)
-            Next
-
-            If oMenuTemplateChecklist.Items.Count = 0 Then
-                frmMain.Informacao("Nenhum time cadastrado.", gColorInformacaoErro)
-                Exit Sub
-            End If
-
-            oMenuTemplateChecklist.Show(btnTemplateChecklist, New Point(0, btnTemplateChecklist.Height))
-
-        Catch ex As Exception
-            Throw ex
-        End Try
-
-    End Sub
-
-    Private Sub AplicarTemplateChecklist(ByVal iTime As Integer, ByVal sTime As String)
-
-        'Variaveis Locais
-        Dim iIncluidos As Integer = 0
-        Dim iIgnorados As Integer = 0
-
-        Try
-
-            If IsNumeric(txtCodigo.Text) = False Then Exit Sub
-
-            If MsgBox("Deseja incluir no checklist as empresas ativas do time '" & sTime & "'?", _
-                      MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then Exit Sub
-
-            Cursor.Current = Cursors.WaitCursor
-
-            iIncluidos = oClsUsrAdmChamado.InsertChecklistTemplate(CLng(txtCodigo.Text), iTime, iIgnorados)
-
-            Call LoadGridChecklist()
-
-            Cursor.Current = Cursors.Default
-
-            If iIncluidos = 0 AndAlso iIgnorados = 0 Then
-                frmMain.Informacao("O time '" & sTime & "' não tem empresa ativa.", gColorInformacaoErro)
-            ElseIf iIgnorados = 0 Then
-                frmMain.Informacao(iIncluidos & " empresa(s) do time '" & sTime & "' incluída(s) no checklist.", Color.Blue)
-            Else
-                frmMain.Informacao(iIncluidos & " empresa(s) do time '" & sTime & "' incluída(s) no checklist (" & iIgnorados & " já estava(m) na lista).", Color.Blue)
-            End If
-
-        Catch ex As Exception
-            Cursor.Current = Cursors.Default
-            Throw ex
-        End Try
-
-    End Sub
-
     Private Sub ExcluirItemChecklist()
 
         Try
@@ -1787,6 +1798,109 @@ Public Class usrAdmChamado
             frmMain.Informacao("Item excluído do checklist.", Color.Blue)
 
         Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: CHECKLIST EMPRESA :::"
+
+    Private Sub LoadGridChecklistEmpresa()
+
+        Try
+
+            'A aba só aparece quando o chamado tem mais de uma empresa
+            If IsNumeric(txtCodigo.Text) = False Then
+                grdChecklistEmpresa.DataSource = Nothing
+                pagChecklistEmpresa.TabVisible = False
+                Exit Sub
+            End If
+
+            Dim oEmpresas As DataTable = oClsUsrAdmChamado.LoadEmpresaChamado(CLng(txtCodigo.Text))
+
+            pagChecklistEmpresa.TabVisible = (oEmpresas.Rows.Count > 1)
+
+            Call oClsUsrAdmChamado.LoadGridChecklistEmpresa(grdChecklistEmpresa, oEmpresas)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub MostrarTemplateEmpresa()
+
+        Try
+
+            'Menu com os times, aberto logo abaixo do botão (criado uma vez; descartado junto com a tela)
+            If IsNothing(oMenuTemplateEmpresa) Then
+                oMenuTemplateEmpresa = New ContextMenuStrip
+                components.Add(oMenuTemplateEmpresa)
+            End If
+
+            oMenuTemplateEmpresa.Items.Clear()
+
+            For Each oTime As DataRow In oClsUsrAdmChamado.LoadTimeChecklist().Rows
+                Dim oItem As New ToolStripMenuItem(oTime.Item("descricao").ToString)
+                oItem.Tag = oTime.Item("codigo")
+                AddHandler oItem.Click, AddressOf mnuTemplateEmpresa_Click
+                oMenuTemplateEmpresa.Items.Add(oItem)
+            Next
+
+            If oMenuTemplateEmpresa.Items.Count = 0 Then
+                frmMain.Informacao("Nenhum time cadastrado.", gColorInformacaoErro)
+                Exit Sub
+            End If
+
+            oMenuTemplateEmpresa.Show(btnTemplateEmpresa, New Point(0, btnTemplateEmpresa.Height))
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AplicarTemplateEmpresa(ByVal iTime As Integer, ByVal sTime As String)
+
+        'Variaveis Locais
+        Dim oMarcadas As New List(Of String)
+        Dim iNovas As Integer = 0
+        Dim iJaMarcadas As Integer = 0
+
+        Try
+
+            'Só marca as empresas ativas do time no combo (soma às já marcadas); grava ao salvar o chamado,
+            'então funciona também em chamado novo, sem precisar escolher uma empresa antes
+            Cursor.Current = Cursors.WaitCursor
+
+            For Each sCodigo As String In GetCheckedValues(cboEmpresa).Split(","c)
+                If sCodigo.Trim <> "" Then oMarcadas.Add(sCodigo.Trim)
+            Next
+
+            For Each oEmpresa As DataRow In oClsUsrAdmChamado.LoadEmpresaTime(iTime).Rows
+                If oMarcadas.Contains(oEmpresa.Item("codigo").ToString) Then
+                    iJaMarcadas += 1
+                Else
+                    oMarcadas.Add(oEmpresa.Item("codigo").ToString)
+                    iNovas += 1
+                End If
+            Next
+
+            Call SetCheckedValues(cboEmpresa, String.Join(",", oMarcadas.ToArray))
+
+            Cursor.Current = Cursors.Default
+
+            If iNovas = 0 AndAlso iJaMarcadas = 0 Then
+                frmMain.Informacao("O time '" & sTime & "' não tem empresa ativa.", gColorInformacaoErro)
+            Else
+                frmMain.Informacao(iNovas & " empresa(s) do time '" & sTime & "' marcada(s)" & _
+                                   IIf(iJaMarcadas > 0, " (" & iJaMarcadas & " já estava(m) marcada(s))", "") & ". Salve o chamado para gravar.", Color.Blue)
+            End If
+
+        Catch ex As Exception
+            Cursor.Current = Cursors.Default
             Throw ex
         End Try
 
@@ -2222,6 +2336,7 @@ Public Class usrAdmChamado
                                                                    IIf(dtpInicioRelatorio.Checked = False, Nothing, dtpInicioRelatorio.Value.Date), _
                                                                    IIf(dtpTerminoRelatorio.Checked = False, Nothing, dtpTerminoRelatorio.Value.Date), _
                                                                    IIf(cboEmpresaRelatorio.SelectedIndex = -1, -1, cboEmpresaRelatorio.SelectedValue), _
+                                                                   IIf(cboTimeRelatorio.SelectedIndex = -1, -1, CInt(cboTimeRelatorio.SelectedValue)), _
                                                                    IIf(cboTipoAtividadeRelatorio.SelectedIndex = -1, -1, cboTipoAtividadeRelatorio.SelectedValue), _
                                                                    IIf(cboTipoAtendimentoRelatorio.SelectedIndex = -1, -1, cboTipoAtendimentoRelatorio.SelectedValue), _
                                                                    IIf(cboResponsavelRelatorio.SelectedIndex = -1, -1, cboResponsavelRelatorio.SelectedValue), _
@@ -2266,8 +2381,9 @@ Public Class usrAdmChamado
 
             For Each oDataRow As DataRow In oTabelaRelatorio.Rows
                 If i < gcLimiteGrafico Then
+                    'Período com total zerado (ex.: apontamentos de 0 segundos): o banco devolve percentual nulo
                     oDados.Rows.Add(oDataRow.Item("grupo").ToString, CLng(oDataRow.Item("segundos")) / 3600, _
-                                    oDataRow.Item("duracao").ToString & " (" & Format(CDbl(oDataRow.Item("percentual")), "N2") & "%)")
+                                    oDataRow.Item("duracao").ToString & " (" & Format(IIf(IsDBNull(oDataRow.Item("percentual")), 0, oDataRow.Item("percentual")), "N2") & "%)")
                 Else
                     lOutros += CLng(oDataRow.Item("segundos"))
                 End If
@@ -2355,6 +2471,75 @@ Public Class usrAdmChamado
 
 #Region "::: APONTAMENTO :::"
 
+    Private Sub IniciarApontamentoChamado()
+
+        Try
+
+            'Chamado com mais de uma empresa: escolhe a empresa das horas; com uma (ou nenhuma) é automática
+            Dim oEmpresas As DataTable = oClsUsrAdmChamado.LoadEmpresaChamado(CLng(txtCodigo.Text))
+
+            If oEmpresas.Rows.Count <= 1 Then
+                Call ApontarChamado(0, "")
+                Exit Sub
+            End If
+
+            If IsNothing(oMenuEmpresaApontamento) Then
+                oMenuEmpresaApontamento = New ContextMenuStrip
+                components.Add(oMenuEmpresaApontamento)
+            End If
+
+            oMenuEmpresaApontamento.Items.Clear()
+
+            'Título do menu (não clicável)
+            Dim oTitulo As New ToolStripMenuItem("Escolha a empresa do apontamento:")
+            oTitulo.Enabled = False
+            oTitulo.Font = New Font(oMenuEmpresaApontamento.Font, FontStyle.Bold)
+            oMenuEmpresaApontamento.Items.Add(oTitulo)
+            oMenuEmpresaApontamento.Items.Add(New ToolStripSeparator)
+
+            For Each oEmpresa As DataRow In oEmpresas.Rows
+                Dim oItem As New ToolStripMenuItem(oEmpresa.Item("empresa_nome").ToString)
+                oItem.Tag = oEmpresa.Item("empresa")
+                AddHandler oItem.Click, AddressOf mnuEmpresaApontamento_Click
+                oMenuEmpresaApontamento.Items.Add(oItem)
+            Next
+
+            frmMain.Informacao("Escolha a empresa do apontamento.", Color.Blue)
+
+            'Abre no meio da tela do chamado (embaixo, junto do botão, passava despercebido)
+            Dim oTamanho As Size = oMenuEmpresaApontamento.GetPreferredSize(Size.Empty)
+            oMenuEmpresaApontamento.Show(Me, New Point(Math.Max(0, (Me.ClientSize.Width - oTamanho.Width) \ 2), _
+                                                       Math.Max(0, (Me.ClientSize.Height - oTamanho.Height) \ 2)))
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub ApontarChamado(ByVal iEmpresaCliente As Integer, ByVal sEmpresa As String)
+
+        Try
+
+            Cursor.Current = Cursors.WaitCursor
+
+            'Grava o início no banco (horário do servidor MySQL)
+            Dim iApontamento As Integer = oClsUsrAdmChamado.InsertApontamento(CLng(txtCodigo.Text), iEmpresaCliente)
+
+            Call AtualizarApontamentos()
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Apontamento " & iApontamento & " do chamado " & txtCodigo.Text & _
+                               IIf(sEmpresa = "", "", " (" & sEmpresa & ")") & " iniciado com sucesso!", Color.Blue)
+
+        Catch ex As Exception
+            Cursor.Current = Cursors.Default
+            Throw ex
+        End Try
+
+    End Sub
+
     Private Sub AtualizarApontamentos()
 
         Try
@@ -2398,7 +2583,7 @@ Public Class usrAdmChamado
             Dim sSelecionado As String = ""
 
             For Each oRow As GridEXRow In grdApontamentoHistorico.GetRows
-                If oRow.RowType = RowType.Record AndAlso oRow.Expanded Then oExpandidos.Add(oRow.Cells("codigo_chamado").Value.ToString)
+                If oRow.RowType = RowType.Record AndAlso oRow.Expanded Then oExpandidos.Add(ChaveChamadoEmpresa(oRow))
             Next
 
             If IsNothing(grdApontamentoHistorico.CurrentRow) = False AndAlso grdApontamentoHistorico.CurrentRow.RowType = RowType.Record _
@@ -2413,8 +2598,28 @@ Public Class usrAdmChamado
                                                                 IIf(dtpInicioApontamento.Checked = False, Nothing, dtpInicioApontamento.Value.Date), _
                                                                 IIf(dtpTerminoApontamento.Checked = False, Nothing, dtpTerminoApontamento.Value.Date))
 
+            'Empresa do apontamento (grid filha): lista de empresas do combo + as que já aparecem no histórico
+            '(ex.: empresa inativada); o banco aceita só as vinculadas ao chamado
+            If IsNothing(cboEmpresa.DropDownDataSource) = False Then
+
+                Dim oEmpresas As DataTable = CType(cboEmpresa.DropDownDataSource, DataTable).Copy
+
+                For Each oRow As GridEXRow In grdApontamentoHistorico.GetRows
+                    If oRow.RowType = RowType.Record AndAlso CInt(oRow.Cells("codigo_empresa_cliente").Value) > 0 _
+                       AndAlso oEmpresas.Select("codigo = " & CInt(oRow.Cells("codigo_empresa_cliente").Value)).Length = 0 Then
+                        Dim oEmpresa As DataRow = oEmpresas.NewRow
+                        oEmpresa.Item("codigo") = oRow.Cells("codigo_empresa_cliente").Value
+                        oEmpresa.Item("descricao") = oRow.Cells("empresa").Value.ToString
+                        oEmpresas.Rows.Add(oEmpresa)
+                    End If
+                Next
+
+                grdApontamentoHistorico.RootTable.ChildTables(0).Columns("codigo_empresa_cliente").ValueList.PopulateValueList(oEmpresas.DefaultView, "codigo", "descricao")
+
+            End If
+
             For Each oRow As GridEXRow In grdApontamentoHistorico.GetRows
-                If oRow.RowType = RowType.Record AndAlso oExpandidos.Contains(oRow.Cells("codigo_chamado").Value.ToString) Then
+                If oRow.RowType = RowType.Record AndAlso oExpandidos.Contains(ChaveChamadoEmpresa(oRow)) Then
                     oRow.Expanded = True
                     If sSelecionado <> "" Then
                         For Each oFilha As GridEXRow In oRow.GetChildRecords
@@ -2531,6 +2736,13 @@ Public Class usrAdmChamado
 
     End Function
 
+    Private Function ChaveChamadoEmpresa(ByVal oRow As GridEXRow) As String
+
+        'Linha da grid pai do histórico: chamado x empresa do apontamento
+        Return oRow.Cells("codigo_chamado").Value.ToString & ";" & oRow.Cells("codigo_empresa_cliente").Value.ToString
+
+    End Function
+
     Private Function ChaveApontamentoSelecionado() As String
 
         Try
@@ -2550,11 +2762,12 @@ Public Class usrAdmChamado
         Try
 
             Dim lChamado As Long = grdApontamentoHistorico.CurrentRow.Cells("codigo_chamado").Value
+            Dim iEmpresaCliente As Integer = CInt(grdApontamentoHistorico.CurrentRow.Cells("codigo_empresa_cliente").Value)
 
             Cursor.Current = Cursors.WaitCursor
 
-            'Inicia um novo apontamento (horário do banco) no mesmo chamado do registro selecionado
-            Dim iApontamento As Integer = oClsUsrAdmChamado.InsertApontamento(lChamado)
+            'Inicia um novo apontamento (horário do banco) no mesmo chamado e na mesma empresa do registro selecionado
+            Dim iApontamento As Integer = oClsUsrAdmChamado.InsertApontamento(lChamado, iEmpresaCliente)
 
             Call LoadGridApontamentoAndamento()
 
@@ -2700,7 +2913,8 @@ Public Class usrAdmChamado
                                                      oRow.Cells("codigo_apontamento").Value, _
                                                      CDate(oInicio), _
                                                      CDate(oFim), _
-                                                     oRow.Cells("observacao").Value.ToString.Trim)
+                                                     oRow.Cells("observacao").Value.ToString.Trim, _
+                                                     CInt(oRow.Cells("codigo_empresa_cliente").Value))
 
             frmMain.Informacao("Apontamento atualizado com sucesso!", Color.Blue)
 

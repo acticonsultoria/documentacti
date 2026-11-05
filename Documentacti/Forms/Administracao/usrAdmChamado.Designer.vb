@@ -33,6 +33,7 @@ Partial Class usrAdmChamado
         Dim grdArquivos_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdArquivos_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column1.Image")
         Dim grdChecklist_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim grdChecklistEmpresa_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdChecklist_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdChecklist_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column7.Image")
         Dim grdComentario_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
@@ -42,6 +43,7 @@ Partial Class usrAdmChamado
         Dim JanusColorScheme1 As Janus.Windows.Common.JanusColorScheme = New Janus.Windows.Common.JanusColorScheme()
         Dim cboTipoAtendimento_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim cboResponsavel_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim cboEmpresa_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdApontamentoHistorico_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdApontamentoHistorico_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdApontamentoAndamento_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
@@ -103,8 +105,10 @@ Partial Class usrAdmChamado
         Me.pagChecklist = New Janus.Windows.UI.Tab.UITabPage()
         Me.txtChecklist = New Janus.Windows.GridEX.EditControls.EditBox()
         Me.btnAdicionarChecklist = New Janus.Windows.EditControls.UIButton()
-        Me.btnTemplateChecklist = New Janus.Windows.EditControls.UIButton()
+        Me.btnTemplateEmpresa = New Janus.Windows.EditControls.UIButton()
         Me.grdChecklist = New Janus.Windows.GridEX.GridEX()
+        Me.pagChecklistEmpresa = New Janus.Windows.UI.Tab.UITabPage()
+        Me.grdChecklistEmpresa = New Janus.Windows.GridEX.GridEX()
         Me.grdArquivos = New Janus.Windows.GridEX.GridEX()
         Me.btnArquivo = New Janus.Windows.EditControls.UIButton()
         Me.pagComentario = New Janus.Windows.UI.Tab.UITabPage()
@@ -134,7 +138,7 @@ Partial Class usrAdmChamado
         Me.lblTitulo = New System.Windows.Forms.Label()
         Me.cboPrioridade = New Janus.Windows.EditControls.UIComboBox()
         Me.lblPrioridade = New System.Windows.Forms.Label()
-        Me.cboEmpresa = New Janus.Windows.EditControls.UIComboBox()
+        Me.cboEmpresa = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblEmpresa = New System.Windows.Forms.Label()
         Me.txtSolicitante = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.lblSolicitante = New System.Windows.Forms.Label()
@@ -189,6 +193,8 @@ Partial Class usrAdmChamado
         Me.cboTipoAtividadeRelatorio = New Janus.Windows.EditControls.UIComboBox()
         Me.lblTipoAtividadeRelatorio = New System.Windows.Forms.Label()
         Me.cboEmpresaRelatorio = New Janus.Windows.EditControls.UIComboBox()
+        Me.cboTimeRelatorio = New Janus.Windows.EditControls.UIComboBox()
+        Me.lblTimeRelatorio = New System.Windows.Forms.Label()
         Me.lblEmpresaRelatorio = New System.Windows.Forms.Label()
         Me.dtpTerminoRelatorio = New Janus.Windows.CalendarCombo.CalendarCombo()
         Me.dtpInicioRelatorio = New Janus.Windows.CalendarCombo.CalendarCombo()
@@ -218,8 +224,10 @@ Partial Class usrAdmChamado
         Me.tabDadosChamado.SuspendLayout()
         Me.pagArquivos.SuspendLayout()
         Me.pagChecklist.SuspendLayout()
+        Me.pagChecklistEmpresa.SuspendLayout()
         CType(Me.grdArquivos, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.grdChecklist, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.grdChecklistEmpresa, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.pagComentario.SuspendLayout()
         CType(Me.grdComentario, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.pagComentarioDev.SuspendLayout()
@@ -467,6 +475,7 @@ Partial Class usrAdmChamado
         Me.grdListagem.Font = New System.Drawing.Font("Arial", 8.25!)
         Me.grdListagem.GridLineStyle = Janus.Windows.GridEX.GridLineStyle.Solid
         Me.grdListagem.GroupByBoxVisible = False
+        Me.grdListagem.Hierarchical = True
         Me.grdListagem.Location = New System.Drawing.Point(7, 116)
         Me.grdListagem.Name = "grdListagem"
         Me.grdListagem.Office2007ColorScheme = Janus.Windows.GridEX.Office2007ColorScheme.Silver
@@ -830,7 +839,7 @@ Partial Class usrAdmChamado
         Me.tabDadosChamado.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.tabDadosChamado.Size = New System.Drawing.Size(1182, 233)
         Me.tabDadosChamado.TabIndex = 1
-        Me.tabDadosChamado.TabPages.AddRange(New Janus.Windows.UI.Tab.UITabPage() {Me.pagArquivos, Me.pagChecklist, Me.pagComentario, Me.pagComentarioDev, Me.pagChat})
+        Me.tabDadosChamado.TabPages.AddRange(New Janus.Windows.UI.Tab.UITabPage() {Me.pagArquivos, Me.pagChecklist, Me.pagChecklistEmpresa, Me.pagComentario, Me.pagComentarioDev, Me.pagChat})
         Me.tabDadosChamado.TabStop = False
         Me.tabDadosChamado.VisualStyleManager = Me.vsmMain
         '
@@ -891,7 +900,6 @@ Partial Class usrAdmChamado
         '
         Me.pagChecklist.Controls.Add(Me.grdChecklist)
         Me.pagChecklist.Controls.Add(Me.btnAdicionarChecklist)
-        Me.pagChecklist.Controls.Add(Me.btnTemplateChecklist)
         Me.pagChecklist.Controls.Add(Me.txtChecklist)
         Me.pagChecklist.Key = "pagChecklist"
         Me.pagChecklist.Location = New System.Drawing.Point(1, 22)
@@ -907,23 +915,9 @@ Partial Class usrAdmChamado
         Me.txtChecklist.Location = New System.Drawing.Point(3, 4)
         Me.txtChecklist.MaxLength = 500
         Me.txtChecklist.Name = "txtChecklist"
-        Me.txtChecklist.Size = New System.Drawing.Size(932, 20)
+        Me.txtChecklist.Size = New System.Drawing.Size(1038, 20)
         Me.txtChecklist.TabIndex = 0
         Me.txtChecklist.VisualStyle = Janus.Windows.GridEX.VisualStyle.VS2005
-        '
-        'btnTemplateChecklist
-        '
-        Me.btnTemplateChecklist.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnTemplateChecklist.Image = Global.Documentacti.My.Resources.Resources.config
-        Me.btnTemplateChecklist.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnTemplateChecklist.Location = New System.Drawing.Point(941, 3)
-        Me.btnTemplateChecklist.Name = "btnTemplateChecklist"
-        Me.btnTemplateChecklist.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.btnTemplateChecklist.Size = New System.Drawing.Size(100, 23)
-        Me.btnTemplateChecklist.TabIndex = 1
-        Me.btnTemplateChecklist.Text = "Template"
-        Me.btnTemplateChecklist.ToolTipText = "Inclui as empresas ativas de um time no checklist"
-        Me.btnTemplateChecklist.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'btnAdicionarChecklist
         '
@@ -934,7 +928,7 @@ Partial Class usrAdmChamado
         Me.btnAdicionarChecklist.Name = "btnAdicionarChecklist"
         Me.btnAdicionarChecklist.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnAdicionarChecklist.Size = New System.Drawing.Size(130, 23)
-        Me.btnAdicionarChecklist.TabIndex = 2
+        Me.btnAdicionarChecklist.TabIndex = 1
         Me.btnAdicionarChecklist.Text = "Adicionar item"
         Me.btnAdicionarChecklist.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
@@ -963,9 +957,46 @@ Partial Class usrAdmChamado
         Me.grdChecklist.SelectedFormatStyle.BackColor = System.Drawing.Color.Empty
         Me.grdChecklist.SelectedFormatStyle.ForeColor = System.Drawing.Color.Empty
         Me.grdChecklist.Size = New System.Drawing.Size(1174, 173)
-        Me.grdChecklist.TabIndex = 3
+        Me.grdChecklist.TabIndex = 2
         Me.grdChecklist.TabStop = False
         Me.grdChecklist.VisualStyle = Janus.Windows.GridEX.VisualStyle.Office2007
+        '
+        'pagChecklistEmpresa
+        '
+        Me.pagChecklistEmpresa.Controls.Add(Me.grdChecklistEmpresa)
+        Me.pagChecklistEmpresa.Key = "pagChecklistEmpresa"
+        Me.pagChecklistEmpresa.Location = New System.Drawing.Point(1, 22)
+        Me.pagChecklistEmpresa.Name = "pagChecklistEmpresa"
+        Me.pagChecklistEmpresa.Size = New System.Drawing.Size(1180, 210)
+        Me.pagChecklistEmpresa.TabStop = True
+        Me.pagChecklistEmpresa.TabVisible = False
+        Me.pagChecklistEmpresa.Text = "Checklist Empresa"
+        '
+        'grdChecklistEmpresa
+        '
+        Me.grdChecklistEmpresa.AllowEdit = Janus.Windows.GridEX.InheritableBoolean.[True]
+        Me.grdChecklistEmpresa.AlternatingColors = True
+        Me.grdChecklistEmpresa.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        grdChecklistEmpresa_DesignTimeLayout.LayoutString = resources.GetString("grdChecklistEmpresa_DesignTimeLayout.LayoutString")
+        Me.grdChecklistEmpresa.DesignTimeLayout = grdChecklistEmpresa_DesignTimeLayout
+        Me.grdChecklistEmpresa.FilterRowButtonStyle = Janus.Windows.GridEX.FilterRowButtonStyle.ConditionOperatorDropDown
+        Me.grdChecklistEmpresa.FilterRowUpdateMode = Janus.Windows.GridEX.FilterRowUpdateMode.WhenValueChanges
+        Me.grdChecklistEmpresa.FocusStyle = Janus.Windows.GridEX.FocusStyle.None
+        Me.grdChecklistEmpresa.Font = New System.Drawing.Font("Arial", 8.25!)
+        Me.grdChecklistEmpresa.GridLineStyle = Janus.Windows.GridEX.GridLineStyle.Solid
+        Me.grdChecklistEmpresa.GroupByBoxVisible = False
+        Me.grdChecklistEmpresa.Location = New System.Drawing.Point(3, 3)
+        Me.grdChecklistEmpresa.Name = "grdChecklistEmpresa"
+        Me.grdChecklistEmpresa.Office2007ColorScheme = Janus.Windows.GridEX.Office2007ColorScheme.Silver
+        Me.grdChecklistEmpresa.ScrollBars = Janus.Windows.GridEX.ScrollBars.Both
+        Me.grdChecklistEmpresa.SelectedFormatStyle.BackColor = System.Drawing.Color.Empty
+        Me.grdChecklistEmpresa.SelectedFormatStyle.ForeColor = System.Drawing.Color.Empty
+        Me.grdChecklistEmpresa.Size = New System.Drawing.Size(1174, 200)
+        Me.grdChecklistEmpresa.TabIndex = 0
+        Me.grdChecklistEmpresa.TabStop = False
+        Me.grdChecklistEmpresa.VisualStyle = Janus.Windows.GridEX.VisualStyle.Office2007
         '
         'pagComentario
         '
@@ -1128,6 +1159,7 @@ Partial Class usrAdmChamado
         Me.grpDados.Controls.Add(Me.lblTitulo)
         Me.grpDados.Controls.Add(Me.cboPrioridade)
         Me.grpDados.Controls.Add(Me.lblPrioridade)
+        Me.grpDados.Controls.Add(Me.btnTemplateEmpresa)
         Me.grpDados.Controls.Add(Me.cboEmpresa)
         Me.grpDados.Controls.Add(Me.lblEmpresa)
         Me.grpDados.Controls.Add(Me.txtSolicitante)
@@ -1341,13 +1373,27 @@ Partial Class usrAdmChamado
         '
         'cboEmpresa
         '
-        Me.cboEmpresa.AutoSize = False
-        Me.cboEmpresa.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboEmpresa.Location = New System.Drawing.Point(671, 29)
+        Me.cboEmpresa.ButtonCancelText = "Cancelar"
+        cboEmpresa_DesignTimeLayout.LayoutString = resources.GetString("cboEmpresa_DesignTimeLayout.LayoutString")
+        Me.cboEmpresa.DesignTimeLayout = cboEmpresa_DesignTimeLayout
+        Me.cboEmpresa.Location = New System.Drawing.Point(671, 28)
         Me.cboEmpresa.Name = "cboEmpresa"
-        Me.cboEmpresa.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.cboEmpresa.Size = New System.Drawing.Size(300, 20)
+        Me.cboEmpresa.SaveSettings = False
+        Me.cboEmpresa.Size = New System.Drawing.Size(270, 23)
         Me.cboEmpresa.TabIndex = 9
+        Me.cboEmpresa.ValuesDataMember = Nothing
+        '
+        'btnTemplateEmpresa
+        '
+        Me.btnTemplateEmpresa.Image = Global.Documentacti.My.Resources.Resources.config
+        Me.btnTemplateEmpresa.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Center
+        Me.btnTemplateEmpresa.Location = New System.Drawing.Point(944, 28)
+        Me.btnTemplateEmpresa.Name = "btnTemplateEmpresa"
+        Me.btnTemplateEmpresa.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.btnTemplateEmpresa.Size = New System.Drawing.Size(27, 23)
+        Me.btnTemplateEmpresa.TabIndex = 10
+        Me.btnTemplateEmpresa.ToolTipText = "Template: vincular ao chamado as empresas ativas de um time"
+        Me.btnTemplateEmpresa.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'lblEmpresa
         '
@@ -1940,6 +1986,8 @@ Partial Class usrAdmChamado
         Me.grpFiltroRelatorio.Controls.Add(Me.lblTipoAtendimentoRelatorio)
         Me.grpFiltroRelatorio.Controls.Add(Me.cboTipoAtividadeRelatorio)
         Me.grpFiltroRelatorio.Controls.Add(Me.lblTipoAtividadeRelatorio)
+        Me.grpFiltroRelatorio.Controls.Add(Me.cboTimeRelatorio)
+        Me.grpFiltroRelatorio.Controls.Add(Me.lblTimeRelatorio)
         Me.grpFiltroRelatorio.Controls.Add(Me.cboEmpresaRelatorio)
         Me.grpFiltroRelatorio.Controls.Add(Me.lblEmpresaRelatorio)
         Me.grpFiltroRelatorio.Controls.Add(Me.dtpTerminoRelatorio)
@@ -1961,7 +2009,7 @@ Partial Class usrAdmChamado
         Me.btnGerarRelatorio.Name = "btnGerarRelatorio"
         Me.btnGerarRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnGerarRelatorio.Size = New System.Drawing.Size(91, 23)
-        Me.btnGerarRelatorio.TabIndex = 16
+        Me.btnGerarRelatorio.TabIndex = 18
         Me.btnGerarRelatorio.Text = "Gerar"
         Me.btnGerarRelatorio.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
@@ -1974,7 +2022,7 @@ Partial Class usrAdmChamado
         Me.lblTotalRelatorio.Location = New System.Drawing.Point(543, 77)
         Me.lblTotalRelatorio.Name = "lblTotalRelatorio"
         Me.lblTotalRelatorio.Size = New System.Drawing.Size(105, 16)
-        Me.lblTotalRelatorio.TabIndex = 15
+        Me.lblTotalRelatorio.TabIndex = 17
         Me.lblTotalRelatorio.Text = "Total: 00:00:00"
         '
         'cboGraficoRelatorio
@@ -1985,7 +2033,7 @@ Partial Class usrAdmChamado
         Me.cboGraficoRelatorio.Name = "cboGraficoRelatorio"
         Me.cboGraficoRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.cboGraficoRelatorio.Size = New System.Drawing.Size(300, 20)
-        Me.cboGraficoRelatorio.TabIndex = 14
+        Me.cboGraficoRelatorio.TabIndex = 16
         '
         'lblGraficoRelatorio
         '
@@ -1994,7 +2042,7 @@ Partial Class usrAdmChamado
         Me.lblGraficoRelatorio.Location = New System.Drawing.Point(234, 57)
         Me.lblGraficoRelatorio.Name = "lblGraficoRelatorio"
         Me.lblGraficoRelatorio.Size = New System.Drawing.Size(58, 16)
-        Me.lblGraficoRelatorio.TabIndex = 13
+        Me.lblGraficoRelatorio.TabIndex = 15
         Me.lblGraficoRelatorio.Text = "Gráfico:"
         '
         'cboAgruparRelatorio
@@ -2005,7 +2053,7 @@ Partial Class usrAdmChamado
         Me.cboAgruparRelatorio.Name = "cboAgruparRelatorio"
         Me.cboAgruparRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.cboAgruparRelatorio.Size = New System.Drawing.Size(222, 20)
-        Me.cboAgruparRelatorio.TabIndex = 12
+        Me.cboAgruparRelatorio.TabIndex = 14
         '
         'lblAgruparRelatorio
         '
@@ -2014,7 +2062,7 @@ Partial Class usrAdmChamado
         Me.lblAgruparRelatorio.Location = New System.Drawing.Point(6, 57)
         Me.lblAgruparRelatorio.Name = "lblAgruparRelatorio"
         Me.lblAgruparRelatorio.Size = New System.Drawing.Size(88, 16)
-        Me.lblAgruparRelatorio.TabIndex = 11
+        Me.lblAgruparRelatorio.TabIndex = 13
         Me.lblAgruparRelatorio.Text = "Agrupar por:"
         '
         'cboResponsavelRelatorio
@@ -2025,7 +2073,7 @@ Partial Class usrAdmChamado
         Me.cboResponsavelRelatorio.Name = "cboResponsavelRelatorio"
         Me.cboResponsavelRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.cboResponsavelRelatorio.Size = New System.Drawing.Size(198, 20)
-        Me.cboResponsavelRelatorio.TabIndex = 10
+        Me.cboResponsavelRelatorio.TabIndex = 12
         '
         'lblResponsavelRelatorio
         '
@@ -2034,7 +2082,7 @@ Partial Class usrAdmChamado
         Me.lblResponsavelRelatorio.Location = New System.Drawing.Point(972, 17)
         Me.lblResponsavelRelatorio.Name = "lblResponsavelRelatorio"
         Me.lblResponsavelRelatorio.Size = New System.Drawing.Size(94, 16)
-        Me.lblResponsavelRelatorio.TabIndex = 9
+        Me.lblResponsavelRelatorio.TabIndex = 11
         Me.lblResponsavelRelatorio.Text = "Responsável:"
         '
         'cboTipoAtendimentoRelatorio
@@ -2045,7 +2093,7 @@ Partial Class usrAdmChamado
         Me.cboTipoAtendimentoRelatorio.Name = "cboTipoAtendimentoRelatorio"
         Me.cboTipoAtendimentoRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.cboTipoAtendimentoRelatorio.Size = New System.Drawing.Size(220, 20)
-        Me.cboTipoAtendimentoRelatorio.TabIndex = 8
+        Me.cboTipoAtendimentoRelatorio.TabIndex = 10
         '
         'lblTipoAtendimentoRelatorio
         '
@@ -2054,7 +2102,7 @@ Partial Class usrAdmChamado
         Me.lblTipoAtendimentoRelatorio.Location = New System.Drawing.Point(746, 17)
         Me.lblTipoAtendimentoRelatorio.Name = "lblTipoAtendimentoRelatorio"
         Me.lblTipoAtendimentoRelatorio.Size = New System.Drawing.Size(141, 16)
-        Me.lblTipoAtendimentoRelatorio.TabIndex = 7
+        Me.lblTipoAtendimentoRelatorio.TabIndex = 9
         Me.lblTipoAtendimentoRelatorio.Text = "Tipo de Atendimento:"
         '
         'cboTipoAtividadeRelatorio
@@ -2065,7 +2113,7 @@ Partial Class usrAdmChamado
         Me.cboTipoAtividadeRelatorio.Name = "cboTipoAtividadeRelatorio"
         Me.cboTipoAtividadeRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.cboTipoAtividadeRelatorio.Size = New System.Drawing.Size(200, 20)
-        Me.cboTipoAtividadeRelatorio.TabIndex = 6
+        Me.cboTipoAtividadeRelatorio.TabIndex = 8
         '
         'lblTipoAtividadeRelatorio
         '
@@ -2074,7 +2122,7 @@ Partial Class usrAdmChamado
         Me.lblTipoAtividadeRelatorio.Location = New System.Drawing.Point(540, 17)
         Me.lblTipoAtividadeRelatorio.Name = "lblTipoAtividadeRelatorio"
         Me.lblTipoAtividadeRelatorio.Size = New System.Drawing.Size(120, 16)
-        Me.lblTipoAtividadeRelatorio.TabIndex = 5
+        Me.lblTipoAtividadeRelatorio.TabIndex = 7
         Me.lblTipoAtividadeRelatorio.Text = "Tipo de Atividade:"
         '
         'cboEmpresaRelatorio
@@ -2084,8 +2132,28 @@ Partial Class usrAdmChamado
         Me.cboEmpresaRelatorio.Location = New System.Drawing.Point(237, 34)
         Me.cboEmpresaRelatorio.Name = "cboEmpresaRelatorio"
         Me.cboEmpresaRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.cboEmpresaRelatorio.Size = New System.Drawing.Size(300, 20)
+        Me.cboEmpresaRelatorio.Size = New System.Drawing.Size(194, 20)
         Me.cboEmpresaRelatorio.TabIndex = 4
+        '
+        'cboTimeRelatorio
+        '
+        Me.cboTimeRelatorio.AutoSize = False
+        Me.cboTimeRelatorio.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboTimeRelatorio.Location = New System.Drawing.Point(437, 34)
+        Me.cboTimeRelatorio.Name = "cboTimeRelatorio"
+        Me.cboTimeRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboTimeRelatorio.Size = New System.Drawing.Size(100, 20)
+        Me.cboTimeRelatorio.TabIndex = 6
+        '
+        'lblTimeRelatorio
+        '
+        Me.lblTimeRelatorio.AutoSize = True
+        Me.lblTimeRelatorio.BackColor = System.Drawing.Color.Transparent
+        Me.lblTimeRelatorio.Location = New System.Drawing.Point(434, 17)
+        Me.lblTimeRelatorio.Name = "lblTimeRelatorio"
+        Me.lblTimeRelatorio.Size = New System.Drawing.Size(41, 16)
+        Me.lblTimeRelatorio.TabIndex = 5
+        Me.lblTimeRelatorio.Text = "Time:"
         '
         'lblEmpresaRelatorio
         '
@@ -2186,6 +2254,8 @@ Partial Class usrAdmChamado
         CType(Me.grdArquivos, System.ComponentModel.ISupportInitialize).EndInit()
         Me.pagChecklist.ResumeLayout(False)
         CType(Me.grdChecklist, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.pagChecklistEmpresa.ResumeLayout(False)
+        CType(Me.grdChecklistEmpresa, System.ComponentModel.ISupportInitialize).EndInit()
         Me.pagComentario.ResumeLayout(False)
         CType(Me.grdComentario, System.ComponentModel.ISupportInitialize).EndInit()
         Me.pagComentarioDev.ResumeLayout(False)
@@ -2275,7 +2345,7 @@ Partial Class usrAdmChamado
     Friend WithEvents lblSolicitante As System.Windows.Forms.Label
     Friend WithEvents txtSolicitante As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents lblEmpresa As System.Windows.Forms.Label
-    Friend WithEvents cboEmpresa As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents cboEmpresa As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents lblPrioridade As System.Windows.Forms.Label
     Friend WithEvents cboPrioridade As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblTitulo As System.Windows.Forms.Label
@@ -2304,8 +2374,10 @@ Partial Class usrAdmChamado
     Friend WithEvents pagChecklist As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents txtChecklist As Janus.Windows.GridEX.EditControls.EditBox
     Friend WithEvents btnAdicionarChecklist As Janus.Windows.EditControls.UIButton
-    Friend WithEvents btnTemplateChecklist As Janus.Windows.EditControls.UIButton
+    Friend WithEvents btnTemplateEmpresa As Janus.Windows.EditControls.UIButton
     Friend WithEvents grdChecklist As Janus.Windows.GridEX.GridEX
+    Friend WithEvents pagChecklistEmpresa As Janus.Windows.UI.Tab.UITabPage
+    Friend WithEvents grdChecklistEmpresa As Janus.Windows.GridEX.GridEX
     Friend WithEvents grdComentario As Janus.Windows.GridEX.GridEX
     Friend WithEvents grdComentarioDev As Janus.Windows.GridEX.GridEX
     Friend WithEvents grpControl2 As Janus.Windows.EditControls.UIGroupBox
@@ -2344,6 +2416,8 @@ Partial Class usrAdmChamado
     Friend WithEvents dtpTerminoRelatorio As Janus.Windows.CalendarCombo.CalendarCombo
     Friend WithEvents lblEmpresaRelatorio As System.Windows.Forms.Label
     Friend WithEvents cboEmpresaRelatorio As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents lblTimeRelatorio As System.Windows.Forms.Label
+    Friend WithEvents cboTimeRelatorio As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblTipoAtividadeRelatorio As System.Windows.Forms.Label
     Friend WithEvents cboTipoAtividadeRelatorio As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblTipoAtendimentoRelatorio As System.Windows.Forms.Label

@@ -13,7 +13,7 @@ Public Class clsUsrAdmChamado
 
 #Region "::: GERAL :::"
 
-    Public Function Insert(ByVal iEmpresaCliente As Integer, _
+    Public Function Insert(ByVal sEmpresasCliente As String, _
                            ByVal sTitulo As String, _
                            ByVal sDescricao As String, _
                            ByVal sSolicitante As String, _
@@ -39,12 +39,12 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
             oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
 
-            'Seta Parametros - Empresa (Cliente)
+            'Seta Parametros - Empresas (Cliente): códigos separados por vírgula
             oMySqlParameter(i) = New MySqlParameter
-            oMySqlParameter(i).ParameterName = "@p_empresa"
+            oMySqlParameter(i).ParameterName = "@p_empresas"
             oMySqlParameter(i).Direction = ParameterDirection.Input
-            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
-            oMySqlParameter(i).Value = iEmpresaCliente : i += 1 : ReDim Preserve oMySqlParameter(i)
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sEmpresasCliente : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Título (Atividade)
             oMySqlParameter(i) = New MySqlParameter
@@ -150,7 +150,7 @@ Public Class clsUsrAdmChamado
     End Function
 
     Public Sub Update(ByVal lCodigo As Long, _
-                      ByVal iEmpresaCliente As Integer, _
+                      ByVal sEmpresasCliente As String, _
                       ByVal sTitulo As String, _
                       ByVal sDescricao As String, _
                       ByVal sSolicitante As String, _
@@ -183,12 +183,12 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
             oMySqlParameter(i).Value = lCodigo : i += 1 : ReDim Preserve oMySqlParameter(i)
 
-            'Seta Parametros - Empresa (Cliente)
+            'Seta Parametros - Empresas (Cliente): códigos separados por vírgula
             oMySqlParameter(i) = New MySqlParameter
-            oMySqlParameter(i).ParameterName = "@p_empresa"
+            oMySqlParameter(i).ParameterName = "@p_empresas"
             oMySqlParameter(i).Direction = ParameterDirection.Input
-            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
-            oMySqlParameter(i).Value = iEmpresaCliente : i += 1 : ReDim Preserve oMySqlParameter(i)
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sEmpresasCliente : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Título (Atividade)
             oMySqlParameter(i) = New MySqlParameter
@@ -443,9 +443,19 @@ Public Class clsUsrAdmChamado
             Next
             oTabela.AcceptChanges()
 
+            'Grid filha: apontamentos dos chamados listados (quem apontou, empresa, período, duração)
+            Dim oApontamento As DataTable = LoadApontamentoLista(oTabela)
+            oApontamento.TableName = "apontamento"
+            oDataSet.Tables.Add(oApontamento)
+            oDataSet.Relations.Add("chamado_apontamento", _
+                                   New DataColumn() {oTabela.Columns("codigo_atividade")}, _
+                                   New DataColumn() {oApontamento.Columns("codigo_atividade")}, _
+                                   False)
+
             'Carrega Grid
             Call ConfigurarDataMemberGrid(oGrid)
             oGrid.DataSource = oDataSet.DefaultViewManager
+            oGrid.RootTable.ChildTables(0).DataMember = "chamado_apontamento"
             oGrid.DataMember = oDataSet.Tables(0).TableName
 
         Catch MySqlEx As MySqlException
@@ -455,6 +465,57 @@ Public Class clsUsrAdmChamado
         End Try
 
     End Sub
+
+    Private Function LoadApontamentoLista(ByVal oChamado As DataTable) As DataTable
+
+        'Apontamentos dos chamados da listagem (códigos separados por vírgula)
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim oCodigos As New System.Text.StringBuilder
+        Dim i As Integer = 0
+
+        Try
+
+            For Each oRow As DataRow In oChamado.Rows
+                If oCodigos.Length > 0 Then oCodigos.Append(",")
+                oCodigos.Append(oRow.Item("codigo_atividade").ToString)
+            Next
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Chamados
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_chamados"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.MediumText
+            oMySqlParameter(i).Value = oCodigos.ToString
+
+            'Executa Query
+            'A tabela sai do DataSet de origem para entrar no DataSet da listagem (grid filha)
+            Dim oDataSet As DataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_lista_apontamento", oMySqlParameter)
+            Dim oTabela As DataTable = oDataSet.Tables(0)
+            oDataSet.Tables.Remove(oTabela)
+
+            'Duração HH:mm:ss (em andamento: até agora)
+            oTabela.Columns.Add("duracao", GetType(String))
+            For Each oRow As DataRow In oTabela.Rows
+                oRow.Item("duracao") = FormatarDuracao(IIf(IsDBNull(oRow.Item("duracao_segundos")), 0, CLng(oRow.Item("duracao_segundos"))))
+            Next
+            oTabela.AcceptChanges()
+
+            Return oTabela
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
 
 #End Region
 
@@ -562,6 +623,7 @@ Public Class clsUsrAdmChamado
                                       ByVal oDataInicio As Object, _
                                       ByVal oDataTermino As Object, _
                                       ByVal iEmpresaCliente As Integer, _
+                                      ByVal iTime As Integer, _
                                       ByVal iTipoAtividade As Integer, _
                                       ByVal iTipoAtendimento As Integer, _
                                       ByVal lUsuario As Long, _
@@ -601,6 +663,13 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
             oMySqlParameter(i).Value = iEmpresaCliente : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Time da empresa do apontamento (-1 = todos)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_tipo_time"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iTime : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Tipo de Atividade
             oMySqlParameter(i) = New MySqlParameter
@@ -1082,9 +1151,139 @@ Public Class clsUsrAdmChamado
 
     End Sub
 
+#End Region
+
+#Region "::: CHECKLIST EMPRESA :::"
+
+    Public Function LoadEmpresaChamado(ByVal lCodigoAtividade As Long) As DataTable
+
+        'Empresas vinculadas ao chamado (principal primeiro) com a situação da Checklist Empresa e as horas por empresa
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Atividade
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigoAtividade
+
+            'Executa Query
+            Return ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_empresa", oMySqlParameter).Tables(0)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Public Sub LoadGridChecklistEmpresa(ByVal oGrid As GridEX, _
+                                        ByVal oEmpresas As DataTable)
+
+        Try
+
+            'Carrega Grid (dados já lidos por LoadEmpresaChamado)
+            Dim oDataSet As New DataSet
+            Dim oTabela As DataTable = oEmpresas.Copy
+
+            'Feito vem 0/1 do banco: a coluna de checkbox da grid usa Boolean
+            For Each sColuna As String In New String() {"concluido"}
+                oTabela.Columns(sColuna).ColumnName = sColuna & "_numero"
+                oTabela.Columns.Add(sColuna, GetType(Boolean))
+                For Each oLinha As DataRow In oTabela.Rows
+                    oLinha(sColuna) = (IsDBNull(oLinha(sColuna & "_numero")) = False AndAlso CLng(oLinha(sColuna & "_numero")) = 1)
+                Next
+            Next
+
+            'Duração HH:mm:ss ao lado das horas decimais (igual à tela de apontamentos)
+            oTabela.Columns.Add("duracao", GetType(String))
+            For Each oLinha As DataRow In oTabela.Rows
+                oLinha("duracao") = FormatarDuracao(IIf(IsDBNull(oLinha("duracao_segundos")), 0, CLng(oLinha("duracao_segundos"))))
+            Next
+            oTabela.AcceptChanges()
+
+            oDataSet.Tables.Add(oTabela)
+
+            Call ConfigurarDataMemberGrid(oGrid)
+            oGrid.DataSource = oDataSet.DefaultViewManager
+            oGrid.DataMember = oDataSet.Tables(0).TableName
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Sub UpdateChecklistEmpresa(ByVal lCodigoAtividade As Long, _
+                                      ByVal iEmpresaCliente As Integer, _
+                                      ByVal bConcluido As Boolean)
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Atividade
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = lCodigoAtividade : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Empresa (Cliente)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iEmpresaCliente : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Concluído
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_concluido"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).Value = IIf(bConcluido, 1, 0) : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Usuário
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_administracao_chamado_empresa_checklist", oMySqlParameter)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
     Public Function LoadTimeChecklist() As DataTable
 
-        'Times (mesma lista do cadastro de empresa) para o template do checklist
+        'Times (mesma lista do cadastro de empresa) para o template de empresas
         Try
 
             Return ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_combo_tipo_time_empresa", ParametroEmpresa()).Tables(0)
@@ -1097,54 +1296,51 @@ Public Class clsUsrAdmChamado
 
     End Function
 
-    Public Function InsertChecklistTemplate(ByVal lCodigoAtividade As Long, _
-                                            ByVal iTipoTime As Integer, _
-                                            ByRef iIgnorados As Integer) As Integer
+    Public Function LoadEmpresaTime(ByVal iTipoTime As Integer) As DataTable
 
-        'Inclui um item por empresa ativa do time; retorna quantos foram incluídos (iIgnorados = já estavam no checklist)
+        'Template: empresas ativas do time (mesma proc da tela de Empresas); o exe só marca no combo, gravado ao salvar
         Dim oMySqlParameter(0) As MySqlParameter
         Dim i As Integer = 0
 
         Try
 
-            'Seta Parametros - Código Atividade
+            'Seta Parametros - Código Empresa
             oMySqlParameter(i) = New MySqlParameter
-            oMySqlParameter(i).ParameterName = "@p_codigo_atividade"
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
-            oMySqlParameter(i).Value = lCodigoAtividade : i += 1 : ReDim Preserve oMySqlParameter(i)
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Razão Social (todas)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_razao_social"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = "" : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - CNPJ/CPF (todos)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_cnpj_cpf"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = "" : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Somente ativas
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_ativo"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = 1 : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Time
             oMySqlParameter(i) = New MySqlParameter
             oMySqlParameter(i).ParameterName = "@p_tipo_time"
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
-            oMySqlParameter(i).Value = iTipoTime : i += 1 : ReDim Preserve oMySqlParameter(i)
-
-            'Seta Parametros - Código Usuário
-            oMySqlParameter(i) = New MySqlParameter
-            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
-            oMySqlParameter(i).Direction = ParameterDirection.Input
-            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
-            oMySqlParameter(i).Value = goUsuario.lUsuario : i += 1 : ReDim Preserve oMySqlParameter(i)
-
-            'Seta Parametros - Quantidade incluída (OUT)
-            oMySqlParameter(i) = New MySqlParameter
-            oMySqlParameter(i).ParameterName = "@p_quantidade"
-            oMySqlParameter(i).Direction = ParameterDirection.Output
-            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32 : i += 1 : ReDim Preserve oMySqlParameter(i)
-
-            'Seta Parametros - Quantidade ignorada (OUT)
-            oMySqlParameter(i) = New MySqlParameter
-            oMySqlParameter(i).ParameterName = "@p_ignorados"
-            oMySqlParameter(i).Direction = ParameterDirection.Output
-            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iTipoTime
 
             'Executa Query
-            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_insert_administracao_chamado_checklist_template", oMySqlParameter)
-
-            iIgnorados = CInt(oMySqlParameter(i).Value)
-            Return CInt(oMySqlParameter(i - 1).Value)
+            Return ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_cadastro_empresa", oMySqlParameter).Tables(0)
 
         Catch MySqlEx As MySqlException
             Throw MySqlEx
@@ -1641,14 +1837,20 @@ Public Class clsUsrAdmChamado
             'Executa Query
             oDataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_apontamento_historico", oMySqlParameter)
 
-            'Grid pai: um registro por chamado, montado a partir dos apontamentos (grid filha)
+            'Grid pai: um registro por chamado x empresa do apontamento, montado a partir dos apontamentos (grid filha)
             Dim oApontamento As DataTable = oDataSet.Tables(0)
             Dim oChamado As New DataTable("chamado")
 
-            'Duração e horas são editáveis na grid filha (recalculam o término)
+            'Duração, horas e empresa são editáveis na grid filha (duração/horas recalculam o término)
             oApontamento.Columns("duracao").ReadOnly = False
             oApontamento.Columns("duracao").MaxLength = -1
             oApontamento.Columns("horas").ReadOnly = False
+            oApontamento.Columns("codigo_empresa_cliente").ReadOnly = False
+
+            'Apontamento sem empresa (chamado sem empresa): 0, para entrar na chave do relacionamento
+            For Each oLinha As DataRow In oApontamento.Rows
+                If IsDBNull(oLinha("codigo_empresa_cliente")) Then oLinha("codigo_empresa_cliente") = 0
+            Next
 
             For Each sColuna As String In New String() {"codigo_empresa", "codigo_chamado", "codigo_empresa_cliente", "titulo", "empresa", "tipos_atendimento", "status_chamado"}
                 oChamado.Columns.Add(sColuna, oApontamento.Columns(sColuna).DataType)
@@ -1658,11 +1860,11 @@ Public Class clsUsrAdmChamado
             oChamado.Columns.Add("duracao_segundos", GetType(Long))
             oChamado.Columns.Add("duracao", GetType(String))
             oChamado.Columns.Add("horas", GetType(Decimal))
-            oChamado.PrimaryKey = New DataColumn() {oChamado.Columns("codigo_empresa"), oChamado.Columns("codigo_chamado")}
+            oChamado.PrimaryKey = New DataColumn() {oChamado.Columns("codigo_empresa"), oChamado.Columns("codigo_chamado"), oChamado.Columns("codigo_empresa_cliente")}
 
             For Each oLinha As DataRow In oApontamento.Rows
 
-                Dim oLinhaChamado As DataRow = oChamado.Rows.Find(New Object() {oLinha("codigo_empresa"), oLinha("codigo_chamado")})
+                Dim oLinhaChamado As DataRow = oChamado.Rows.Find(New Object() {oLinha("codigo_empresa"), oLinha("codigo_chamado"), oLinha("codigo_empresa_cliente")})
 
                 If IsNothing(oLinhaChamado) Then
                     oLinhaChamado = oChamado.NewRow
@@ -1696,8 +1898,9 @@ Public Class clsUsrAdmChamado
 
             'Adiciona Relacionamento
             oDataSet.Relations.Add("apontamento", _
-                                   New DataColumn() {oChamado.Columns("codigo_empresa"), oChamado.Columns("codigo_chamado")}, _
-                                   New DataColumn() {oApontamento.Columns("codigo_empresa"), oApontamento.Columns("codigo_chamado")})
+                                   New DataColumn() {oChamado.Columns("codigo_empresa"), oChamado.Columns("codigo_chamado"), oChamado.Columns("codigo_empresa_cliente")}, _
+                                   New DataColumn() {oApontamento.Columns("codigo_empresa"), oApontamento.Columns("codigo_chamado"), oApontamento.Columns("codigo_empresa_cliente")}, _
+                                   False) 'Sem constraint: a empresa do apontamento é editada na grid filha (o banco valida)
 
             'Carrega Grid
             Call ConfigurarDataMemberGrid(oGrid)
@@ -1758,7 +1961,8 @@ Public Class clsUsrAdmChamado
 
     End Function
 
-    Public Function InsertApontamento(ByVal lChamado As Long) As Integer
+    Public Function InsertApontamento(ByVal lChamado As Long, _
+                                      ByVal iEmpresaCliente As Integer) As Integer
 
         'Variaveis Locais
         Dim oMySqlParameter(0) As MySqlParameter
@@ -1786,6 +1990,13 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
             oMySqlParameter(i).Value = lChamado : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Empresa (Cliente) do apontamento (0 = automática: só quando o chamado tem uma empresa)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_empresa_cliente"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iEmpresaCliente : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Código Apontamento (OUT)
             oMySqlParameter(i) = New MySqlParameter
@@ -1934,7 +2145,8 @@ Public Class clsUsrAdmChamado
                                  ByVal iApontamento As Integer, _
                                  ByVal dDataHoraInicio As Date, _
                                  ByVal oDataHoraFim As Object, _
-                                 ByVal sObservacao As String)
+                                 ByVal sObservacao As String, _
+                                 ByVal iEmpresaCliente As Integer)
 
         'Variaveis Locais
         Dim oMySqlParameter(0) As MySqlParameter
@@ -1990,6 +2202,13 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
             oMySqlParameter(i).Value = sObservacao : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Empresa (Cliente) do apontamento (<= 0 = mantém a atual)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_empresa_cliente"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iEmpresaCliente : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Usuário Alteração
             oMySqlParameter(i) = New MySqlParameter
