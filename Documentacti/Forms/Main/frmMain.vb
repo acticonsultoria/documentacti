@@ -32,6 +32,9 @@ Public Class frmMain
     Private WithEvents tmrIconeApontamento As New System.Windows.Forms.Timer
     Private Const gcIntervaloIconeApontamento As Integer = 30000 'milissegundos
 
+    'Comando da Jump List recebido antes do login (ou na abertura): executado depois que o usuário entrar
+    Private sComandoPendente As String = ""
+
 #End Region
 
 #Region "::: CONTROLES :::"
@@ -123,6 +126,13 @@ Public Class frmMain
             tmrNotificacao.Stop()
             Informacao("Notificações do chat interrompidas: " & ex.Message, gColorInformacaoErro)
         End Try
+
+    End Sub
+
+    Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
+
+        'Sistema aberto por um item da Jump List
+        Call ExecutarComandoPendente()
 
     End Sub
 
@@ -237,6 +247,7 @@ Public Class frmMain
                 Call IniciarNotificacoes()
                 Call VerificarIconeApontamento()
                 tmrIconeApontamento.Start()
+                Call ExecutarComandoPendente()
             End If
 
         Catch ex As Exception
@@ -333,6 +344,12 @@ Public Class frmMain
             Call AbrirTela(New usrAdmChamado, "Chamados")
 
             Call IniciarNotificacoes()
+
+            'Clique direito no ícone da barra de tarefas: Novo chamado / Abrir chamado...
+            Call clsJumpList.Registrar()
+
+            'Sistema aberto por um item da Jump List: executa quando a tela aparecer (frmMain_Shown)
+            If sComandoPendente = "" Then sComandoPendente = clsJumpList.Comando(My.Application.CommandLineArgs)
 
         Catch ex As Exception
             MsgBox(ex.Message, MsgBoxStyle.Critical, gAplicacao)
@@ -469,6 +486,76 @@ Public Class frmMain
 
         Catch
             'Bolinha é só visual: não interrompe o uso
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: JUMP LIST :::"
+
+    Public Sub ExecutarComandoJumpList(ByVal oArgumentos As IEnumerable(Of String))
+
+        'Chamado pelo ApplicationEvents (StartupNextInstance) quando um item da Jump List é clicado com o sistema aberto
+        Try
+
+            Dim sComando As String = clsJumpList.Comando(oArgumentos)
+            If sComando = "" Then Exit Sub
+
+            sComandoPendente = sComando
+
+            'Ainda no login (abertura ou Trocar Usuário): executa depois que o usuário entrar
+            If IsNothing(goUsuario) OrElse IsNothing(goUsuario.sUsuario) OrElse goUsuario.sUsuario = "" Then Exit Sub
+
+            Call ExecutarComandoPendente()
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub ExecutarComandoPendente()
+
+        Try
+
+            If sComandoPendente = "" Then Exit Sub
+            If IsNothing(goUsuario) OrElse IsNothing(goUsuario.sUsuario) OrElse goUsuario.sUsuario = "" Then Exit Sub
+
+            Dim sComando As String = sComandoPendente
+            sComandoPendente = ""
+
+            'Traz o sistema para frente
+            If WindowState = FormWindowState.Minimized Then WindowState = FormWindowState.Maximized
+            Activate()
+
+            'Outra janela aberta por cima (ex.: Configurações): não abre uma segunda
+            If Me.CanFocus = False Then
+                Informacao("Feche a janela aberta para usar o atalho da barra de tarefas.", gColorInformacaoErro)
+                Exit Sub
+            End If
+
+            Select Case sComando
+
+                Case clsJumpList.gcComandoNovoChamado
+
+                    Call AbrirTela(New usrAdmChamado, "Chamados")
+
+                    Dim oTela As usrAdmChamado = TelaChamados()
+                    If Not IsNothing(oTela) Then oTela.NovoChamado()
+
+                Case clsJumpList.gcComandoAbrirChamado
+
+                    Dim oForm As New frmAbrirChamado
+                    If oForm.ShowDialog(Me) = DialogResult.OK AndAlso oForm.lChamado > 0 Then
+                        Call AbrirChamado(oForm.lChamado)
+                    End If
+                    oForm.Dispose()
+
+            End Select
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
         End Try
 
     End Sub

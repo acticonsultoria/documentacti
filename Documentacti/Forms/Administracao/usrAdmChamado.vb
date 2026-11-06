@@ -2008,6 +2008,23 @@ Public Class usrAdmChamado
 
     End Sub
 
+    Public Sub NovoChamado()
+
+        'Item "Novo chamado" da Jump List (clique direito no ícone da barra de tarefas): mesmo efeito do botão Novo da listagem
+        Try
+
+            Call Novo()
+
+            Call MostrarDados()
+
+            txtSolicitante.Focus()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
     Public Function AbrirChamado(ByVal lChamado As Long) As Boolean
 
         'Chamado vindo de notificação: filtra somente pelo código e abre o chamado

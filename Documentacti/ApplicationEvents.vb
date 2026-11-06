@@ -13,6 +13,17 @@
 
         End Sub
 
+        Private Sub MyApplication_StartupNextInstance(sender As Object, e As ApplicationServices.StartupNextInstanceEventArgs) Handles Me.StartupNextInstance
+
+            'Instância única: um segundo exe aberto (ex.: Jump List da barra de tarefas) repassa os parâmetros para cá e fecha
+            Try
+                e.BringToForeground = True
+                Documentacti.frmMain.ExecutarComandoJumpList(e.CommandLine)
+            Catch
+            End Try
+
+        End Sub
+
         Private Sub MyApplication_UnhandledException(sender As Object, e As ApplicationServices.UnhandledExceptionEventArgs) Handles Me.UnhandledException
 
             Try
