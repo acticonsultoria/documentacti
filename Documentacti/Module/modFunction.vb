@@ -575,7 +575,7 @@ Public Module modFunction
             If IsNothing(oGrid.ContextMenuStrip) = False OrElse IsNothing(oGrid.ContextMenu) = False Then Exit Sub
 
             Dim oMenu As New ContextMenuStrip
-            Dim oItem As New ToolStripMenuItem("Copiar Conteúdo da Célula")
+            Dim oItem As New ToolStripMenuItem("Copiar")
 
             oItem.ShortcutKeyDisplayString = "Ctrl+C"
             oItem.Tag = oGrid

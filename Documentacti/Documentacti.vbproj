@@ -140,6 +140,7 @@
     <Compile Include="Class\Forms\Main\clsFrmMain.vb" />
     <Compile Include="Class\Forms\Main\clsFrmConfiguracao.vb" />
     <Compile Include="Class\Function\clsConfigXML.vb" />
+    <Compile Include="Class\Function\clsBarraTarefas.vb" />
     <Compile Include="Class\Function\clsDllEmbutida.vb" />
     <Compile Include="Class\Function\clsFtp.vb" />
     <Compile Include="Class\Forms\Cadastro\clsUsrCadEmpresa.vb" />
@@ -313,6 +314,12 @@
     <None Include="Resources\run.png" />
     <None Include="Resources\salvar.bmp" />
     <None Include="Resources\seta_esquerda.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Bolinha verde com check sobre o ícone da barra de tarefas com apontamento em andamento (frmMain.AtualizarIconeApontamento) -->
+    <EmbeddedResource Include="Icon\documentacti_apontamento_overlay.ico">
+      <LogicalName>Documentacti.Icon.documentacti_apontamento_overlay.ico</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <!-- DLLs embutidas no executável (carregadas por clsDllEmbutida): distribuir somente o .exe -->

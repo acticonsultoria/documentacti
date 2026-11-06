@@ -52,6 +52,39 @@ Public Class clsFrmMain
 
     End Function
 
+    Public Function ExisteApontamentoAndamento() As Boolean
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Código Usuário (somente os apontamentos do usuário autenticado)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario
+
+            'Executa Query (mesma proc da grid "Em andamento" da tela de chamados)
+            Return ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_apontamento_andamento", oMySqlParameter).Tables(0).Rows.Count > 0
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
     Public Function VerificaVersaoAplicativo(Optional ByVal bManual As Boolean = False) As Boolean
 
         'Retorna True quando a atualização foi disparada e o sistema precisa fechar

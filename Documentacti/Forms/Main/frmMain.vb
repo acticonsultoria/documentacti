@@ -24,6 +24,14 @@ Public Class frmMain
     'Logo de fundo da aba principal (carregada uma vez; o My.Resources cria uma cópia a cada leitura)
     Private oLogoFundo As Image = My.Resources.logo_documentacti_fundo
 
+    'Bolinha verde com check sobre o ícone da barra de tarefas (igual ao status do Teams) com apontamento em andamento
+    Private oBarraTarefas As clsBarraTarefas
+    Private oIconeOverlayApontamento As Icon
+    Private bComApontamento As Boolean = False
+    'Conferência periódica (apontamento encerrado pela web, chamado fechado, tela de chamados fechada etc.)
+    Private WithEvents tmrIconeApontamento As New System.Windows.Forms.Timer
+    Private Const gcIntervaloIconeApontamento As Integer = 30000 'milissegundos
+
 #End Region
 
 #Region "::: CONTROLES :::"
@@ -39,6 +47,7 @@ Public Class frmMain
         Try
 
             tmrNotificacao.Stop()
+            tmrIconeApontamento.Stop()
             'Dispose fecha as notificações na hora (o CloseAll só inicia a animação de saída e mantém as janelas abertas)
             oToastManager.Dispose()
 
@@ -114,6 +123,12 @@ Public Class frmMain
             tmrNotificacao.Stop()
             Informacao("Notificações do chat interrompidas: " & ex.Message, gColorInformacaoErro)
         End Try
+
+    End Sub
+
+    Private Sub tmrIconeApontamento_Tick(sender As Object, e As EventArgs) Handles tmrIconeApontamento.Tick
+
+        Call VerificarIconeApontamento()
 
     End Sub
 
@@ -213,10 +228,15 @@ Public Class frmMain
 
             goUsuario = Nothing
 
+            tmrIconeApontamento.Stop()
+            Call AtualizarIconeApontamento(False)
+
             If Login() = False Then
                 Me.Close()
             Else
                 Call IniciarNotificacoes()
+                Call VerificarIconeApontamento()
+                tmrIconeApontamento.Start()
             End If
 
         Catch ex As Exception
@@ -306,6 +326,9 @@ Public Class frmMain
                 End
             End If
 
+            'Ícone da barra de tarefas conforme o apontamento em andamento do usuário
+            Call ConfigurarIconeApontamento()
+
             'Abre a tela de chamados
             Call AbrirTela(New usrAdmChamado, "Chamados")
 
@@ -364,6 +387,93 @@ Public Class frmMain
         End Try
 
     End Sub
+
+#Region "::: ÍCONE DE APONTAMENTO :::"
+
+    Protected Overrides Sub WndProc(ByRef m As Message)
+
+        MyBase.WndProc(m)
+
+        'Botão da barra de tarefas criado/recriado (abertura da tela ou reinício do Explorer): reaplica a bolinha
+        If m.Msg = clsBarraTarefas.iMensagemBotaoCriado AndAlso IsNothing(oBarraTarefas) = False Then
+            Call AplicarOverlayApontamento()
+        End If
+
+    End Sub
+
+    Private Sub ConfigurarIconeApontamento()
+
+        Try
+
+            oBarraTarefas = New clsBarraTarefas
+
+            'Bolinha verde com check embutida no exe (Icon\documentacti_apontamento_overlay.ico), no tamanho de ícone pequeno do Windows
+            Using oRecurso As IO.Stream = Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Documentacti.Icon.documentacti_apontamento_overlay.ico")
+                If IsNothing(oRecurso) = False Then oIconeOverlayApontamento = New Icon(oRecurso, SystemInformation.SmallIconSize)
+            End Using
+
+            Call VerificarIconeApontamento()
+
+            tmrIconeApontamento.Interval = gcIntervaloIconeApontamento
+            tmrIconeApontamento.Start()
+
+        Catch ex As Exception
+            'Sem a bolinha o sistema segue com o ícone normal
+            oIconeOverlayApontamento = Nothing
+        End Try
+
+    End Sub
+
+    Private Sub VerificarIconeApontamento()
+
+        Try
+
+            If IsNothing(goUsuario) OrElse IsNothing(goUsuario.sUsuario) OrElse goUsuario.sUsuario = "" Then Exit Sub
+
+            Dim oClsFrmMain As New clsFrmMain
+            Call AtualizarIconeApontamento(oClsFrmMain.ExisteApontamentoAndamento())
+
+        Catch
+            'Falha de conexão: mantém o ícone atual e tenta de novo no próximo ciclo
+        End Try
+
+    End Sub
+
+    Public Sub AtualizarIconeApontamento(ByVal bAndamento As Boolean)
+
+        Try
+
+            'Só troca quando muda (evita piscar a barra de tarefas)
+            If bAndamento = bComApontamento Then Exit Sub
+
+            bComApontamento = bAndamento
+            Call AplicarOverlayApontamento()
+
+        Catch
+            'Bolinha é só visual: não interrompe o uso
+        End Try
+
+    End Sub
+
+    Private Sub AplicarOverlayApontamento()
+
+        Try
+
+            If IsNothing(oBarraTarefas) OrElse IsNothing(oIconeOverlayApontamento) Then Exit Sub
+
+            If bComApontamento = True Then
+                oBarraTarefas.DefinirOverlay(Me.Handle, oIconeOverlayApontamento, "Apontamento em andamento")
+            Else
+                oBarraTarefas.DefinirOverlay(Me.Handle, Nothing, "")
+            End If
+
+        Catch
+            'Bolinha é só visual: não interrompe o uso
+        End Try
+
+    End Sub
+
+#End Region
 
 #Region "::: NOTIFICAÇÕES :::"
 

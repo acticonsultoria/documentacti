@@ -2771,6 +2771,9 @@ Public Class usrAdmChamado
 
             btnEncerrarApontamento.Enabled = (oTabelaAndamento.Rows.Count > 0)
 
+            'Ícone da barra de tarefas: laranja com apontamento em andamento, cinza sem
+            Call frmMain.AtualizarIconeApontamento(oTabelaAndamento.Rows.Count > 0)
+
             If tmrApontamento.Enabled = False And bCarregando = False Then tmrApontamento.Start()
 
         Catch ex As Exception
