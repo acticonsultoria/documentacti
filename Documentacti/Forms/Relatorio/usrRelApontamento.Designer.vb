@@ -28,12 +28,13 @@ Partial Class usrRelApontamento
         Dim grdAtual_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdHistorico_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim cboUsuarioHistorico_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim cboTimeAtual_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Me.tabMain = New Janus.Windows.UI.Tab.UITab()
         Me.pagAtual = New Janus.Windows.UI.Tab.UITabPage()
         Me.pagHistorico = New Janus.Windows.UI.Tab.UITabPage()
         Me.grpFiltroAtual = New Janus.Windows.EditControls.UIGroupBox()
         Me.lblTimeAtual = New System.Windows.Forms.Label()
-        Me.cboTimeAtual = New Janus.Windows.EditControls.UIComboBox()
+        Me.cboTimeAtual = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblResumoAtual = New System.Windows.Forms.Label()
         Me.btnAtualizarAtual = New Janus.Windows.EditControls.UIButton()
         Me.grdAtual = New Janus.Windows.GridEX.GridEX()
@@ -151,13 +152,16 @@ Partial Class usrRelApontamento
         '
         'cboTimeAtual
         '
-        Me.cboTimeAtual.AutoSize = False
-        Me.cboTimeAtual.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboTimeAtual.ButtonCancelText = "Cancelar"
+        cboTimeAtual_DesignTimeLayout.LayoutString = resources.GetString("cboTimeAtual_DesignTimeLayout.LayoutString")
+        Me.cboTimeAtual.DesignTimeLayout = cboTimeAtual_DesignTimeLayout
         Me.cboTimeAtual.Location = New System.Drawing.Point(9, 34)
         Me.cboTimeAtual.Name = "cboTimeAtual"
-        Me.cboTimeAtual.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboTimeAtual.SaveSettings = False
         Me.cboTimeAtual.Size = New System.Drawing.Size(250, 20)
         Me.cboTimeAtual.TabIndex = 1
+        Me.ToolTip.SetToolTip(Me.cboTimeAtual, "Nenhum time marcado = todos")
+        Me.cboTimeAtual.ValuesDataMember = Nothing
         '
         'lblResumoAtual
         '
@@ -627,7 +631,7 @@ Partial Class usrRelApontamento
     Friend WithEvents pagHistorico As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents grpFiltroAtual As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents lblTimeAtual As System.Windows.Forms.Label
-    Friend WithEvents cboTimeAtual As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents cboTimeAtual As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents lblResumoAtual As System.Windows.Forms.Label
     Friend WithEvents btnAtualizarAtual As Janus.Windows.EditControls.UIButton
     Friend WithEvents grdAtual As Janus.Windows.GridEX.GridEX

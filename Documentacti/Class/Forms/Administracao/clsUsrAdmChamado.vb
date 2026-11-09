@@ -350,7 +350,7 @@ Public Class clsUsrAdmChamado
                         ByVal sTitulo As String, _
                         ByVal lResponsavel As Long, _
                         ByVal iTipoAtendimento As Integer, _
-                        ByVal iTime As Integer)
+                        ByVal sTimes As String)
 
         'Variaveis Locais
         Dim oMySqlParameter(0) As MySqlParameter
@@ -422,12 +422,12 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
             oMySqlParameter(i).Value = iTipoAtendimento : i += 1 : ReDim Preserve oMySqlParameter(i)
 
-            'Seta Parametros - Time da empresa do chamado (-1 = todos)
+            'Seta Parametros - Times da empresa do chamado (lista "2,3"; vazio = todos; ACTI sempre aparece)
             oMySqlParameter(i) = New MySqlParameter
             oMySqlParameter(i).ParameterName = "@p_tipo_time"
             oMySqlParameter(i).Direction = ParameterDirection.Input
-            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
-            oMySqlParameter(i).Value = iTime
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sTimes
 
             'Executa Query
             oDataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_lista", oMySqlParameter)

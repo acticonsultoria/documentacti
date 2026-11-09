@@ -917,22 +917,15 @@ Public Class usrAdmChamado
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrAdmChamado_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
-            Call AddComboAutoComplete(New UIComboBox() {cboTimeFiltro, cboTipoAtividade, cboPrioridade, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio, cboTimeRelatorio})
+            Call AddComboAutoComplete(New UIComboBox() {cboTipoAtividade, cboPrioridade, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio, cboTimeRelatorio})
 
             'Combos - Chamados
             Call LoadCombo(cboStatusFiltro, "sp_select_combo_status_atividade")
             Call LoadCombo(cboStatus, "sp_select_combo_status_atividade")
 
-            'Time: começa no time do usuário (chamados das empresas daquele time); TODOS mostra os demais
+            'Time: multisseleção; começa marcado no time do usuário (chamados das empresas daquele time); nenhum marcado = todos
             Call LoadCombo(cboTimeFiltro, "sp_select_combo_tipo_time_empresa")
-            Dim oTimes As DataTable = CType(cboTimeFiltro.DataSource, DataTable)
-            Dim oTodos As DataRow = oTimes.NewRow
-            oTodos.Item("codigo") = -1
-            oTodos.Item("descricao") = "TODOS"
-            oTimes.Rows.InsertAt(oTodos, 0)
-            'Seleção pela posição: o código vem do banco como Int16 e não casa com um Integer no SelectedValue
-            Dim oTimeUsuario() As DataRow = oTimes.Select("codigo = " & goUsuario.iTime)
-            cboTimeFiltro.SelectedIndex = If(goUsuario.iTime > 0 AndAlso oTimeUsuario.Length > 0, oTimes.Rows.IndexOf(oTimeUsuario(0)), 0)
+            If goUsuario.iTime > 0 Then Call SetCheckedValues(cboTimeFiltro, goUsuario.iTime.ToString)
             Call LoadCombo(cboEmpresaFiltro, "sp_select_combo_administracao_chamado_empresa")
             Call LoadCombo(cboTipoAtendimentoFiltro, "sp_select_combo_administracao_chamado_tipo_atendimento")
             Call LoadCombo(cboResponsavelFiltro, "sp_select_combo_administracao_chamado_usuario")
@@ -1395,7 +1388,7 @@ Public Class usrAdmChamado
                                            txtTituloFiltro.Text.Trim, _
                                            -1, _
                                            IIf(cboTipoAtendimentoFiltro.SelectedIndex = -1, -1, cboTipoAtendimentoFiltro.SelectedValue), _
-                                           IIf(cboTimeFiltro.SelectedIndex = -1, -1, cboTimeFiltro.SelectedValue))
+                                           GetCheckedValues(cboTimeFiltro))
 
             Call FiltrarResponsaveis()
 
@@ -2042,7 +2035,7 @@ Public Class usrAdmChamado
             cboStatusFiltro.UncheckAll()
             cboResponsavelFiltro.UncheckAll()
             cboTipoAtendimentoFiltro.SelectedIndex = -1
-            cboTimeFiltro.SelectedIndex = 0 'TODOS
+            cboTimeFiltro.UncheckAll() 'TODOS
 
             Call LoadGrid()
             Call MostrarLista()

@@ -99,7 +99,7 @@ Public Class usrRelApontamento
 
     End Sub
 
-    Private Sub cboTimeAtual_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboTimeAtual.SelectedIndexChanged
+    Private Sub cboTimeAtual_CheckedValuesChanged(sender As Object, e As EventArgs) Handles cboTimeAtual.CheckedValuesChanged
 
         Try
 
@@ -194,10 +194,10 @@ Public Class usrRelApontamento
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrRelApontamento_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
-            Call AddComboAutoComplete(New UIComboBox() {cboTimeAtual, cboTimeHistorico, cboEmpresaHistorico, cboTipoAtendimentoHistorico, cboSituacaoHistorico})
+            Call AddComboAutoComplete(New UIComboBox() {cboTimeHistorico, cboEmpresaHistorico, cboTipoAtendimentoHistorico, cboSituacaoHistorico})
 
             'Time: começa no time do usuário logado; sem time, traz todos
-            Call LoadComboTime(cboTimeAtual)
+            Call LoadComboTimeAtual()
             Call LoadComboTime(cboTimeHistorico)
 
             Call LoadCombo(cboUsuarioHistorico, "sp_select_combo_administracao_chamado_usuario")
@@ -239,6 +239,28 @@ Public Class usrRelApontamento
         Else
             Call TratamentoErro(ex, "Relatório de Apontamentos")
         End If
+
+    End Sub
+
+    Private Sub LoadComboTimeAtual()
+
+        'Apontamentos atuais: Time com multisseleção (nenhum marcado = todos); começa no time do usuário logado
+        Try
+
+            Call LoadCombo(cboTimeAtual, "sp_select_combo_tipo_time_empresa")
+
+            Dim oTimes As DataTable = CType(cboTimeAtual.DropDownDataSource, DataTable)
+
+            Dim oSemTime As DataRow = oTimes.NewRow
+            oSemTime.Item("codigo") = 0
+            oSemTime.Item("descricao") = "SEM TIME"
+            oTimes.Rows.InsertAt(oSemTime, 0)
+
+            If goUsuario.iTime > 0 Then Call SetCheckedValues(cboTimeAtual, goUsuario.iTime.ToString)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
 
     End Sub
 
@@ -306,7 +328,8 @@ Public Class usrRelApontamento
 
             Cursor.Current = Cursors.WaitCursor
 
-            oTabelaAtual = oClsUsrRelApontamento.LoadGridAtual(grdAtual, ValorCombo(cboTimeAtual))
+            'Time: multisseleção, lista dos marcados (vazio = todos)
+            oTabelaAtual = oClsUsrRelApontamento.LoadGridAtual(grdAtual, GetCheckedValues(cboTimeAtual))
 
             'Diferença entre o relógio do banco e o da estação
             If oTabelaAtual.Rows.Count > 0 Then

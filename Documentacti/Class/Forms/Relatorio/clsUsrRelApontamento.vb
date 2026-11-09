@@ -16,7 +16,7 @@ Public Class clsUsrRelApontamento
 #Region "::: GERAL :::"
 
     Public Function LoadGridAtual(ByVal oGrid As GridEX, _
-                                  ByVal iTime As Integer) As DataTable
+                                  ByVal sTimes As String) As DataTable
 
         'Variaveis Locais
         Dim oMySqlParameter(0) As MySqlParameter
@@ -39,12 +39,12 @@ Public Class clsUsrRelApontamento
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
             oMySqlParameter(i).Value = goUsuario.lUsuario : i += 1 : ReDim Preserve oMySqlParameter(i)
 
-            'Seta Parametros - Time (-1 = todos)
+            'Seta Parametros - Times do usuário (lista "0,2"; 0 = sem time; vazio = todos)
             oMySqlParameter(i) = New MySqlParameter
             oMySqlParameter(i).ParameterName = "@p_tipo_time"
             oMySqlParameter(i).Direction = ParameterDirection.Input
-            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
-            oMySqlParameter(i).Value = iTime
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sTimes
 
             'Executa Query
             oDataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_relatorio_apontamento_atual", oMySqlParameter)
