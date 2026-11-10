@@ -20,6 +20,9 @@ Public Class frmMain
     'Chamados criados sem responsável para o time do usuário (notificados uma vez; marcados no banco)
     Private oChamadosNotificados As New HashSet(Of Long)
     Private bNotificacaoChamadoIndisponivel As Boolean = False
+    'Eventos do calendário em que o usuário foi designado (já avisados nesta sessão)
+    Private oEventosNotificados As New HashSet(Of Long)
+    Private bNotificacaoEventoIndisponivel As Boolean = False
 
     'Logo de fundo da aba principal (carregada uma vez; o My.Resources cria uma cópia a cada leitura)
     Private oLogoFundo As Image = My.Resources.logo_documentacti_fundo
@@ -154,6 +157,18 @@ Public Class frmMain
         Try
 
             Call AbrirTela(New usrAdmChamado, "Chamados")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub mnuEventos_Click(sender As Object, e As EventArgs) Handles mnuEventos.Click
+
+        Try
+
+            Call AbrirTela(New usrAdmEvento, "Calendário de Eventos")
 
         Catch ex As Exception
             Call TratamentoErro(ex.Message, Me.Text)
@@ -572,6 +587,8 @@ Public Class frmMain
             oToastsChat.Clear()
             oChamadosNotificados.Clear()
             bNotificacaoChamadoIndisponivel = False
+            oEventosNotificados.Clear()
+            bNotificacaoEventoIndisponivel = False
             bNotificacaoIniciada = False
 
             oToastManager.AppCaption = "Documentacti"
@@ -599,6 +616,7 @@ Public Class frmMain
         Try
 
             Call VerificarChamadosSemResponsavel()
+            Call VerificarEventosDesignados()
 
             Dim oClsUsrAdmChamado As New clsUsrAdmChamado
             Dim oTabela As DataTable = oClsUsrAdmChamado.LoadChatNotificacao()
@@ -693,6 +711,85 @@ Public Class frmMain
         Catch ex As Exception
             bNotificacaoChamadoIndisponivel = True
             Informacao("Notificações de chamados sem responsável indisponíveis: " & ex.Message, gColorInformacaoErro)
+        End Try
+
+    End Sub
+
+    Private Sub VerificarEventosDesignados()
+
+        'Falha aqui (ex.: banco ainda sem a proc) não pode derrubar as notificações do chat
+        If bNotificacaoEventoIndisponivel Then Exit Sub
+
+        Try
+
+            Dim oClsUsrAdmEvento As New clsUsrAdmEvento
+            Dim oTabela As DataTable = oClsUsrAdmEvento.LoadNotificacao()
+            Dim oNovos As New List(Of DataRow)
+
+            For Each oRow As DataRow In oTabela.Rows
+                If oEventosNotificados.Add(CLng(oRow.Item("codigo"))) Then oNovos.Add(oRow)
+            Next
+
+            If oNovos.Count = 0 Then Exit Sub
+
+            If bSilenciarNotificacao = False Then
+
+                'Muitos pendentes (ex.: ao entrar no sistema): um resumo em vez de uma notificação por evento
+                If oNovos.Count > 3 Then
+                    Dim oToast As New Toast("Novos eventos", _
+                                            "Você foi incluído em " & oNovos.Count & " evento(s) do calendário.", _
+                                            ToastType.Info) With {.Caption = "Calendário de Eventos", .Duration = 10000}
+                    Dim lPrimeiro As Long = CLng(oNovos(0).Item("codigo"))
+                    Dim dPrimeiro As Date = CDate(oNovos(0).Item("data_inicio"))
+                    AddHandler oToast.Click, Sub(s, a) AbrirEvento(lPrimeiro, dPrimeiro)
+                    oToastManager.Show(oToast)
+                Else
+                    For Each oRow As DataRow In oNovos
+                        Dim lEvento As Long = CLng(oRow.Item("codigo"))
+                        Dim dData As Date = CDate(oRow.Item("data_inicio"))
+                        Dim sQuando As String = Format(dData, IIf(CInt(oRow.Item("dia_inteiro")) = 1, "dd/MM/yyyy", "dd/MM/yyyy HH:mm"))
+                        Dim oToast As New Toast("Você foi incluído em um evento", _
+                                                oRow.Item("titulo").ToString & vbCrLf & _
+                                                oRow.Item("tipo_evento").ToString & "  ·  " & sQuando & _
+                                                IIf(oRow.Item("criador").ToString = "", "", "  ·  por " & oRow.Item("criador").ToString), _
+                                                ToastType.Info) With {.Caption = "Calendário de Eventos", .Duration = 10000}
+                        AddHandler oToast.Click, Sub(s, a) AbrirEvento(lEvento, dData)
+                        oToastManager.Show(oToast)
+                    Next
+                End If
+
+            End If
+
+            'Avisados (ou silenciados): não voltam a aparecer (nem no próximo login)
+            For Each oRow As DataRow In oNovos
+                oClsUsrAdmEvento.UpdateNotificacao(CLng(oRow.Item("codigo")))
+            Next
+
+        Catch ex As Exception
+            bNotificacaoEventoIndisponivel = True
+            Informacao("Notificações do calendário de eventos indisponíveis: " & ex.Message, gColorInformacaoErro)
+        End Try
+
+    End Sub
+
+    Private Sub AbrirEvento(ByVal lEvento As Long, ByVal dData As Date)
+
+        'Clique na notificação do calendário: traz o sistema para frente e abre o evento
+        Try
+
+            If WindowState = FormWindowState.Minimized Then WindowState = FormWindowState.Maximized
+            Activate()
+
+            Call AbrirTela(New usrAdmEvento, "Calendário de Eventos")
+
+            If tabMain.TabPages.Contains("usrAdmEvento") = False Then Exit Sub
+
+            For Each oControl As Control In tabMain.TabPages("usrAdmEvento").Controls
+                If TypeOf oControl Is usrAdmEvento Then CType(oControl, usrAdmEvento).AbrirEvento(lEvento, dData)
+            Next
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
         End Try
 
     End Sub

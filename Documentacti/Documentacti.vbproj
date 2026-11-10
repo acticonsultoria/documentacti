@@ -80,6 +80,10 @@
       <HintPath>Lib\Janus.Windows.GridEX.v3.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Janus.Windows.Schedule.v3">
+      <HintPath>Lib\Janus.Windows.Schedule.v3.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Janus.Windows.UI.v3">
       <HintPath>Lib\Janus.Windows.UI.v3.dll</HintPath>
       <Private>True</Private>
@@ -136,6 +140,7 @@
     <Compile Include="ApplicationEvents.vb" />
     <Compile Include="Class\Database\MySQLHelper.vb" />
     <Compile Include="Class\Forms\Administracao\clsUsrAdmChamado.vb" />
+    <Compile Include="Class\Forms\Administracao\clsUsrAdmEvento.vb" />
     <Compile Include="Class\Forms\Main\clsFrmLogin.vb" />
     <Compile Include="Class\Forms\Main\clsFrmMain.vb" />
     <Compile Include="Class\Forms\Main\clsFrmConfiguracao.vb" />
@@ -166,6 +171,12 @@
       <DependentUpon>usrRelApontamento.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\Relatorio\usrRelApontamento.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Administracao\usrAdmEvento.Designer.vb">
+      <DependentUpon>usrAdmEvento.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Administracao\usrAdmEvento.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Forms\Cadastro\usrCadAviso.Designer.vb">
@@ -256,6 +267,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Relatorio\usrRelApontamento.resx">
       <DependentUpon>usrRelApontamento.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Administracao\usrAdmEvento.resx">
+      <DependentUpon>usrAdmEvento.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Cadastro\usrCadAviso.resx">
       <DependentUpon>usrCadAviso.vb</DependentUpon>
@@ -363,6 +377,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Lib\Janus.Windows.GridEX.v3.dll">
       <LogicalName>Documentacti.Lib.Janus.Windows.GridEX.v3.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lib\Janus.Windows.Schedule.v3.dll">
+      <LogicalName>Documentacti.Lib.Janus.Windows.Schedule.v3.dll</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="Lib\Janus.Windows.UI.v3.dll">
       <LogicalName>Documentacti.Lib.Janus.Windows.UI.v3.dll</LogicalName>

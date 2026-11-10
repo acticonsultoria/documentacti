@@ -43,6 +43,7 @@ Partial Class frmMain
         Me.picImage = New System.Windows.Forms.PictureBox()
         Me.mnuMain = New System.Windows.Forms.MenuStrip()
         Me.mnuChamados = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuEventos = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuCadastros = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuEmpresas = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuUsuarios = New System.Windows.Forms.ToolStripMenuItem()
@@ -204,7 +205,7 @@ Partial Class frmMain
         Me.mnuMain.BackColor = System.Drawing.Color.Transparent
         Me.mnuMain.Dock = System.Windows.Forms.DockStyle.None
         Me.mnuMain.GripMargin = New System.Windows.Forms.Padding(6, 2, 0, 6)
-        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuCadastros, Me.mnuRelatorios, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuConfiguracao, Me.mnuVerificarVersao, Me.mnuSair})
+        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuEventos, Me.mnuCadastros, Me.mnuRelatorios, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuConfiguracao, Me.mnuVerificarVersao, Me.mnuSair})
         Me.mnuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow
         Me.mnuMain.Location = New System.Drawing.Point(7, 8)
         Me.mnuMain.Name = "mnuMain"
@@ -218,6 +219,13 @@ Partial Class frmMain
         Me.mnuChamados.Size = New System.Drawing.Size(150, 20)
         Me.mnuChamados.Tag = "usrAdmChamado"
         Me.mnuChamados.Text = "Chamados / Apontamentos"
+        '
+        'mnuEventos
+        '
+        Me.mnuEventos.Name = "mnuEventos"
+        Me.mnuEventos.Size = New System.Drawing.Size(132, 20)
+        Me.mnuEventos.Tag = "usrAdmEvento"
+        Me.mnuEventos.Text = "Calendário de Eventos"
         '
         'mnuCadastros
         '
@@ -335,6 +343,7 @@ Partial Class frmMain
     Friend WithEvents picImage As System.Windows.Forms.PictureBox
     Friend WithEvents mnuMain As System.Windows.Forms.MenuStrip
     Friend WithEvents mnuChamados As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuEventos As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuCadastros As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuEmpresas As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuUsuarios As System.Windows.Forms.ToolStripMenuItem
