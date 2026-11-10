@@ -86,7 +86,8 @@ Public Class frmLogin
             Dim oFileInfo As FileInfo = New FileInfo(ApplicationPath() & My.Application.Info.AssemblyName.ToString & ".exe")
             lblSistema.Text = "Bem Vindo ao " & gAplicacao & " - Versão: " & Application.ProductVersion.ToString & " - Última Atualização: " & Format(oFileInfo.LastWriteTime, "dd/MM/yyyy")
 
-            txtUsuario.Focus()
+            'Último usuário que logou nesta estação (mesmo comportamento do INTERACTI)
+            Call LoadUltimoUsuario()
 
             'Seta Cursor do Mouse
             Cursor.Current = Cursors.Default
@@ -95,6 +96,26 @@ Public Class frmLogin
             'Trata Erro
             Call TratamentoErro(ex.Message, Me.Text)
         End Try
+
+    End Sub
+
+    Private Sub LoadUltimoUsuario()
+
+        Try
+
+            txtUsuario.Text = oClsLogin.LoadUltimoUsuario()
+
+        Catch ex As Exception
+            'Sem conexão/log: o login segue normalmente com o campo vazio
+            txtUsuario.Text = ""
+        End Try
+
+        'Usuário preenchido: o foco vai direto para a senha
+        If txtUsuario.Text = "" Then
+            Me.ActiveControl = txtUsuario
+        Else
+            Me.ActiveControl = txtSenha
+        End If
 
     End Sub
 

@@ -30,6 +30,8 @@ Partial Class usrAdmChamado
         Dim cboStatusFiltro_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim cboResponsavelFiltro_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim cboTimeFiltro_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim cboTimeRelatorio_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim cboModulo_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdArquivos_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdArquivos_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdArquivos_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column1.Image")
@@ -102,6 +104,7 @@ Partial Class usrAdmChamado
         Me.btnInserirComentario = New Janus.Windows.EditControls.UIButton()
         Me.btnFinalizarChamado = New Janus.Windows.EditControls.UIButton()
         Me.btnIniciar = New Janus.Windows.EditControls.UIButton()
+        Me.btnAgCliente = New Janus.Windows.EditControls.UIButton()
         Me.tabDadosChamado = New Janus.Windows.UI.Tab.UITab()
         Me.pagArquivos = New Janus.Windows.UI.Tab.UITabPage()
         Me.pagChecklist = New Janus.Windows.UI.Tab.UITabPage()
@@ -128,8 +131,12 @@ Partial Class usrAdmChamado
         Me.lblNumeroDocumento = New System.Windows.Forms.Label()
         Me.txtTela = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.lblTela = New System.Windows.Forms.Label()
-        Me.txtModulo = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
+        Me.cboModulo = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblModulo = New System.Windows.Forms.Label()
+        Me.cboCanal = New Janus.Windows.EditControls.UIComboBox()
+        Me.lblCanal = New System.Windows.Forms.Label()
+        Me.txtDescricaoCanal = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
+        Me.lblDescricaoCanal = New System.Windows.Forms.Label()
         Me.cboTipoAtendimento = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblTipoAtendimento = New System.Windows.Forms.Label()
         Me.cboResponsavel = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
@@ -195,7 +202,7 @@ Partial Class usrAdmChamado
         Me.cboTipoAtividadeRelatorio = New Janus.Windows.EditControls.UIComboBox()
         Me.lblTipoAtividadeRelatorio = New System.Windows.Forms.Label()
         Me.cboEmpresaRelatorio = New Janus.Windows.EditControls.UIComboBox()
-        Me.cboTimeRelatorio = New Janus.Windows.EditControls.UIComboBox()
+        Me.cboTimeRelatorio = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblTimeRelatorio = New System.Windows.Forms.Label()
         Me.lblEmpresaRelatorio = New System.Windows.Forms.Label()
         Me.dtpTerminoRelatorio = New Janus.Windows.CalendarCombo.CalendarCombo()
@@ -735,6 +742,7 @@ Partial Class usrAdmChamado
         Me.grpControl2.Controls.Add(Me.btnNovo)
         Me.grpControl2.Controls.Add(Me.btnInserirComentarioDev)
         Me.grpControl2.Controls.Add(Me.btnInserirComentario)
+        Me.grpControl2.Controls.Add(Me.btnAgCliente)
         Me.grpControl2.Controls.Add(Me.btnFinalizarChamado)
         Me.grpControl2.Controls.Add(Me.btnIniciar)
         Me.grpControl2.Location = New System.Drawing.Point(7, 486)
@@ -753,7 +761,7 @@ Partial Class usrAdmChamado
         Me.btnVoltar.Name = "btnVoltar"
         Me.btnVoltar.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnVoltar.Size = New System.Drawing.Size(91, 23)
-        Me.btnVoltar.TabIndex = 7
+        Me.btnVoltar.TabIndex = 8
         Me.btnVoltar.Text = "Voltar"
         Me.btnVoltar.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
@@ -766,7 +774,7 @@ Partial Class usrAdmChamado
         Me.btnSalvar.Name = "btnSalvar"
         Me.btnSalvar.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnSalvar.Size = New System.Drawing.Size(91, 23)
-        Me.btnSalvar.TabIndex = 6
+        Me.btnSalvar.TabIndex = 7
         Me.btnSalvar.Text = "Salvar"
         Me.btnSalvar.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
@@ -780,7 +788,7 @@ Partial Class usrAdmChamado
         Me.btnNovo.Name = "btnNovo"
         Me.btnNovo.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnNovo.Size = New System.Drawing.Size(91, 23)
-        Me.btnNovo.TabIndex = 5
+        Me.btnNovo.TabIndex = 6
         Me.btnNovo.Text = "Novo"
         Me.btnNovo.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
@@ -788,11 +796,11 @@ Partial Class usrAdmChamado
         '
         Me.btnInserirComentarioDev.Image = CType(resources.GetObject("btnInserirComentarioDev.Image"), System.Drawing.Image)
         Me.btnInserirComentarioDev.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnInserirComentarioDev.Location = New System.Drawing.Point(329, 17)
+        Me.btnInserirComentarioDev.Location = New System.Drawing.Point(426, 17)
         Me.btnInserirComentarioDev.Name = "btnInserirComentarioDev"
         Me.btnInserirComentarioDev.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnInserirComentarioDev.Size = New System.Drawing.Size(140, 23)
-        Me.btnInserirComentarioDev.TabIndex = 4
+        Me.btnInserirComentarioDev.TabIndex = 5
         Me.btnInserirComentarioDev.Text = "Resolução"
         Me.btnInserirComentarioDev.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
@@ -800,13 +808,25 @@ Partial Class usrAdmChamado
         '
         Me.btnInserirComentario.Image = CType(resources.GetObject("btnInserirComentario.Image"), System.Drawing.Image)
         Me.btnInserirComentario.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnInserirComentario.Location = New System.Drawing.Point(203, 17)
+        Me.btnInserirComentario.Location = New System.Drawing.Point(300, 17)
         Me.btnInserirComentario.Name = "btnInserirComentario"
         Me.btnInserirComentario.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnInserirComentario.Size = New System.Drawing.Size(120, 23)
-        Me.btnInserirComentario.TabIndex = 3
+        Me.btnInserirComentario.TabIndex = 4
         Me.btnInserirComentario.Text = "Comentário"
         Me.btnInserirComentario.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
+        '
+        'btnAgCliente
+        '
+        Me.btnAgCliente.Image = Global.Documentacti.My.Resources.Resources.login
+        Me.btnAgCliente.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
+        Me.btnAgCliente.Location = New System.Drawing.Point(203, 17)
+        Me.btnAgCliente.Name = "btnAgCliente"
+        Me.btnAgCliente.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.btnAgCliente.Size = New System.Drawing.Size(91, 23)
+        Me.btnAgCliente.TabIndex = 3
+        Me.btnAgCliente.Text = "Ag. Cliente"
+        Me.btnAgCliente.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'btnFinalizarChamado
         '
@@ -838,10 +858,10 @@ Partial Class usrAdmChamado
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.tabDadosChamado.BackColor = System.Drawing.Color.Transparent
-        Me.tabDadosChamado.Location = New System.Drawing.Point(7, 247)
+        Me.tabDadosChamado.Location = New System.Drawing.Point(7, 287)
         Me.tabDadosChamado.Name = "tabDadosChamado"
         Me.tabDadosChamado.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.tabDadosChamado.Size = New System.Drawing.Size(1182, 233)
+        Me.tabDadosChamado.Size = New System.Drawing.Size(1182, 193)
         Me.tabDadosChamado.TabIndex = 1
         Me.tabDadosChamado.TabPages.AddRange(New Janus.Windows.UI.Tab.UITabPage() {Me.pagArquivos, Me.pagChecklist, Me.pagChecklistEmpresa, Me.pagComentario, Me.pagComentarioDev, Me.pagChat})
         Me.tabDadosChamado.TabStop = False
@@ -1144,6 +1164,10 @@ Partial Class usrAdmChamado
         Me.grpDados.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpDados.BackColor = System.Drawing.Color.Transparent
+        Me.grpDados.Controls.Add(Me.txtDescricaoCanal)
+        Me.grpDados.Controls.Add(Me.lblDescricaoCanal)
+        Me.grpDados.Controls.Add(Me.cboCanal)
+        Me.grpDados.Controls.Add(Me.lblCanal)
         Me.grpDados.Controls.Add(Me.chkExibirUsuario)
         Me.grpDados.Controls.Add(Me.txtDescricao)
         Me.grpDados.Controls.Add(Me.lblDefinicao)
@@ -1151,7 +1175,7 @@ Partial Class usrAdmChamado
         Me.grpDados.Controls.Add(Me.lblNumeroDocumento)
         Me.grpDados.Controls.Add(Me.txtTela)
         Me.grpDados.Controls.Add(Me.lblTela)
-        Me.grpDados.Controls.Add(Me.txtModulo)
+        Me.grpDados.Controls.Add(Me.cboModulo)
         Me.grpDados.Controls.Add(Me.lblModulo)
         Me.grpDados.Controls.Add(Me.cboTipoAtendimento)
         Me.grpDados.Controls.Add(Me.lblTipoAtendimento)
@@ -1177,7 +1201,7 @@ Partial Class usrAdmChamado
         Me.grpDados.Location = New System.Drawing.Point(7, 6)
         Me.grpDados.Name = "grpDados"
         Me.grpDados.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.grpDados.Size = New System.Drawing.Size(1182, 235)
+        Me.grpDados.Size = New System.Drawing.Size(1182, 275)
         Me.grpDados.TabIndex = 0
         Me.grpDados.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
         '
@@ -1197,22 +1221,61 @@ Partial Class usrAdmChamado
         Me.txtDescricao.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtDescricao.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.txtDescricao.Location = New System.Drawing.Point(9, 149)
+        Me.txtDescricao.Location = New System.Drawing.Point(9, 189)
         Me.txtDescricao.MaxLength = 0
         Me.txtDescricao.Multiline = True
         Me.txtDescricao.Name = "txtDescricao"
         Me.txtDescricao.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.txtDescricao.Size = New System.Drawing.Size(1164, 78)
-        Me.txtDescricao.TabIndex = 28
+        Me.txtDescricao.TabIndex = 32
+        '
+        'lblCanal
+        '
+        Me.lblCanal.AutoSize = True
+        Me.lblCanal.BackColor = System.Drawing.Color.Transparent
+        Me.lblCanal.Location = New System.Drawing.Point(6, 133)
+        Me.lblCanal.Name = "lblCanal"
+        Me.lblCanal.Size = New System.Drawing.Size(46, 16)
+        Me.lblCanal.TabIndex = 27
+        Me.lblCanal.Text = "Canal:"
+        '
+        'cboCanal
+        '
+        Me.cboCanal.AutoSize = False
+        Me.cboCanal.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboCanal.Location = New System.Drawing.Point(9, 151)
+        Me.cboCanal.Name = "cboCanal"
+        Me.cboCanal.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboCanal.Size = New System.Drawing.Size(200, 20)
+        Me.cboCanal.TabIndex = 28
+        '
+        'lblDescricaoCanal
+        '
+        Me.lblDescricaoCanal.AutoSize = True
+        Me.lblDescricaoCanal.BackColor = System.Drawing.Color.Transparent
+        Me.lblDescricaoCanal.Location = New System.Drawing.Point(212, 133)
+        Me.lblDescricaoCanal.Name = "lblDescricaoCanal"
+        Me.lblDescricaoCanal.Size = New System.Drawing.Size(168, 16)
+        Me.lblDescricaoCanal.TabIndex = 29
+        Me.lblDescricaoCanal.Text = "Grupo / Título do E-mail:"
+        '
+        'txtDescricaoCanal
+        '
+        Me.txtDescricaoCanal.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.txtDescricaoCanal.Location = New System.Drawing.Point(215, 149)
+        Me.txtDescricaoCanal.MaxLength = 250
+        Me.txtDescricaoCanal.Name = "txtDescricaoCanal"
+        Me.txtDescricaoCanal.Size = New System.Drawing.Size(450, 23)
+        Me.txtDescricaoCanal.TabIndex = 30
         '
         'lblDefinicao
         '
         Me.lblDefinicao.AutoSize = True
         Me.lblDefinicao.BackColor = System.Drawing.Color.Transparent
-        Me.lblDefinicao.Location = New System.Drawing.Point(6, 133)
+        Me.lblDefinicao.Location = New System.Drawing.Point(6, 173)
         Me.lblDefinicao.Name = "lblDefinicao"
         Me.lblDefinicao.Size = New System.Drawing.Size(75, 16)
-        Me.lblDefinicao.TabIndex = 27
+        Me.lblDefinicao.TabIndex = 31
         Me.lblDefinicao.Text = "Descrição:"
         '
         'txtNumeroDocumento
@@ -1253,14 +1316,17 @@ Partial Class usrAdmChamado
         Me.lblTela.TabIndex = 23
         Me.lblTela.Text = "Tela:"
         '
-        'txtModulo
+        'cboModulo
         '
-        Me.txtModulo.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.txtModulo.Location = New System.Drawing.Point(671, 109)
-        Me.txtModulo.MaxLength = 200
-        Me.txtModulo.Name = "txtModulo"
-        Me.txtModulo.Size = New System.Drawing.Size(148, 23)
-        Me.txtModulo.TabIndex = 22
+        Me.cboModulo.ButtonCancelText = "Cancelar"
+        cboModulo_DesignTimeLayout.LayoutString = resources.GetString("cboModulo_DesignTimeLayout.LayoutString")
+        Me.cboModulo.DesignTimeLayout = cboModulo_DesignTimeLayout
+        Me.cboModulo.Location = New System.Drawing.Point(671, 109)
+        Me.cboModulo.Name = "cboModulo"
+        Me.cboModulo.SaveSettings = False
+        Me.cboModulo.Size = New System.Drawing.Size(148, 23)
+        Me.cboModulo.TabIndex = 22
+        Me.cboModulo.ValuesDataMember = Nothing
         '
         'lblModulo
         '
@@ -2142,13 +2208,15 @@ Partial Class usrAdmChamado
         '
         'cboTimeRelatorio
         '
-        Me.cboTimeRelatorio.AutoSize = False
-        Me.cboTimeRelatorio.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboTimeRelatorio.ButtonCancelText = "Cancelar"
+        cboTimeRelatorio_DesignTimeLayout.LayoutString = resources.GetString("cboTimeRelatorio_DesignTimeLayout.LayoutString")
+        Me.cboTimeRelatorio.DesignTimeLayout = cboTimeRelatorio_DesignTimeLayout
         Me.cboTimeRelatorio.Location = New System.Drawing.Point(437, 34)
         Me.cboTimeRelatorio.Name = "cboTimeRelatorio"
-        Me.cboTimeRelatorio.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboTimeRelatorio.SaveSettings = False
         Me.cboTimeRelatorio.Size = New System.Drawing.Size(100, 20)
         Me.cboTimeRelatorio.TabIndex = 6
+        Me.cboTimeRelatorio.ValuesDataMember = Nothing
         '
         'lblTimeRelatorio
         '
@@ -2362,7 +2430,12 @@ Partial Class usrAdmChamado
     Friend WithEvents lblTipoAtendimento As System.Windows.Forms.Label
     Friend WithEvents cboTipoAtendimento As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents lblModulo As System.Windows.Forms.Label
-    Friend WithEvents txtModulo As Janus.Windows.GridEX.EditControls.MaskedEditBox
+    Friend WithEvents cboModulo As Janus.Windows.GridEX.EditControls.CheckedComboBox
+    Friend WithEvents lblCanal As System.Windows.Forms.Label
+    Friend WithEvents cboCanal As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents lblDescricaoCanal As System.Windows.Forms.Label
+    Friend WithEvents txtDescricaoCanal As Janus.Windows.GridEX.EditControls.MaskedEditBox
+    Friend WithEvents btnAgCliente As Janus.Windows.EditControls.UIButton
     Friend WithEvents lblTela As System.Windows.Forms.Label
     Friend WithEvents txtTela As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents lblNumeroDocumento As System.Windows.Forms.Label
@@ -2422,7 +2495,7 @@ Partial Class usrAdmChamado
     Friend WithEvents lblEmpresaRelatorio As System.Windows.Forms.Label
     Friend WithEvents cboEmpresaRelatorio As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblTimeRelatorio As System.Windows.Forms.Label
-    Friend WithEvents cboTimeRelatorio As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents cboTimeRelatorio As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents lblTipoAtividadeRelatorio As System.Windows.Forms.Label
     Friend WithEvents cboTipoAtividadeRelatorio As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblTipoAtendimentoRelatorio As System.Windows.Forms.Label

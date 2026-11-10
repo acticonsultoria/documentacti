@@ -234,6 +234,26 @@ Public Class usrAdmChamado
 
     End Sub
 
+    Private Sub btnAgCliente_Click(sender As Object, e As EventArgs) Handles btnAgCliente.Click
+
+        Try
+
+            If MsgBox("Deseja avisar que o chamado está aguardando o cliente?", MsgBoxStyle.Question + MsgBoxStyle.YesNo, gAplicacao) = MsgBoxResult.Yes Then
+
+                Call AlterarStatus(gcStatusChamadoAgCliente)
+
+                If IsNumeric(txtCodigo.Text) = False Then Exit Sub
+
+                frmMain.Informacao("Chamado AGUARDANDO CLIENTE com sucesso!", Color.Blue)
+
+            End If
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
     Private Sub usrAdmChamado_KeyDown(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs)
 
         Try
@@ -433,6 +453,14 @@ Public Class usrAdmChamado
 
                 'Recarrega após o evento para mostrar quem concluiu e quando
                 Me.BeginInvoke(New MethodInvoker(AddressOf LoadGridChecklist))
+
+            ElseIf e.Column.Key = "observacao" Then
+
+                'Observação do item: gravada ao sair da célula
+                With grdChecklist.CurrentRow.Cells
+                    oClsUsrAdmChamado.UpdateChecklistObservacao(CLng(.Item("codigo").Value), _
+                                                                IIf(IsDBNull(.Item("observacao").Value), "", .Item("observacao").Value).ToString.Trim)
+                End With
 
             End If
 
@@ -917,7 +945,7 @@ Public Class usrAdmChamado
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrAdmChamado_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
-            Call AddComboAutoComplete(New UIComboBox() {cboTipoAtividade, cboPrioridade, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio, cboTimeRelatorio})
+            Call AddComboAutoComplete(New UIComboBox() {cboTipoAtividade, cboPrioridade, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio, cboCanal})
 
             'Combos - Chamados
             Call LoadCombo(cboStatusFiltro, "sp_select_combo_status_atividade")
@@ -936,6 +964,9 @@ Public Class usrAdmChamado
             Call LoadCombo(cboTipoAtividade, "sp_select_combo_tipo_atividade")
             Call LoadCombo(cboResponsavel, "sp_select_combo_administracao_chamado_usuario")
             Call LoadCombo(cboTipoAtendimento, "sp_select_combo_administracao_chamado_tipo_atendimento")
+            'Módulo pré-definido (mesmo cadastro da Base de Conhecimento) e canal de atendimento
+            Call LoadCombo(cboModulo, "sp_select_combo_cadastro_basico_modulo")
+            Call LoadCombo(cboCanal, "sp_select_combo_administracao_chamado_canal")
 
             'Combos - Apontamentos
             Call LoadCombo(cboEmpresaApontamento, "sp_select_combo_administracao_chamado_empresa")
@@ -943,14 +974,8 @@ Public Class usrAdmChamado
 
             'Combos - Relatório
             Call LoadCombo(cboEmpresaRelatorio, "sp_select_combo_administracao_chamado_empresa")
-            'Time da empresa do apontamento: começa em TODOS (-1)
+            'Time da empresa do apontamento: multisseleção; nenhum marcado = todos
             Call LoadCombo(cboTimeRelatorio, "sp_select_combo_tipo_time_empresa")
-            Dim oTimesRelatorio As DataTable = CType(cboTimeRelatorio.DataSource, DataTable)
-            Dim oTodosRelatorio As DataRow = oTimesRelatorio.NewRow
-            oTodosRelatorio.Item("codigo") = -1
-            oTodosRelatorio.Item("descricao") = "TODOS"
-            oTimesRelatorio.Rows.InsertAt(oTodosRelatorio, 0)
-            cboTimeRelatorio.SelectedIndex = 0
             Call LoadCombo(cboTipoAtividadeRelatorio, "sp_select_combo_tipo_atividade")
             Call LoadCombo(cboTipoAtendimentoRelatorio, "sp_select_combo_administracao_chamado_tipo_atendimento")
             Call LoadCombo(cboResponsavelRelatorio, "sp_select_combo_administracao_chamado_usuario")
@@ -978,6 +1003,7 @@ Public Class usrAdmChamado
             Call ConfiguraGrid(grdComentario)
             Call ConfiguraGrid(grdComentarioDev)
             Call ConfiguraGrid(grdChecklist)
+            Call ConfiguraGrid(grdChecklistEmpresa)
             Call ConfiguraGrid(grdApontamentoHistorico)
             Call ConfiguraGrid(grdApontamentoAndamento)
 
@@ -1061,7 +1087,9 @@ Public Class usrAdmChamado
                 If IsDBNull(.Item("codigo_prioridade").Value) = False Then cboPrioridade.SelectedValue = .Item("codigo_prioridade").Value
                 txtTitulo.Text = .Item("titulo").Value.ToString
                 txtDescricao.Text = .Item("descricao").Value.ToString
-                txtModulo.Text = .Item("modulo").Value.ToString
+                Call DefinirModulos(.Item("codigos_modulo").Value.ToString, .Item("modulo").Value.ToString)
+                If IsDBNull(.Item("codigo_canal_atendimento").Value) = False Then cboCanal.SelectedValue = .Item("codigo_canal_atendimento").Value
+                txtDescricaoCanal.Text = .Item("descricao_canal").Value.ToString
                 txtTela.Text = .Item("tela").Value.ToString
                 txtNumeroDocumento.Text = .Item("numero_documento").Value.ToString
                 Call DefinirStatus(CInt(.Item("codigo_status_atividade").Value))
@@ -1270,6 +1298,7 @@ Public Class usrAdmChamado
             btnSalvar.Enabled = True
             btnIniciar.Enabled = True
             btnFinalizarChamado.Enabled = True
+            btnAgCliente.Enabled = True
             btnInserirComentario.Enabled = False
             btnInserirComentarioDev.Enabled = False
             dtpDataChamado.Value = Date.Now()
@@ -1282,7 +1311,9 @@ Public Class usrAdmChamado
             chkExibirUsuario.Checked = False
             txtTitulo.Text = ""
             txtDescricao.Text = ""
-            txtModulo.Text = ""
+            cboModulo.UncheckAll()
+            cboCanal.SelectedIndex = -1
+            txtDescricaoCanal.Text = ""
             txtTela.Text = ""
             txtNumeroDocumento.Text = ""
             Call DefinirStatus(1)
@@ -1305,6 +1336,47 @@ Public Class usrAdmChamado
 
     End Sub
 
+    Private Function ValorCombo(ByVal oCombo As UIComboBox) As Object
+
+        'Combo sem seleção: grava nulo
+        If oCombo.SelectedIndex = -1 OrElse IsNothing(oCombo.SelectedValue) OrElse IsDBNull(oCombo.SelectedValue) Then Return DBNull.Value
+
+        Return oCombo.SelectedValue
+
+    End Function
+
+    Private Sub DefinirModulos(ByVal sCodigos As String, ByVal sModulo As String)
+
+        'Chamados anteriores ao combo só têm o texto do módulo: localiza cada descrição no cadastro
+        Try
+
+            If sCodigos.Trim = "" AndAlso sModulo.Trim <> "" Then
+
+                Dim oTabela As DataTable = TryCast(cboModulo.DropDownDataSource, DataTable)
+
+                If IsNothing(oTabela) = False Then
+                    For Each sDescricao As String In sModulo.Split(","c)
+                        For Each oRow As DataRow In oTabela.Rows
+                            If String.Compare(oRow.Item("descricao").ToString.Trim, sDescricao.Trim, _
+                                              Globalization.CultureInfo.GetCultureInfo("pt-BR"), _
+                                              Globalization.CompareOptions.IgnoreCase Or Globalization.CompareOptions.IgnoreNonSpace) = 0 Then
+                                sCodigos &= IIf(sCodigos = "", "", ",") & oRow.Item("codigo").ToString
+                                Exit For
+                            End If
+                        Next
+                    Next
+                End If
+
+            End If
+
+            Call SetCheckedValues(cboModulo, sCodigos)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
     Private Sub Salvar()
 
         Try
@@ -1320,12 +1392,14 @@ Public Class usrAdmChamado
                                          txtSolicitante.Text.Trim, _
                                          cboTipoAtividade.SelectedValue, _
                                          cboPrioridade.SelectedValue, _
-                                         txtModulo.Text.Trim, _
+                                         GetCheckedValues(cboModulo), _
                                          txtTela.Text.Trim, _
                                          txtNumeroDocumento.Text.Trim, _
                                          GetCheckedValues(cboResponsavel), _
                                          GetCheckedValues(cboTipoAtendimento), _
-                                         chkExibirUsuario.Checked)
+                                         chkExibirUsuario.Checked, _
+                                         ValorCombo(cboCanal), _
+                                         txtDescricaoCanal.Text.Trim)
 
                 frmMain.Informacao("Registro alterado com sucesso!", Color.Blue)
 
@@ -1337,12 +1411,14 @@ Public Class usrAdmChamado
                                                           txtSolicitante.Text.Trim, _
                                                           cboTipoAtividade.SelectedValue, _
                                                           cboPrioridade.SelectedValue, _
-                                                          txtModulo.Text.Trim, _
+                                                          GetCheckedValues(cboModulo), _
                                                           txtTela.Text.Trim, _
                                                           txtNumeroDocumento.Text.Trim, _
                                                           GetCheckedValues(cboResponsavel), _
                                                           GetCheckedValues(cboTipoAtendimento), _
-                                         chkExibirUsuario.Checked)
+                                                          chkExibirUsuario.Checked, _
+                                                          ValorCombo(cboCanal), _
+                                                          txtDescricaoCanal.Text.Trim)
 
                 Call DefinirStatus(1)
                 btnInserirComentario.Enabled = True
@@ -2419,7 +2495,7 @@ Public Class usrAdmChamado
                                                                    IIf(dtpInicioRelatorio.Checked = False, Nothing, dtpInicioRelatorio.Value.Date), _
                                                                    IIf(dtpTerminoRelatorio.Checked = False, Nothing, dtpTerminoRelatorio.Value.Date), _
                                                                    IIf(cboEmpresaRelatorio.SelectedIndex = -1, -1, cboEmpresaRelatorio.SelectedValue), _
-                                                                   IIf(cboTimeRelatorio.SelectedIndex = -1, -1, CInt(cboTimeRelatorio.SelectedValue)), _
+                                                                   GetCheckedValues(cboTimeRelatorio), _
                                                                    IIf(cboTipoAtividadeRelatorio.SelectedIndex = -1, -1, cboTipoAtividadeRelatorio.SelectedValue), _
                                                                    IIf(cboTipoAtendimentoRelatorio.SelectedIndex = -1, -1, cboTipoAtendimentoRelatorio.SelectedValue), _
                                                                    IIf(cboResponsavelRelatorio.SelectedIndex = -1, -1, cboResponsavelRelatorio.SelectedValue), _

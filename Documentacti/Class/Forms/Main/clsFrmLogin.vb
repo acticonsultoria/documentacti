@@ -128,6 +128,37 @@ Public Class clsFrmLogin
 
     End Function
 
+    Public Function LoadUltimoUsuario() As String
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim oDataSet As DataSet
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Hostname (mesmo formato gravado no log de login)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_hostname"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = "DOCUMENTACTI - " & System.Net.Dns.GetHostName
+
+            'Executa Query
+            oDataSet = ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_ultimo_usuario", oMySqlParameter)
+
+            If oDataSet.Tables(0).Rows.Count = 0 Then Return ""
+
+            Return oDataSet.Tables(0).Rows(0).Item("usuario").ToString
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
     Public Function AlterarSenha(ByVal sSenhaAtual As String, ByVal sNovaSenha As String) As Boolean
 
         'Variaveis Locais

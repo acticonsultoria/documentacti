@@ -500,7 +500,8 @@ Public Module modFunction
 
 #Region "::: GRID / COMBO :::"
 
-    Public Sub ConfiguraGrid(ByVal oGrid As GridEX)
+    Public Sub ConfiguraGrid(ByVal oGrid As GridEX, _
+                             Optional ByVal bConfiguracaoUsuario As Boolean = True)
 
         'Variaveis Locais
         Dim oColumn As GridEXColumn
@@ -560,6 +561,9 @@ Public Module modFunction
 
             Call ConfigurarFiltroContains(oGrid.RootTable)
             Call ConfigurarMenuCopiar(oGrid)
+
+            'Colunas visíveis / ordem / largura gravadas por usuário (mesmo recurso do INTERACTI)
+            If bConfiguracaoUsuario = True Then Call ConfigurarGridUsuario(oGrid)
 
         Catch ex As Exception
             Throw ex
@@ -706,6 +710,301 @@ Public Module modFunction
         End Try
 
     End Sub
+
+#Region "::: CONFIGURAÇÃO DA GRID POR USUÁRIO :::"
+
+    'Acesso a dados da configuração das grids
+    Private oClsCfgGrid As New clsFrmCfgGrid
+
+    'Layout de design de cada grid (visível / posição / largura): restaura o padrão sem reabrir a tela
+    Private oPadraoGrid As New System.Runtime.CompilerServices.ConditionalWeakTable(Of GridEX, Dictionary(Of String, Integer()))
+
+    'Configuração sendo aplicada: os eventos disparados pela própria carga não são gravados
+    Private bAplicandoConfiguracaoGrid As Boolean = False
+
+    Public Function ColunaConfiguravel(ByVal oColumn As GridEXColumn) As Boolean
+
+        'Somente Tag "S" pode ser ocultada / movida pelo usuário ("N" = botões/chaves, "A" = administrador)
+        Return IsNothing(oColumn.Tag) = False AndAlso oColumn.Tag.ToString = "S"
+
+    End Function
+
+    Public Function NomeFormularioGrid(ByVal oGrid As GridEX) As String
+
+        Try
+
+            'Tela da grid: o UserControl (telas do menu) ou o Form que a contém
+            Dim oControl As Control = oGrid.Parent
+
+            Do While IsNothing(oControl) = False
+                If TypeOf oControl Is UserControl OrElse TypeOf oControl Is Form Then Return oControl.Name
+                oControl = oControl.Parent
+            Loop
+
+            Return ""
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Private Sub ConfigurarGridUsuario(ByVal oGrid As GridEX)
+
+        Try
+
+            Dim sFormulario As String = NomeFormularioGrid(oGrid)
+            If sFormulario = "" Then Exit Sub
+
+            'Guarda o padrão de design uma única vez por grid
+            Dim oPadrao As Dictionary(Of String, Integer()) = Nothing
+            If oPadraoGrid.TryGetValue(oGrid, oPadrao) = False Then
+                oPadrao = New Dictionary(Of String, Integer())
+                For Each oColumn As GridEXColumn In oGrid.RootTable.Columns
+                    oPadrao(oColumn.Key) = New Integer() {IIf(oColumn.Visible, 1, 0), oColumn.Position, oColumn.Width}
+                Next
+                oPadraoGrid.Add(oGrid, oPadrao)
+            End If
+
+            'Aplica o que o usuário gravou para esta grid
+            Call AplicarConfiguracaoGrid(oGrid, oClsCfgGrid.LoadConfiguracao(sFormulario, oGrid.Name))
+
+            'Arrastar coluna / redimensionar: grava na hora
+            RemoveHandler oGrid.ColumnMoved, AddressOf GridUsuario_ColumnMoved
+            AddHandler oGrid.ColumnMoved, AddressOf GridUsuario_ColumnMoved
+            RemoveHandler oGrid.SizingColumn, AddressOf GridUsuario_SizingColumn
+            AddHandler oGrid.SizingColumn, AddressOf GridUsuario_SizingColumn
+
+            'Ocultar / exibir colunas e restaurar o padrão: menu do clique direito
+            Call ConfigurarMenuGridUsuario(oGrid)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AplicarConfiguracaoGrid(ByVal oGrid As GridEX, ByVal oTabela As DataTable)
+
+        bAplicandoConfiguracaoGrid = True
+
+        Try
+
+            'A proc devolve ordenado pela posição: aplicar em ordem crescente reproduz a ordem gravada
+            For Each oRow As DataRow In oTabela.Rows
+
+                Dim sCampo As String = oRow.Item("campo").ToString
+
+                If oGrid.RootTable.Columns.Contains(sCampo) = False Then Continue For
+
+                Dim oColumn As GridEXColumn = oGrid.RootTable.Columns(sCampo)
+
+                If ColunaConfiguravel(oColumn) = False Then Continue For
+
+                If IsDBNull(oRow.Item("visivel")) = False Then oColumn.Visible = (CInt(oRow.Item("visivel")) = 1)
+                If IsDBNull(oRow.Item("largura")) = False AndAlso CInt(oRow.Item("largura")) > 0 Then oColumn.Width = CInt(oRow.Item("largura"))
+
+                If IsDBNull(oRow.Item("posicao")) = False Then
+                    Try
+                        oColumn.Position = Math.Min(CInt(oRow.Item("posicao")), oGrid.RootTable.Columns.Count - 1)
+                    Catch
+                        'Posição inválida (coluna removida do layout): mantém a do design
+                    End Try
+                End If
+
+            Next
+
+        Catch ex As Exception
+            Throw ex
+        Finally
+            bAplicandoConfiguracaoGrid = False
+        End Try
+
+    End Sub
+
+    Public Sub SalvarConfiguracaoGrid(ByVal oGrid As GridEX, ByVal sTipo As String)
+
+        Try
+
+            Dim sLista As String = ""
+            Dim iValor As Integer
+
+            For Each oColumn As GridEXColumn In oGrid.RootTable.Columns
+
+                If ColunaConfiguravel(oColumn) = False Then Continue For
+
+                Select Case sTipo
+                    Case clsFrmCfgGrid.gcTipoVisivel : iValor = IIf(oColumn.Visible, 1, 0)
+                    Case clsFrmCfgGrid.gcTipoLargura : iValor = oColumn.Width
+                    Case Else : iValor = oColumn.Position
+                End Select
+
+                sLista &= IIf(sLista = "", "", ";") & oColumn.Key & "=" & iValor
+
+            Next
+
+            'Uma chamada grava a grid inteira
+            Call oClsCfgGrid.Update(NomeFormularioGrid(oGrid), oGrid.Name, sTipo, sLista)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Sub RestaurarPadraoGrid(ByVal oGrid As GridEX)
+
+        Try
+
+            Call oClsCfgGrid.Delete(NomeFormularioGrid(oGrid), oGrid.Name)
+
+            Dim oPadrao As Dictionary(Of String, Integer()) = Nothing
+            If oPadraoGrid.TryGetValue(oGrid, oPadrao) = False Then Exit Sub
+
+            'Reaplica o design: posições em ordem crescente
+            Dim oChaves As New List(Of String)(oPadrao.Keys)
+            oChaves.Sort(Function(x, y) oPadrao(x)(1).CompareTo(oPadrao(y)(1)))
+
+            bAplicandoConfiguracaoGrid = True
+
+            Try
+
+                For Each sChave As String In oChaves
+
+                    If oGrid.RootTable.Columns.Contains(sChave) = False Then Continue For
+
+                    Dim oColumn As GridEXColumn = oGrid.RootTable.Columns(sChave)
+
+                    If ColunaConfiguravel(oColumn) Then
+                        oColumn.Visible = (oPadrao(sChave)(0) = 1)
+                        oColumn.Width = oPadrao(sChave)(2)
+                    End If
+
+                    Try
+                        oColumn.Position = Math.Min(oPadrao(sChave)(1), oGrid.RootTable.Columns.Count - 1)
+                    Catch
+                        'Mantém a posição atual
+                    End Try
+
+                Next
+
+            Finally
+                bAplicandoConfiguracaoGrid = False
+            End Try
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub ConfigurarMenuGridUsuario(ByVal oGrid As GridEX)
+
+        Try
+
+            If IsNothing(oGrid.ContextMenuStrip) Then oGrid.ContextMenuStrip = New ContextMenuStrip
+
+            'Grid já configurada (ConfiguraGrid chamado de novo)
+            If oGrid.ContextMenuStrip.Items.ContainsKey("mnuConfigurarGrid") Then Exit Sub
+
+            Dim oConfigurar As New ToolStripMenuItem("Configurar colunas...", My.Resources.config)
+            oConfigurar.Name = "mnuConfigurarGrid"
+            oConfigurar.Tag = oGrid
+            AddHandler oConfigurar.Click, AddressOf MenuConfigurarGrid_Click
+
+            Dim oRestaurar As New ToolStripMenuItem("Restaurar colunas padrão")
+            oRestaurar.Name = "mnuRestaurarGrid"
+            oRestaurar.Tag = oGrid
+            AddHandler oRestaurar.Click, AddressOf MenuRestaurarGrid_Click
+
+            If oGrid.ContextMenuStrip.Items.Count > 0 Then oGrid.ContextMenuStrip.Items.Add(New ToolStripSeparator)
+            oGrid.ContextMenuStrip.Items.Add(oConfigurar)
+            oGrid.ContextMenuStrip.Items.Add(oRestaurar)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub MenuConfigurarGrid_Click(ByVal sender As Object, ByVal e As EventArgs)
+
+        Try
+
+            Dim oGrid As GridEX = CType(CType(sender, ToolStripMenuItem).Tag, GridEX)
+            Dim oForm As New frmCfgGrid
+
+            oForm.Grid = oGrid
+            oForm.ShowDialog(oGrid.FindForm)
+
+        Catch ex As Exception
+            Call TratamentoErro(ex, "Configurar Colunas")
+        End Try
+
+    End Sub
+
+    Private Sub MenuRestaurarGrid_Click(ByVal sender As Object, ByVal e As EventArgs)
+
+        Try
+
+            Dim oGrid As GridEX = CType(CType(sender, ToolStripMenuItem).Tag, GridEX)
+
+            If MsgBox("Deseja restaurar as colunas desta grid para o padrão?", MsgBoxStyle.Question + MsgBoxStyle.YesNo, gAplicacao) = MsgBoxResult.No Then Exit Sub
+
+            Cursor.Current = Cursors.WaitCursor
+
+            Call RestaurarPadraoGrid(oGrid)
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Colunas restauradas para o padrão.", System.Drawing.Color.Blue)
+
+        Catch ex As Exception
+            Call TratamentoErro(ex, "Configurar Colunas")
+        End Try
+
+    End Sub
+
+    Private Sub GridUsuario_ColumnMoved(ByVal sender As Object, ByVal e As ColumnActionEventArgs)
+
+        Try
+
+            If bAplicandoConfiguracaoGrid = True Then Exit Sub
+
+            Dim oGrid As GridEX = CType(sender, GridEX)
+
+            'Somente a grid principal (as tabelas filhas ficam como no design)
+            If e.Column.Table IsNot oGrid.RootTable Then Exit Sub
+
+            Call SalvarConfiguracaoGrid(oGrid, clsFrmCfgGrid.gcTipoPosicao)
+
+        Catch ex As Exception
+            Call TratamentoErro(ex, "Configurar Colunas")
+        End Try
+
+    End Sub
+
+    Private Sub GridUsuario_SizingColumn(ByVal sender As Object, ByVal e As SizingColumnEventArgs)
+
+        Try
+
+            If bAplicandoConfiguracaoGrid = True Then Exit Sub
+
+            Dim oGrid As GridEX = CType(sender, GridEX)
+
+            'ColumnAutoResize: a grid recalcula as larguras sozinha, não há o que gravar
+            If oGrid.ColumnAutoResize = True Then Exit Sub
+            If e.Column.Table IsNot oGrid.RootTable OrElse ColunaConfiguravel(e.Column) = False Then Exit Sub
+
+            Call oClsCfgGrid.Update(NomeFormularioGrid(oGrid), oGrid.Name, clsFrmCfgGrid.gcTipoLargura, e.Column.Key & "=" & e.ProposedWidth)
+
+        Catch ex As Exception
+            Call TratamentoErro(ex, "Configurar Colunas")
+        End Try
+
+    End Sub
+
+#End Region
 
     Public Sub ConfigurarDataMemberGrid(ByVal oGrid As GridEX)
 

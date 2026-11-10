@@ -139,6 +139,7 @@
     <Compile Include="Class\Forms\Main\clsFrmLogin.vb" />
     <Compile Include="Class\Forms\Main\clsFrmMain.vb" />
     <Compile Include="Class\Forms\Main\clsFrmConfiguracao.vb" />
+    <Compile Include="Class\Forms\Main\clsFrmCfgGrid.vb" />
     <Compile Include="Class\Function\clsConfigXML.vb" />
     <Compile Include="Class\Function\clsBarraTarefas.vb" />
     <Compile Include="Class\Function\clsDllEmbutida.vb" />
@@ -190,6 +191,12 @@
     </Compile>
     <Compile Include="Forms\Cadastro\usrCadUsuario.vb">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\frmCfgGrid.Designer.vb">
+      <DependentUpon>frmCfgGrid.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Main\frmCfgGrid.vb">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Main\frmAbrirChamado.Designer.vb">
       <DependentUpon>frmAbrirChamado.vb</DependentUpon>
@@ -261,6 +268,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Cadastro\usrCadUsuario.resx">
       <DependentUpon>usrCadUsuario.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Main\frmCfgGrid.resx">
+      <DependentUpon>frmCfgGrid.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Main\frmAbrirChamado.resx">
       <DependentUpon>frmAbrirChamado.vb</DependentUpon>

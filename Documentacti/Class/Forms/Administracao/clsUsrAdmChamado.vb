@@ -19,12 +19,14 @@ Public Class clsUsrAdmChamado
                            ByVal sSolicitante As String, _
                            ByVal iCodigoTipoAtividade As Integer, _
                            ByVal iPrioridade As Integer, _
-                           ByVal sModulo As String, _
+                           ByVal sModulos As String, _
                            ByVal sTela As String, _
                            ByVal sNumeroDocumento As String, _
                            ByVal sResponsaveis As String, _
                            ByVal sTiposAtendimento As String, _
-                           ByVal bExibirUsuario As Boolean) As Long
+                           ByVal bExibirUsuario As Boolean, _
+                           ByVal oCodigoCanal As Object, _
+                           ByVal sDescricaoCanal As String) As Long
 
         'Variaveis Locais
         Dim oMySqlParameter(0) As MySqlParameter
@@ -81,12 +83,12 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
             oMySqlParameter(i).Value = iPrioridade : i += 1 : ReDim Preserve oMySqlParameter(i)
 
-            'Seta Parametros - Módulo
+            'Seta Parametros - Módulos (tb_cad_modulo, CSV)
             oMySqlParameter(i) = New MySqlParameter
-            oMySqlParameter(i).ParameterName = "@p_modulo"
+            oMySqlParameter(i).ParameterName = "@p_modulos"
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
-            oMySqlParameter(i).Value = sModulo : i += 1 : ReDim Preserve oMySqlParameter(i)
+            oMySqlParameter(i).Value = sModulos : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Tela
             oMySqlParameter(i) = New MySqlParameter
@@ -123,6 +125,20 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
             oMySqlParameter(i).Value = IIf(bExibirUsuario, 1, 0) : i += 1 : ReDim Preserve oMySqlParameter(i)
 
+            'Seta Parametros - Canal de atendimento (nulo = não informado)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_canal_atendimento"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).Value = oCodigoCanal : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Grupo do WhatsApp/Teams ou título do e-mail (opcional)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_descricao_canal"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sDescricaoCanal : i += 1 : ReDim Preserve oMySqlParameter(i)
+
             'Seta Parametros - Código Usuário
             oMySqlParameter(i) = New MySqlParameter
             oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
@@ -156,12 +172,14 @@ Public Class clsUsrAdmChamado
                       ByVal sSolicitante As String, _
                       ByVal iCodigoTipoAtividade As Integer, _
                       ByVal iPrioridade As Integer, _
-                      ByVal sModulo As String, _
+                      ByVal sModulos As String, _
                       ByVal sTela As String, _
                       ByVal sNumeroDocumento As String, _
                       ByVal sResponsaveis As String, _
                       ByVal sTiposAtendimento As String, _
-                      ByVal bExibirUsuario As Boolean)
+                      ByVal bExibirUsuario As Boolean, _
+                      ByVal oCodigoCanal As Object, _
+                      ByVal sDescricaoCanal As String)
 
         'Variaveis Locais
         Dim oMySqlParameter(0) As MySqlParameter
@@ -225,12 +243,12 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
             oMySqlParameter(i).Value = iPrioridade : i += 1 : ReDim Preserve oMySqlParameter(i)
 
-            'Seta Parametros - Módulo
+            'Seta Parametros - Módulos (tb_cad_modulo, CSV)
             oMySqlParameter(i) = New MySqlParameter
-            oMySqlParameter(i).ParameterName = "@p_modulo"
+            oMySqlParameter(i).ParameterName = "@p_modulos"
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
-            oMySqlParameter(i).Value = sModulo : i += 1 : ReDim Preserve oMySqlParameter(i)
+            oMySqlParameter(i).Value = sModulos : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Tela
             oMySqlParameter(i) = New MySqlParameter
@@ -266,6 +284,20 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).Direction = ParameterDirection.Input
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
             oMySqlParameter(i).Value = IIf(bExibirUsuario, 1, 0) : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Canal de atendimento (nulo = não informado)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_canal_atendimento"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int16
+            oMySqlParameter(i).Value = oCodigoCanal : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Grupo do WhatsApp/Teams ou título do e-mail (opcional)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_descricao_canal"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sDescricaoCanal : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Código Usuário
             oMySqlParameter(i) = New MySqlParameter
@@ -623,7 +655,7 @@ Public Class clsUsrAdmChamado
                                       ByVal oDataInicio As Object, _
                                       ByVal oDataTermino As Object, _
                                       ByVal iEmpresaCliente As Integer, _
-                                      ByVal iTime As Integer, _
+                                      ByVal sTimes As String, _
                                       ByVal iTipoAtividade As Integer, _
                                       ByVal iTipoAtendimento As Integer, _
                                       ByVal lUsuario As Long, _
@@ -664,12 +696,12 @@ Public Class clsUsrAdmChamado
             oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
             oMySqlParameter(i).Value = iEmpresaCliente : i += 1 : ReDim Preserve oMySqlParameter(i)
 
-            'Seta Parametros - Time da empresa do apontamento (-1 = todos)
+            'Seta Parametros - Times da empresa do apontamento (lista "2,3"; vazio = todos)
             oMySqlParameter(i) = New MySqlParameter
             oMySqlParameter(i).ParameterName = "@p_tipo_time"
             oMySqlParameter(i).Direction = ParameterDirection.Input
-            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
-            oMySqlParameter(i).Value = iTime : i += 1 : ReDim Preserve oMySqlParameter(i)
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sTimes : i += 1 : ReDim Preserve oMySqlParameter(i)
 
             'Seta Parametros - Tipo de Atividade
             oMySqlParameter(i) = New MySqlParameter
@@ -1142,6 +1174,40 @@ Public Class clsUsrAdmChamado
 
             'Executa Query
             ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_administracao_chamado_checklist_texto", oMySqlParameter)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Sub UpdateChecklistObservacao(ByVal lCodigo As Long, _
+                                         ByVal sObservacao As String)
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código do item
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = lCodigo : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Observação do item (vazio = limpa)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_observacao"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.VarChar
+            oMySqlParameter(i).Value = sObservacao
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_administracao_chamado_checklist_observacao", oMySqlParameter)
 
         Catch MySqlEx As MySqlException
             Throw MySqlEx
