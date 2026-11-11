@@ -39,6 +39,7 @@ Partial Class usrAdmChamado
         Dim grdChecklistEmpresa_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdChecklist_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdChecklist_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column7.Image")
+        Dim grdChecklist_DesignTimeLayout_Reference_2 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column11.Image")
         Dim grdComentario_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdComentario_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdComentarioDev_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
@@ -965,7 +966,8 @@ Partial Class usrAdmChamado
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         grdChecklist_DesignTimeLayout_Reference_0.Instance = CType(resources.GetObject("grdChecklist_DesignTimeLayout_Reference_0.Instance"), Object)
         grdChecklist_DesignTimeLayout_Reference_1.Instance = CType(resources.GetObject("grdChecklist_DesignTimeLayout_Reference_1.Instance"), Object)
-        grdChecklist_DesignTimeLayout.LayoutReferences.AddRange(New Janus.Windows.Common.Layouts.JanusLayoutReference() {grdChecklist_DesignTimeLayout_Reference_0, grdChecklist_DesignTimeLayout_Reference_1})
+        grdChecklist_DesignTimeLayout_Reference_2.Instance = CType(resources.GetObject("grdChecklist_DesignTimeLayout_Reference_2.Instance"), Object)
+        grdChecklist_DesignTimeLayout.LayoutReferences.AddRange(New Janus.Windows.Common.Layouts.JanusLayoutReference() {grdChecklist_DesignTimeLayout_Reference_0, grdChecklist_DesignTimeLayout_Reference_1, grdChecklist_DesignTimeLayout_Reference_2})
         grdChecklist_DesignTimeLayout.LayoutString = resources.GetString("grdChecklist_DesignTimeLayout.LayoutString")
         Me.grdChecklist.DesignTimeLayout = grdChecklist_DesignTimeLayout
         Me.grdChecklist.FilterRowButtonStyle = Janus.Windows.GridEX.FilterRowButtonStyle.ConditionOperatorDropDown

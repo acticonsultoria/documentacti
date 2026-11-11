@@ -482,6 +482,7 @@ Public Class usrAdmChamado
             Select Case grdChecklist.CurrentColumn.Key
                 Case "excluir" : Call ExcluirItemChecklist()
                 Case "editar" : Call EditarItemChecklist()
+                Case "desmembrar" : Call DesmembrarItemChecklist()
             End Select
 
         Catch ex As Exception
@@ -1938,6 +1939,40 @@ Public Class usrAdmChamado
             Call LoadGridChecklist()
 
             frmMain.Informacao("Item excluído do checklist.", Color.Blue)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub DesmembrarItemChecklist()
+
+        'Abre um chamado novo (ainda não gravado) com base no item: empresa do chamado de origem, título = item,
+        'responsável e tipo de atendimento em branco; o usuário completa os dados e salva
+        Try
+
+            Dim sChamadoOrigem As String = txtCodigo.Text
+            Dim sItem As String = grdChecklist.CurrentRow.Cells("texto").Value.ToString.Trim
+            Dim sEmpresas As String = GetCheckedValues(cboEmpresa)
+
+            If MsgBox("Deseja criar um chamado novo com base no item '" & sItem & "' do chamado " & sChamadoOrigem & "?" & vbCrLf & vbCrLf & _
+                      "Alterações não salvas no chamado atual serão perdidas.", _
+                      MsgBoxStyle.Question + MsgBoxStyle.YesNo, gAplicacao) = MsgBoxResult.No Then Exit Sub
+
+            Call Novo()
+
+            Call SetCheckedValues(cboEmpresa, sEmpresas)
+            'If() avalia só o lado escolhido (IIf avaliaria o Substring mesmo com o item menor que o limite)
+            txtTitulo.Text = If(sItem.Length > txtTitulo.MaxLength, sItem.Substring(0, txtTitulo.MaxLength), sItem)
+            txtDescricao.Text = "Chamado criado com base no item '" & sItem & "' do chamado " & sChamadoOrigem & "."
+
+            'Responsável fica em branco (o Novo sugere o usuário autenticado)
+            cboResponsavel.UncheckAll()
+
+            frmMain.Informacao("Chamado novo com base no item do chamado " & sChamadoOrigem & ". Complete os dados e salve.", Color.Blue)
+
+            cboPrioridade.Focus()
 
         Catch ex As Exception
             Throw ex
