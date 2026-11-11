@@ -20,8 +20,8 @@ Public Class frmMain
     'Chamados criados sem responsável para o time do usuário (notificados uma vez; marcados no banco)
     Private oChamadosNotificados As New HashSet(Of Long)
     Private bNotificacaoChamadoIndisponivel As Boolean = False
-    'Eventos do calendário em que o usuário foi designado (já avisados nesta sessão)
-    Private oEventosNotificados As New HashSet(Of Long)
+    'Avisos do calendário já exibidos nesta sessão (evento | tipo | data do aviso)
+    Private oEventosNotificados As New HashSet(Of String)
     Private bNotificacaoEventoIndisponivel As Boolean = False
 
     'Logo de fundo da aba principal (carregada uma vez; o My.Resources cria uma cópia a cada leitura)
@@ -726,35 +726,27 @@ Public Class frmMain
             Dim oTabela As DataTable = oClsUsrAdmEvento.LoadNotificacao()
             Dim oNovos As New List(Of DataRow)
 
+            'Um mesmo evento pode avisar mais de uma vez (inclusão, depois alteração, depois exclusão)
             For Each oRow As DataRow In oTabela.Rows
-                If oEventosNotificados.Add(CLng(oRow.Item("codigo"))) Then oNovos.Add(oRow)
+                Dim sChave As String = oRow.Item("codigo").ToString & "|" & oRow.Item("tipo_notificacao").ToString & "|" & oRow.Item("data_notificacao").ToString
+                If oEventosNotificados.Add(sChave) Then oNovos.Add(oRow)
             Next
 
             If oNovos.Count = 0 Then Exit Sub
 
             If bSilenciarNotificacao = False Then
 
-                'Muitos pendentes (ex.: ao entrar no sistema): um resumo em vez de uma notificação por evento
+                'Muitos pendentes (ex.: ao entrar no sistema): um resumo em vez de uma notificação por aviso
                 If oNovos.Count > 3 Then
-                    Dim oToast As New Toast("Novos eventos", _
-                                            "Você foi incluído em " & oNovos.Count & " evento(s) do calendário.", _
+                    Dim oToast As New Toast("Calendário de eventos", _
+                                            "Você tem " & oNovos.Count & " aviso(s) de eventos (inclusões, alterações ou exclusões).", _
                                             ToastType.Info) With {.Caption = "Calendário de Eventos", .Duration = 10000}
-                    Dim lPrimeiro As Long = CLng(oNovos(0).Item("codigo"))
                     Dim dPrimeiro As Date = CDate(oNovos(0).Item("data_inicio"))
-                    AddHandler oToast.Click, Sub(s, a) AbrirEvento(lPrimeiro, dPrimeiro)
+                    AddHandler oToast.Click, Sub(s, a) AbrirEvento(0, dPrimeiro, False)
                     oToastManager.Show(oToast)
                 Else
                     For Each oRow As DataRow In oNovos
-                        Dim lEvento As Long = CLng(oRow.Item("codigo"))
-                        Dim dData As Date = CDate(oRow.Item("data_inicio"))
-                        Dim sQuando As String = Format(dData, IIf(CInt(oRow.Item("dia_inteiro")) = 1, "dd/MM/yyyy", "dd/MM/yyyy HH:mm"))
-                        Dim oToast As New Toast("Você foi incluído em um evento", _
-                                                oRow.Item("titulo").ToString & vbCrLf & _
-                                                oRow.Item("tipo_evento").ToString & "  ·  " & sQuando & _
-                                                IIf(oRow.Item("criador").ToString = "", "", "  ·  por " & oRow.Item("criador").ToString), _
-                                                ToastType.Info) With {.Caption = "Calendário de Eventos", .Duration = 10000}
-                        AddHandler oToast.Click, Sub(s, a) AbrirEvento(lEvento, dData)
-                        oToastManager.Show(oToast)
+                        Call NotificarEvento(oRow)
                     Next
                 End If
 
@@ -772,9 +764,53 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub AbrirEvento(ByVal lEvento As Long, ByVal dData As Date)
+    Private Sub NotificarEvento(ByVal oRow As DataRow)
 
-        'Clique na notificação do calendário: traz o sistema para frente e abre o evento
+        Try
+
+            Dim lEvento As Long = CLng(oRow.Item("codigo"))
+            Dim dData As Date = CDate(oRow.Item("data_inicio"))
+            Dim sQuando As String = Format(dData, IIf(CInt(oRow.Item("dia_inteiro")) = 1, "dd/MM/yyyy", "dd/MM/yyyy HH:mm"))
+            Dim sPor As String = IIf(oRow.Item("criador").ToString = "", "", "  ·  por " & oRow.Item("criador").ToString)
+            Dim sDetalhe As String = oRow.Item("detalhe_notificacao").ToString.Replace(" | ", vbCrLf)
+            Dim oToast As Toast
+
+            Select Case oRow.Item("tipo_notificacao").ToString
+
+                Case "ALTERACAO"
+                    'Título / data / horário mudou: o detalhe mostra de -> para
+                    oToast = New Toast("Evento alterado", _
+                                       oRow.Item("titulo").ToString & vbCrLf & sDetalhe & sPor, _
+                                       ToastType.Warning) With {.Caption = "Calendário de Eventos", .Duration = 12000}
+                    AddHandler oToast.Click, Sub(s, a) AbrirEvento(lEvento, dData, True)
+
+                Case "EXCLUSAO"
+                    'Evento excluído: o clique só abre o calendário no mês em que ele estava
+                    oToast = New Toast("Evento excluído", _
+                                       oRow.Item("titulo").ToString & vbCrLf & sDetalhe & sPor, _
+                                       ToastType.Error) With {.Caption = "Calendário de Eventos", .Duration = 12000}
+                    AddHandler oToast.Click, Sub(s, a) AbrirEvento(lEvento, dData, False)
+
+                Case Else
+                    oToast = New Toast("Você foi incluído em um evento", _
+                                       oRow.Item("titulo").ToString & vbCrLf & _
+                                       oRow.Item("tipo_evento").ToString & "  ·  " & sQuando & sPor, _
+                                       ToastType.Info) With {.Caption = "Calendário de Eventos", .Duration = 10000}
+                    AddHandler oToast.Click, Sub(s, a) AbrirEvento(lEvento, dData, True)
+
+            End Select
+
+            oToastManager.Show(oToast)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AbrirEvento(ByVal lEvento As Long, ByVal dData As Date, ByVal bAbrirCadastro As Boolean)
+
+        'Clique na notificação do calendário: traz o sistema para frente e abre o mês (e o evento, quando ainda existe)
         Try
 
             If WindowState = FormWindowState.Minimized Then WindowState = FormWindowState.Maximized
@@ -785,7 +821,7 @@ Public Class frmMain
             If tabMain.TabPages.Contains("usrAdmEvento") = False Then Exit Sub
 
             For Each oControl As Control In tabMain.TabPages("usrAdmEvento").Controls
-                If TypeOf oControl Is usrAdmEvento Then CType(oControl, usrAdmEvento).AbrirEvento(lEvento, dData)
+                If TypeOf oControl Is usrAdmEvento Then CType(oControl, usrAdmEvento).AbrirEvento(lEvento, dData, bAbrirCadastro)
             Next
 
         Catch ex As Exception

@@ -12,15 +12,19 @@ Public Class usrAdmEvento
     'Eventos do último filtro (alimenta o calendário e a lista)
     Private oTabela As DataTable
 
-    'Data de referência do calendário (navegação Anterior / Hoje / Próximo)
+    'Mês de referência do calendário (navegação Mês anterior / Mês atual / Próximo mês)
     Private dReferencia As Date = Today
+
+    'Maior quantidade de eventos num mesmo dia do mês exibido (define a altura da linha)
+    Private iMaximoEventosDia As Integer = 0
 
     Private bCarregando As Boolean = False
 
-    'Visões do calendário (cboVisao)
-    Private Const gcVisaoMes As String = "MES"
-    Private Const gcVisaoSemana As String = "SEMANA"
-    Private Const gcVisaoDia As String = "DIA"
+    'Altura (pixels) do cabeçalho dos dias da semana, do número do dia, de cada evento e a sobra no fim do dia
+    Private Const gcAlturaCabecalhoSemana As Integer = 34
+    Private Const gcAlturaCabecalhoDia As Integer = 38
+    Private Const gcAlturaEvento As Integer = 32
+    Private Const gcAlturaSobraDia As Integer = 16
 
 #End Region
 
@@ -59,7 +63,7 @@ Public Class usrAdmEvento
 
         Try
 
-            'Período escolhido à mão: o calendário vai para o início do período
+            'Período escolhido à mão: o calendário vai para o mês do início do período
             dReferencia = dtpInicioFiltro.Value.Date
             Call PosicionarCalendario()
             Call LoadDados()
@@ -86,10 +90,27 @@ Public Class usrAdmEvento
 
         Try
 
-            'Novo evento na data em exibição (hoje, se estiver no período), às 09:00
-            Dim dData As Date = IIf(Today >= dtpInicioFiltro.Value.Date AndAlso Today <= dtpTerminoFiltro.Value.Date, Today, dReferencia)
+            'Novo evento hoje (se estiver no período) ou no dia 1 do mês exibido, às 09:00
+            Dim dData As Date = New Date(dReferencia.Year, dReferencia.Month, 1)
+            If Today >= dtpInicioFiltro.Value.Date AndAlso Today <= dtpTerminoFiltro.Value.Date Then dData = Today
+
             Call Novo(dData.AddHours(9), dData.AddHours(10))
             Call MostrarDados()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub cboTimeFiltro_CheckedValuesChanged(sender As Object, e As EventArgs) Handles cboTimeFiltro.CheckedValuesChanged
+
+        Try
+
+            If bCarregando = True Then Exit Sub
+
+            'Empresas do filtro: somente as dos times marcados
+            Call CarregarComboEmpresas(cboEmpresaFiltro, GetCheckedValues(cboTimeFiltro), GetCheckedValues(cboEmpresaFiltro))
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -105,7 +126,8 @@ Public Class usrAdmEvento
 
         Try
 
-            Call Navegar(-1)
+            dReferencia = New Date(dReferencia.Year, dReferencia.Month, 1).AddMonths(-1)
+            Call ExibirPeriodo()
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -117,7 +139,8 @@ Public Class usrAdmEvento
 
         Try
 
-            Call Navegar(1)
+            dReferencia = New Date(dReferencia.Year, dReferencia.Month, 1).AddMonths(1)
+            Call ExibirPeriodo()
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -138,13 +161,52 @@ Public Class usrAdmEvento
 
     End Sub
 
-    Private Sub cboVisao_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboVisao.SelectedIndexChanged
+    Private Sub pnlCalendario_Resize(sender As Object, e As EventArgs) Handles pnlCalendario.Resize
 
         Try
 
-            If bCarregando = True Then Exit Sub
+            'Tela redimensionada: recalcula a altura das semanas
+            If bCarregando = False AndAlso IsNothing(oTabela) = False Then Call PosicionarCalendario()
 
-            Call ExibirPeriodo()
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub schMain_MouseWheel(sender As Object, e As MouseEventArgs) Handles schMain.MouseWheel
+
+        Try
+
+            'Roda do mouse sobre o calendário rola a página (o mês inteiro já está na tela)
+            pnlCalendario.AutoScrollPosition = New Point(0, Math.Max(0, -pnlCalendario.AutoScrollPosition.Y - e.Delta))
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub schMain_ViewChanged(sender As Object, e As EventArgs) Handles schMain.ViewChanged
+
+        Try
+
+            'Somente visão de mês: qualquer troca feita pelo próprio calendário volta para o mês
+            If bCarregando = False AndAlso schMain.View <> ScheduleView.MonthView Then Call PosicionarCalendario()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub schMain_HiddenAppointmentClick(sender As Object, e As HiddenAppointmentsEventArgs) Handles schMain.HiddenAppointmentClick
+
+        Try
+
+            'Mesmo com a linha ampliada não coube tudo: mostra o dia na Lista por Data
+            Dim dData As Date = e.Date.Date
+            Me.BeginInvoke(New MethodInvoker(Sub() MostrarDiaNaLista(dData)))
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -157,20 +219,14 @@ Public Class usrAdmEvento
         Try
 
             'A carga feita pelo código (AddAction.Code) não pode ser cancelada.
-            'Digitar / duplo clique num horário vazio: abre o cadastro com aquele horário.
+            'Digitar / duplo clique num dia vazio: abre o cadastro naquele dia.
             If e.AddAction = AddAction.Typing Or e.AddAction = AddAction.DoubleClick Then
 
                 e.Cancel = True
 
                 If e.AddAction = AddAction.DoubleClick AndAlso IsNothing(e.Appointment) = False Then
-                    Dim dInicio As Date = e.Appointment.StartTime
-                    Dim dFim As Date = e.Appointment.EndTime
-                    'Visão de mês: o clique é no dia (sem horário)
-                    If schMain.View = ScheduleView.MonthView OrElse e.Appointment.AllDayEvent Then
-                        dInicio = dInicio.Date.AddHours(9)
-                        dFim = dInicio.AddHours(1)
-                    End If
-                    Me.BeginInvoke(New MethodInvoker(Sub() NovoPeloCalendario(dInicio, dFim)))
+                    Dim dInicio As Date = e.Appointment.StartTime.Date.AddHours(9)
+                    Me.BeginInvoke(New MethodInvoker(Sub() NovoPeloCalendario(dInicio, dInicio.AddHours(1))))
                 End If
 
             End If
@@ -204,27 +260,21 @@ Public Class usrAdmEvento
             Dim oRow As DataRow = LinhaEvento(lCodigo)
             If IsNothing(oRow) Then Exit Sub
 
-            Dim dInicio As Date
-            Dim dFim As Date
+            'Visão de mês: muda o dia mantendo o horário e a duração do evento
+            Dim dInicioAtual As Date = CDate(oRow.Item("data_inicio"))
+            Dim dFimAtual As Date = CDate(oRow.Item("data_fim"))
+            Dim iDias As Integer = (e.ProposedStartTime.Date - dInicioAtual.Date).Days
 
-            If CInt(oRow.Item("dia_inteiro")) = 1 Then
-                'Dia inteiro: mantém a quantidade de dias do evento
-                Dim iDias As Integer = (CDate(oRow.Item("data_fim")).Date - CDate(oRow.Item("data_inicio")).Date).Days
-                dInicio = e.ProposedStartTime.Date
-                dFim = dInicio.AddDays(iDias).AddHours(23).AddMinutes(59).AddSeconds(59)
-            Else
-                dInicio = e.ProposedStartTime
-                dFim = e.ProposedEndTime
-            End If
+            If iDias = 0 Then Exit Sub
 
-            If dInicio = CDate(oRow.Item("data_inicio")) Then Exit Sub
+            Dim dInicio As Date = dInicioAtual.AddDays(iDias)
+            Dim dFim As Date = dFimAtual.AddDays(iDias)
 
             Cursor.Current = Cursors.WaitCursor
 
             oClsUsrAdmEvento.UpdateData(lCodigo, dInicio, dFim)
 
-            frmMain.Informacao("Evento '" & oRow.Item("titulo").ToString & "' movido para " & _
-                               Format(dInicio, IIf(CInt(oRow.Item("dia_inteiro")) = 1, "dd/MM/yyyy", "dd/MM/yyyy HH:mm")) & ".", Color.Blue)
+            frmMain.Informacao("Evento '" & oRow.Item("titulo").ToString & "' movido para " & Format(dInicio, "dd/MM/yyyy") & ".", Color.Blue)
 
             'Recarrega depois que o calendário terminar o movimento (lista e horários atualizados)
             Me.BeginInvoke(New MethodInvoker(AddressOf LoadDados))
@@ -291,6 +341,21 @@ Public Class usrAdmEvento
 
             'Início passou do término: o término acompanha mantendo 1 hora de duração
             If bCarregando = False AndAlso dtpFim.Value < dtpInicio.Value Then dtpFim.Value = dtpInicio.Value.AddHours(1)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub cboTimes_CheckedValuesChanged(sender As Object, e As EventArgs) Handles cboTimes.CheckedValuesChanged
+
+        Try
+
+            If bCarregando = True Then Exit Sub
+
+            'Empresas do evento: somente as dos times marcados
+            Call CarregarComboEmpresas(cboEmpresas, GetCheckedValues(cboTimes), GetCheckedValues(cboEmpresas))
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -372,30 +437,34 @@ Public Class usrAdmEvento
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrAdmEvento_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
-            Call AddComboAutoComplete(New UIComboBox() {cboTipoFiltro, cboEmpresaFiltro, cboVisao, cboTipo, cboEmpresa})
+            Call AddComboAutoComplete(New UIComboBox() {cboTipoFiltro, cboTipo})
 
-            'Combos - Filtro
+            'Combos - Filtro (nenhum time / participante marcado = todos)
             Call LoadCombo(cboTipoFiltro, "sp_select_combo_administracao_evento_tipo")
+            Call LoadCombo(cboTimeFiltro, "sp_select_combo_tipo_time_empresa")
             Call LoadCombo(cboParticipanteFiltro, "sp_select_combo_administracao_chamado_usuario")
-            Call LoadCombo(cboEmpresaFiltro, "sp_select_combo_administracao_chamado_empresa")
-            Call LoadComboLista(cboVisao, gcVisaoMes & "=Mês;" & gcVisaoSemana & "=Semana;" & gcVisaoDia & "=Dia")
+            Call CarregarComboEmpresas(cboEmpresaFiltro, "", "")
 
             'Combos - Dados
             Call LoadCombo(cboTipo, "sp_select_combo_administracao_evento_tipo")
+            Call LoadCombo(cboTimes, "sp_select_combo_tipo_time_empresa")
             Call LoadCombo(cboParticipantes, "sp_select_combo_administracao_chamado_usuario")
-            Call LoadCombo(cboEmpresa, "sp_select_combo_administracao_chamado_empresa")
+            Call CarregarComboEmpresas(cboEmpresas, "", "")
 
-            'Calendário: domingo a sábado, arrastar para mudar a data; editar/incluir pelo cadastro
+            'Calendário somente em visão de mês, domingo a sábado; arrastar muda o dia; editar/incluir pelo cadastro
+            schMain.View = ScheduleView.MonthView
             schMain.FirstDayOfWeek = ScheduleDayOfWeek.Sunday
+            schMain.ViewNavigationMode = Janus.Windows.Schedule.TriState.False
+            schMain.HiddenAppointmentMode = HiddenAppointmentMode.Manual
+            schMain.Font = New Font("Arial", 7.5!)
             schMain.AllowAppointmentDrag = AllowAppointmentDrag.Move
             schMain.AllowEdit = False
             schMain.AllowDelete = False
             schMain.AddNewMode = AddNewMode.Manual
             schMain.MultiSelect = False
             schMain.ShowToolTips = True
-            schMain.WorkStartTime = New TimeSpan(8, 0, 0)
-            schMain.WorkEndTime = New TimeSpan(18, 0, 0)
-            schMain.FirstVisibleTime = New TimeSpan(7, 0, 0)
+            'Sem rolagem própria: o mês inteiro fica no calendário e quem rola é o painel em volta
+            schMain.VerticalScrollBar = VerticalScrollBar.Never
 
             Call ConfiguraGrid(grdListagem)
 
@@ -446,14 +515,31 @@ Public Class usrAdmEvento
 
     End Sub
 
-    Private Function ValorCombo(ByVal oCombo As UIComboBox) As Object
+    Private Sub CarregarComboEmpresas(ByVal oCombo As Janus.Windows.GridEX.EditControls.CheckedComboBox, ByVal sTimes As String, ByVal sMarcadas As String)
 
-        'Combo sem seleção: nulo (gravação) / -1 (filtro) conforme o chamador
-        If oCombo.SelectedIndex = -1 OrElse IsNothing(oCombo.SelectedValue) OrElse IsDBNull(oCombo.SelectedValue) Then Return DBNull.Value
+        'Empresas dos times informados (vazio = todas), mantendo as marcadas que continuam na lista.
+        'Evento já gravado com empresa de outro time: carrega todas para não perder a empresa ao salvar.
+        Try
 
-        Return oCombo.SelectedValue
+            Dim oTabela As DataTable = oClsUsrAdmEvento.LoadComboEmpresa(sTimes)
 
-    End Function
+            If sTimes <> "" AndAlso sMarcadas <> "" Then
+                For Each sCodigo As String In sMarcadas.Split(","c)
+                    If sCodigo.Trim <> "" AndAlso oTabela.Select("codigo = " & CLng(sCodigo)).Length = 0 AndAlso oCombo Is cboEmpresas Then
+                        oTabela = oClsUsrAdmEvento.LoadComboEmpresa("")
+                        Exit For
+                    End If
+                Next
+            End If
+
+            Call LoadCombo(oCombo, oTabela)
+            Call SetCheckedValues(oCombo, sMarcadas)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
 
     Private Function LinhaEvento(ByVal lCodigo As Long) As DataRow
 
@@ -467,9 +553,9 @@ Public Class usrAdmEvento
 
     End Function
 
-    Public Sub AbrirEvento(ByVal lCodigo As Long, ByVal dData As Date)
+    Public Sub AbrirEvento(ByVal lCodigo As Long, ByVal dData As Date, ByVal bAbrirCadastro As Boolean)
 
-        'Clique na notificação: vai para o período do evento e abre o cadastro
+        'Clique na notificação: vai para o mês do evento e abre o cadastro (evento excluído: só o mês)
         Try
 
             Call MostrarLista()
@@ -477,7 +563,7 @@ Public Class usrAdmEvento
             dReferencia = dData.Date
             Call ExibirPeriodo()
 
-            Call Editar(lCodigo)
+            If bAbrirCadastro = True Then Call Editar(lCodigo)
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -489,61 +575,38 @@ Public Class usrAdmEvento
 
 #Region "::: CALENDÁRIO :::"
 
-    Private Function VisaoAtual() As String
+    Private Function PrimeiroDiaMes() As Date
 
-        If cboVisao.SelectedIndex = -1 Then Return gcVisaoMes
-
-        Return cboVisao.SelectedValue.ToString
+        Return New Date(dReferencia.Year, dReferencia.Month, 1)
 
     End Function
 
-    Private Sub Navegar(ByVal iSentido As Integer)
+    Private Function SemanasMes() As Integer
 
-        Try
+        'Semanas (domingo a sábado) que o mês ocupa: 4 a 6
+        Dim dPrimeiro As Date = PrimeiroDiaMes()
 
-            Select Case VisaoAtual()
-                Case gcVisaoDia : dReferencia = dReferencia.AddDays(iSentido)
-                Case gcVisaoSemana : dReferencia = dReferencia.AddDays(7 * iSentido)
-                Case Else : dReferencia = New Date(dReferencia.Year, dReferencia.Month, 1).AddMonths(iSentido)
-            End Select
+        Return CInt(Math.Ceiling((CInt(dPrimeiro.DayOfWeek) + Date.DaysInMonth(dPrimeiro.Year, dPrimeiro.Month)) / 7))
 
-            Call ExibirPeriodo()
+    End Function
 
-        Catch ex As Exception
-            Throw ex
-        End Try
+    Private Function InicioCalendario() As Date
 
-    End Sub
+        'Domingo da semana do dia 1
+        Dim dPrimeiro As Date = PrimeiroDiaMes()
+
+        Return dPrimeiro.AddDays(-CInt(dPrimeiro.DayOfWeek))
+
+    End Function
 
     Private Sub ExibirPeriodo()
 
-        'Calendário na data de referência e filtro de período igual ao que está visível
+        'Calendário no mês de referência e filtro de período igual ao mês exibido (semanas completas)
         Try
 
-            Dim dInicio As Date
-            Dim dTermino As Date
-
-            Select Case VisaoAtual()
-
-                Case gcVisaoDia
-                    dInicio = dReferencia.Date
-                    dTermino = dInicio
-
-                Case gcVisaoSemana
-                    dInicio = dReferencia.Date.AddDays(-CInt(dReferencia.DayOfWeek))
-                    dTermino = dInicio.AddDays(6)
-
-                Case Else
-                    'Mês: 6 semanas a partir do domingo da semana do dia 1 (dias do mês anterior/seguinte também aparecem)
-                    Dim dPrimeiro As New Date(dReferencia.Year, dReferencia.Month, 1)
-                    dInicio = dPrimeiro.AddDays(-CInt(dPrimeiro.DayOfWeek))
-                    dTermino = dInicio.AddDays(41)
-
-            End Select
-
             bCarregando = True
-            dtpInicioFiltro.Value = dInicio
-            dtpTerminoFiltro.Value = dTermino
+            dtpInicioFiltro.Value = InicioCalendario()
+            dtpTerminoFiltro.Value = InicioCalendario().AddDays(7 * SemanasMes() - 1)
             bCarregando = False
 
             Call PosicionarCalendario()
@@ -558,32 +621,47 @@ Public Class usrAdmEvento
 
     Private Sub PosicionarCalendario()
 
+        Dim bCarregandoAnterior As Boolean = bCarregando
+
         Try
 
-            Select Case VisaoAtual()
+            bCarregando = True
 
-                Case gcVisaoDia
-                    schMain.View = ScheduleView.DayView
-                    schMain.Date = dReferencia.Date
-                    lblPeriodo.Text = StrConv(Format(dReferencia, "dddd, dd/MM/yyyy"), VbStrConv.ProperCase)
+            schMain.View = ScheduleView.MonthView
 
-                Case gcVisaoSemana
-                    Dim dDomingo As Date = dReferencia.Date.AddDays(-CInt(dReferencia.DayOfWeek))
-                    schMain.View = ScheduleView.WeekView
-                    schMain.Date = dDomingo
-                    lblPeriodo.Text = Format(dDomingo, "dd/MM") & " a " & Format(dDomingo.AddDays(6), "dd/MM/yyyy")
+            'Mês inteiro sempre visível; cada semana alta o suficiente para o dia com mais eventos.
+            'Sem eventos demais, as semanas dividem a altura da tela; com muitos, o painel ganha rolagem.
+            Dim iSemanas As Integer = SemanasMes()
+            Dim iAlturaNecessaria As Integer = gcAlturaCabecalhoDia + Math.Max(iMaximoEventosDia, 1) * gcAlturaEvento + gcAlturaSobraDia
+            Dim iAlturaMinima As Integer = (pnlCalendario.Height - gcAlturaCabecalhoSemana) \ iSemanas
+            Dim iAlturaSemana As Integer = Math.Max(iAlturaNecessaria, iAlturaMinima)
+            Dim iAltura As Integer = gcAlturaCabecalhoSemana + iSemanas * iAlturaSemana
+            Dim bRolagem As Boolean = (iAltura > pnlCalendario.Height)
 
-                Case Else
-                    Dim dPrimeiro As New Date(dReferencia.Year, dReferencia.Month, 1)
-                    schMain.View = ScheduleView.MonthView
-                    schMain.Weeks = 6
-                    schMain.Date = dPrimeiro.AddDays(-CInt(dPrimeiro.DayOfWeek))
-                    lblPeriodo.Text = StrConv(Format(dPrimeiro, "MMMM/yyyy"), VbStrConv.ProperCase)
+            pnlCalendario.AutoScrollPosition = New Point(0, 0)
+            schMain.Location = New Point(0, 0)
+            schMain.Size = New Size(pnlCalendario.Width - IIf(bRolagem, SystemInformation.VerticalScrollBarWidth, 0), _
+                                    IIf(bRolagem, iAltura, pnlCalendario.Height))
 
-            End Select
+            'Período fixo no mês: o calendário não sai das semanas carregadas
+            schMain.ResetMinDate()
+            schMain.ResetMaxDate()
+            schMain.Weeks = iSemanas
+            schMain.Date = InicioCalendario()
+            Try
+                schMain.MinDate = InicioCalendario()
+                schMain.MaxDate = InicioCalendario().AddDays(7 * iSemanas - 1)
+            Catch
+                'Limite é só proteção contra a rolagem interna: sem ele o calendário continua funcionando
+            End Try
+
+            lblPeriodo.Text = StrConv(Format(PrimeiroDiaMes(), "MMMM/yyyy"), VbStrConv.ProperCase) & _
+                              IIf(bRolagem, "   (role a tela para ver todas as semanas)", "")
 
         Catch ex As Exception
             Throw ex
+        Finally
+            bCarregando = bCarregandoAnterior
         End Try
 
     End Sub
@@ -594,14 +672,15 @@ Public Class usrAdmEvento
 
             schMain.Appointments.Clear()
 
+            Dim oEventosDia As New Dictionary(Of Date, Integer)
+
             For Each oRow As DataRow In oTabela.Rows
 
                 Dim dInicio As Date = CDate(oRow.Item("data_inicio"))
                 Dim dFim As Date = CDate(oRow.Item("data_fim"))
-                Dim bDiaInteiro As Boolean = (CInt(oRow.Item("dia_inteiro")) = 1)
                 Dim oAppointment As ScheduleAppointment
 
-                If bDiaInteiro Then
+                If CInt(oRow.Item("dia_inteiro")) = 1 Then
                     oAppointment = New ScheduleAppointment(dInicio.Date, dFim.Date, oRow.Item("titulo").ToString)
                     oAppointment.AllDayEvent = True
                 Else
@@ -610,10 +689,11 @@ Public Class usrAdmEvento
 
                 oAppointment.Tag = oRow.Item("codigo")
 
-                'Dica do evento: tipo, horário, participantes, local e chamado
+                'Dica do evento: tipo, horário, times, participantes, empresa, local e chamado
                 oAppointment.Description = oRow.Item("tipo_evento").ToString & " - " & oRow.Item("horario").ToString & _
+                                           IIf(oRow.Item("times").ToString = "", "", vbCrLf & "Times: " & oRow.Item("times").ToString) & _
                                            IIf(oRow.Item("participantes").ToString = "", "", vbCrLf & "Participantes: " & oRow.Item("participantes").ToString) & _
-                                           IIf(oRow.Item("empresa").ToString = "", "", vbCrLf & "Empresa: " & oRow.Item("empresa").ToString) & _
+                                           IIf(oRow.Item("empresas").ToString = "", "", vbCrLf & "Empresas: " & oRow.Item("empresas").ToString) & _
                                            IIf(oRow.Item("local").ToString = "", "", vbCrLf & "Local: " & oRow.Item("local").ToString) & _
                                            IIf(IsDBNull(oRow.Item("codigo_atividade")), "", vbCrLf & "Chamado: " & oRow.Item("codigo_atividade").ToString)
 
@@ -623,10 +703,45 @@ Public Class usrAdmEvento
 
                 schMain.Appointments.Add(oAppointment)
 
+                'Conta o evento em cada dia que ele ocupa
+                Dim dDia As Date = dInicio.Date
+                Do While dDia <= dFim.Date
+                    If oEventosDia.ContainsKey(dDia) Then oEventosDia(dDia) += 1 Else oEventosDia(dDia) = 1
+                    dDia = dDia.AddDays(1)
+                Loop
+
             Next
+
+            iMaximoEventosDia = 0
+            For Each iQuantidade As Integer In oEventosDia.Values
+                iMaximoEventosDia = Math.Max(iMaximoEventosDia, iQuantidade)
+            Next
+
+            'Ajusta a altura da linha do dia à nova quantidade de eventos
+            Call PosicionarCalendario()
 
         Catch ex As Exception
             Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub MostrarDiaNaLista(ByVal dData As Date)
+
+        'Dia com mais eventos do que cabem: vai para a Lista por Data no grupo daquele dia
+        Try
+
+            tabVisao.SelectedTab = pagGrid
+
+            For Each oRow As GridEXRow In grdListagem.GetRows
+                If oRow.RowType = RowType.GroupHeader AndAlso IsDate(oRow.GroupValue) AndAlso CDate(oRow.GroupValue).Date = dData Then
+                    grdListagem.MoveTo(oRow)
+                    Exit For
+                End If
+            Next
+
+        Catch ex As Exception
+            Call TratarErro(ex)
         End Try
 
     End Sub
@@ -647,7 +762,8 @@ Public Class usrAdmEvento
                                                 dtpTerminoFiltro.Value.Date, _
                                                 IIf(cboTipoFiltro.SelectedIndex = -1, -1, cboTipoFiltro.SelectedValue), _
                                                 GetCheckedValues(cboParticipanteFiltro), _
-                                                IIf(cboEmpresaFiltro.SelectedIndex = -1, -1, cboEmpresaFiltro.SelectedValue), _
+                                                GetCheckedValues(cboTimeFiltro), _
+                                                GetCheckedValues(cboEmpresaFiltro), _
                                                 txtTituloFiltro.Text.Trim)
 
             'Lista por data
@@ -709,12 +825,13 @@ Public Class usrAdmEvento
             dtpInicio.Value = dInicio
             dtpFim.Value = dFim
             txtLocal.Text = ""
-            cboEmpresa.SelectedIndex = -1
             txtChamado.Text = ""
             txtDescricao.Text = ""
 
-            'Sugere o usuário autenticado como participante
+            'Sugere o usuário autenticado como participante e o time dele
             Call SetCheckedValues(cboParticipantes, goUsuario.lUsuario.ToString)
+            Call SetCheckedValues(cboTimes, IIf(goUsuario.iTime > 0, goUsuario.iTime.ToString, ""))
+            Call CarregarComboEmpresas(cboEmpresas, GetCheckedValues(cboTimes), "")
 
             btnExcluir.Enabled = False
 
@@ -747,10 +864,11 @@ Public Class usrAdmEvento
             txtTitulo.Text = oRow.Item("titulo").ToString
             chkDiaInteiro.Checked = (CInt(oRow.Item("dia_inteiro")) = 1)
             txtLocal.Text = oRow.Item("local").ToString
-            If IsDBNull(oRow.Item("codigo_empresa_cliente")) = False Then cboEmpresa.SelectedValue = oRow.Item("codigo_empresa_cliente")
             txtChamado.Text = oRow.Item("codigo_atividade").ToString
             txtDescricao.Text = oRow.Item("descricao").ToString
             Call SetCheckedValues(cboParticipantes, oRow.Item("codigos_participante").ToString)
+            Call SetCheckedValues(cboTimes, oRow.Item("codigos_time").ToString)
+            Call CarregarComboEmpresas(cboEmpresas, GetCheckedValues(cboTimes), oRow.Item("codigos_empresa").ToString)
 
             btnExcluir.Enabled = True
 
@@ -824,10 +942,11 @@ Public Class usrAdmEvento
                                         DataFim(), _
                                         chkDiaInteiro.Checked, _
                                         txtLocal.Text.Trim, _
-                                        ValorCombo(cboEmpresa), _
+                                        GetCheckedValues(cboEmpresas), _
                                         oChamado, _
                                         txtDescricao.Text.Trim, _
-                                        GetCheckedValues(cboParticipantes))
+                                        GetCheckedValues(cboParticipantes), _
+                                        GetCheckedValues(cboTimes))
 
                 frmMain.Informacao("Evento alterado com sucesso!", Color.Blue)
 
@@ -839,10 +958,11 @@ Public Class usrAdmEvento
                                                          DataFim(), _
                                                          chkDiaInteiro.Checked, _
                                                          txtLocal.Text.Trim, _
-                                                         ValorCombo(cboEmpresa), _
+                                                         GetCheckedValues(cboEmpresas), _
                                                          oChamado, _
                                                          txtDescricao.Text.Trim, _
-                                                         GetCheckedValues(cboParticipantes))
+                                                         GetCheckedValues(cboParticipantes), _
+                                                         GetCheckedValues(cboTimes))
 
                 btnExcluir.Enabled = True
 

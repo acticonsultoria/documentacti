@@ -31,7 +31,8 @@ Public Class clsUsrAdmEvento
                              ByVal oDataTermino As Object, _
                              ByVal iTipoEvento As Integer, _
                              ByVal sParticipantes As String, _
-                             ByVal iEmpresaCliente As Integer, _
+                             ByVal sTimes As String, _
+                             ByVal sEmpresas As String, _
                              ByVal sTitulo As String) As DataTable
 
         'Variaveis Locais
@@ -45,7 +46,8 @@ Public Class clsUsrAdmEvento
             oMySqlParameter(i) = Parametro("@p_data_termino", MySqlDbType.Date, oDataTermino) : i += 1 : ReDim Preserve oMySqlParameter(i)
             oMySqlParameter(i) = Parametro("@p_codigo_tipo_evento", MySqlDbType.Int32, iTipoEvento) : i += 1 : ReDim Preserve oMySqlParameter(i)
             oMySqlParameter(i) = Parametro("@p_participantes", MySqlDbType.VarChar, sParticipantes) : i += 1 : ReDim Preserve oMySqlParameter(i)
-            oMySqlParameter(i) = Parametro("@p_empresa", MySqlDbType.Int32, iEmpresaCliente) : i += 1 : ReDim Preserve oMySqlParameter(i)
+            oMySqlParameter(i) = Parametro("@p_times", MySqlDbType.VarChar, sTimes) : i += 1 : ReDim Preserve oMySqlParameter(i)
+            oMySqlParameter(i) = Parametro("@p_empresas", MySqlDbType.VarChar, sEmpresas) : i += 1 : ReDim Preserve oMySqlParameter(i)
             oMySqlParameter(i) = Parametro("@p_titulo", MySqlDbType.VarChar, sTitulo)
 
             'Executa Query
@@ -65,10 +67,11 @@ Public Class clsUsrAdmEvento
                                       ByVal dFim As Date, _
                                       ByVal bDiaInteiro As Boolean, _
                                       ByVal sLocal As String, _
-                                      ByVal oEmpresaCliente As Object, _
+                                      ByVal sEmpresas As String, _
                                       ByVal oCodigoAtividade As Object, _
                                       ByVal sDescricao As String, _
-                                      ByVal sParticipantes As String) As List(Of MySqlParameter)
+                                      ByVal sParticipantes As String, _
+                                      ByVal sTimes As String) As List(Of MySqlParameter)
 
         'Campos comuns ao Insert e ao Update (na ordem da proc, depois do código)
         Dim oLista As New List(Of MySqlParameter)
@@ -79,10 +82,11 @@ Public Class clsUsrAdmEvento
         oLista.Add(Parametro("@p_data_fim", MySqlDbType.DateTime, dFim))
         oLista.Add(Parametro("@p_dia_inteiro", MySqlDbType.Int16, IIf(bDiaInteiro, 1, 0)))
         oLista.Add(Parametro("@p_local", MySqlDbType.VarChar, sLocal))
-        oLista.Add(Parametro("@p_empresa", MySqlDbType.Int32, oEmpresaCliente))
+        oLista.Add(Parametro("@p_empresas", MySqlDbType.VarChar, sEmpresas))
         oLista.Add(Parametro("@p_codigo_atividade", MySqlDbType.Int32, oCodigoAtividade))
         oLista.Add(Parametro("@p_descricao", MySqlDbType.VarChar, sDescricao))
         oLista.Add(Parametro("@p_participantes", MySqlDbType.VarChar, sParticipantes))
+        oLista.Add(Parametro("@p_times", MySqlDbType.VarChar, sTimes))
 
         Return oLista
 
@@ -94,10 +98,11 @@ Public Class clsUsrAdmEvento
                            ByVal dFim As Date, _
                            ByVal bDiaInteiro As Boolean, _
                            ByVal sLocal As String, _
-                           ByVal oEmpresaCliente As Object, _
+                           ByVal sEmpresas As String, _
                            ByVal oCodigoAtividade As Object, _
                            ByVal sDescricao As String, _
-                           ByVal sParticipantes As String) As Long
+                           ByVal sParticipantes As String, _
+                           ByVal sTimes As String) As Long
 
         'Variaveis Locais
         Dim oLista As New List(Of MySqlParameter)
@@ -106,7 +111,7 @@ Public Class clsUsrAdmEvento
         Try
 
             oLista.Add(Parametro("@p_codigo_empresa", MySqlDbType.Int32, goUsuario.iEmpresa))
-            oLista.AddRange(ParametrosEvento(sTitulo, iTipoEvento, dInicio, dFim, bDiaInteiro, sLocal, oEmpresaCliente, oCodigoAtividade, sDescricao, sParticipantes))
+            oLista.AddRange(ParametrosEvento(sTitulo, iTipoEvento, dInicio, dFim, bDiaInteiro, sLocal, sEmpresas, oCodigoAtividade, sDescricao, sParticipantes, sTimes))
             oLista.Add(Parametro("@p_codigo_usuario", MySqlDbType.Int64, goUsuario.lUsuario))
             oCodigo = Parametro("@p_codigo", MySqlDbType.Int32, Nothing, ParameterDirection.Output)
             oLista.Add(oCodigo)
@@ -131,10 +136,11 @@ Public Class clsUsrAdmEvento
                       ByVal dFim As Date, _
                       ByVal bDiaInteiro As Boolean, _
                       ByVal sLocal As String, _
-                      ByVal oEmpresaCliente As Object, _
+                      ByVal sEmpresas As String, _
                       ByVal oCodigoAtividade As Object, _
                       ByVal sDescricao As String, _
-                      ByVal sParticipantes As String)
+                      ByVal sParticipantes As String, _
+                      ByVal sTimes As String)
 
         'Variaveis Locais
         Dim oLista As New List(Of MySqlParameter)
@@ -143,7 +149,7 @@ Public Class clsUsrAdmEvento
 
             oLista.Add(Parametro("@p_codigo_empresa", MySqlDbType.Int32, goUsuario.iEmpresa))
             oLista.Add(Parametro("@p_codigo", MySqlDbType.Int32, lCodigo))
-            oLista.AddRange(ParametrosEvento(sTitulo, iTipoEvento, dInicio, dFim, bDiaInteiro, sLocal, oEmpresaCliente, oCodigoAtividade, sDescricao, sParticipantes))
+            oLista.AddRange(ParametrosEvento(sTitulo, iTipoEvento, dInicio, dFim, bDiaInteiro, sLocal, sEmpresas, oCodigoAtividade, sDescricao, sParticipantes, sTimes))
             oLista.Add(Parametro("@p_codigo_usuario", MySqlDbType.Int64, goUsuario.lUsuario))
 
             'Executa Query
@@ -206,6 +212,28 @@ Public Class clsUsrAdmEvento
         End Try
 
     End Sub
+
+    Public Function LoadComboEmpresa(ByVal sTimes As String) As DataTable
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            oMySqlParameter(i) = Parametro("@p_codigo_empresa", MySqlDbType.Int32, goUsuario.iEmpresa) : i += 1 : ReDim Preserve oMySqlParameter(i)
+            oMySqlParameter(i) = Parametro("@p_times", MySqlDbType.VarChar, sTimes)
+
+            'Executa Query (times vazio = todas as empresas ativas)
+            Return ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_combo_administracao_evento_empresa", oMySqlParameter).Tables(0)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
 
     Public Function LoadNotificacao() As DataTable
 

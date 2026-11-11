@@ -25,11 +25,15 @@ Partial Class usrAdmEvento
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(usrAdmEvento))
         Dim JanusColorScheme1 As Janus.Windows.Common.JanusColorScheme = New Janus.Windows.Common.JanusColorScheme()
+        Dim cboTimeFiltro_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim cboParticipanteFiltro_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim cboEmpresaFiltro_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdListagem_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdListagem_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdListagem_DesignTimeLayout_Reference_1 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column1.Image")
         Dim cboParticipantes_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim cboTimes_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim cboEmpresas_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Me.vsmMain = New Janus.Windows.Common.VisualStyleManager(Me.components)
         Me.tabMain = New Janus.Windows.UI.Tab.UITab()
         Me.pagLista = New Janus.Windows.UI.Tab.UITabPage()
@@ -39,10 +43,12 @@ Partial Class usrAdmEvento
         Me.dtpTerminoFiltro = New Janus.Windows.CalendarCombo.CalendarCombo()
         Me.lblTipoFiltro = New System.Windows.Forms.Label()
         Me.cboTipoFiltro = New Janus.Windows.EditControls.UIComboBox()
+        Me.lblTimeFiltro = New System.Windows.Forms.Label()
+        Me.cboTimeFiltro = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblParticipanteFiltro = New System.Windows.Forms.Label()
         Me.cboParticipanteFiltro = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblEmpresaFiltro = New System.Windows.Forms.Label()
-        Me.cboEmpresaFiltro = New Janus.Windows.EditControls.UIComboBox()
+        Me.cboEmpresaFiltro = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblTituloFiltro = New System.Windows.Forms.Label()
         Me.txtTituloFiltro = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.btnFiltrar = New Janus.Windows.EditControls.UIButton()
@@ -51,9 +57,8 @@ Partial Class usrAdmEvento
         Me.btnAnterior = New Janus.Windows.EditControls.UIButton()
         Me.btnHoje = New Janus.Windows.EditControls.UIButton()
         Me.btnProximo = New Janus.Windows.EditControls.UIButton()
-        Me.lblVisao = New System.Windows.Forms.Label()
-        Me.cboVisao = New Janus.Windows.EditControls.UIComboBox()
         Me.lblPeriodo = New System.Windows.Forms.Label()
+        Me.pnlCalendario = New System.Windows.Forms.Panel()
         Me.schMain = New Janus.Windows.Schedule.Schedule()
         Me.pagGrid = New Janus.Windows.UI.Tab.UITabPage()
         Me.grdListagem = New Janus.Windows.GridEX.GridEX()
@@ -77,8 +82,10 @@ Partial Class usrAdmEvento
         Me.txtLocal = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.lblParticipantes = New System.Windows.Forms.Label()
         Me.cboParticipantes = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
-        Me.lblEmpresa = New System.Windows.Forms.Label()
-        Me.cboEmpresa = New Janus.Windows.EditControls.UIComboBox()
+        Me.lblTimes = New System.Windows.Forms.Label()
+        Me.cboTimes = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
+        Me.lblEmpresas = New System.Windows.Forms.Label()
+        Me.cboEmpresas = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblChamado = New System.Windows.Forms.Label()
         Me.txtChamado = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.lblDescricao = New System.Windows.Forms.Label()
@@ -96,6 +103,7 @@ Partial Class usrAdmEvento
         CType(Me.tabVisao, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.tabVisao.SuspendLayout()
         Me.pagCalendario.SuspendLayout()
+        Me.pnlCalendario.SuspendLayout()
         CType(Me.schMain, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.pagGrid.SuspendLayout()
         CType(Me.grdListagem, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -157,6 +165,8 @@ Partial Class usrAdmEvento
         Me.grpFiltro.Controls.Add(Me.lblEmpresaFiltro)
         Me.grpFiltro.Controls.Add(Me.cboParticipanteFiltro)
         Me.grpFiltro.Controls.Add(Me.lblParticipanteFiltro)
+        Me.grpFiltro.Controls.Add(Me.cboTimeFiltro)
+        Me.grpFiltro.Controls.Add(Me.lblTimeFiltro)
         Me.grpFiltro.Controls.Add(Me.cboTipoFiltro)
         Me.grpFiltro.Controls.Add(Me.lblTipoFiltro)
         Me.grpFiltro.Controls.Add(Me.dtpTerminoFiltro)
@@ -222,17 +232,39 @@ Partial Class usrAdmEvento
         Me.cboTipoFiltro.Location = New System.Drawing.Point(237, 29)
         Me.cboTipoFiltro.Name = "cboTipoFiltro"
         Me.cboTipoFiltro.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.cboTipoFiltro.Size = New System.Drawing.Size(180, 20)
+        Me.cboTipoFiltro.Size = New System.Drawing.Size(150, 20)
         Me.cboTipoFiltro.TabIndex = 4
+        '
+        'lblTimeFiltro
+        '
+        Me.lblTimeFiltro.AutoSize = True
+        Me.lblTimeFiltro.BackColor = System.Drawing.Color.Transparent
+        Me.lblTimeFiltro.Location = New System.Drawing.Point(390, 13)
+        Me.lblTimeFiltro.Name = "lblTimeFiltro"
+        Me.lblTimeFiltro.Size = New System.Drawing.Size(45, 16)
+        Me.lblTimeFiltro.TabIndex = 5
+        Me.lblTimeFiltro.Text = "Times:"
+        '
+        'cboTimeFiltro
+        '
+        Me.cboTimeFiltro.ButtonCancelText = "Cancelar"
+        cboTimeFiltro_DesignTimeLayout.LayoutString = resources.GetString("cboTimeFiltro_DesignTimeLayout.LayoutString")
+        Me.cboTimeFiltro.DesignTimeLayout = cboTimeFiltro_DesignTimeLayout
+        Me.cboTimeFiltro.Location = New System.Drawing.Point(393, 28)
+        Me.cboTimeFiltro.Name = "cboTimeFiltro"
+        Me.cboTimeFiltro.SaveSettings = False
+        Me.cboTimeFiltro.Size = New System.Drawing.Size(150, 23)
+        Me.cboTimeFiltro.TabIndex = 6
+        Me.cboTimeFiltro.ValuesDataMember = Nothing
         '
         'lblParticipanteFiltro
         '
         Me.lblParticipanteFiltro.AutoSize = True
         Me.lblParticipanteFiltro.BackColor = System.Drawing.Color.Transparent
-        Me.lblParticipanteFiltro.Location = New System.Drawing.Point(420, 13)
+        Me.lblParticipanteFiltro.Location = New System.Drawing.Point(546, 13)
         Me.lblParticipanteFiltro.Name = "lblParticipanteFiltro"
         Me.lblParticipanteFiltro.Size = New System.Drawing.Size(95, 16)
-        Me.lblParticipanteFiltro.TabIndex = 5
+        Me.lblParticipanteFiltro.TabIndex = 7
         Me.lblParticipanteFiltro.Text = "Participantes:"
         '
         'cboParticipanteFiltro
@@ -240,51 +272,53 @@ Partial Class usrAdmEvento
         Me.cboParticipanteFiltro.ButtonCancelText = "Cancelar"
         cboParticipanteFiltro_DesignTimeLayout.LayoutString = resources.GetString("cboParticipanteFiltro_DesignTimeLayout.LayoutString")
         Me.cboParticipanteFiltro.DesignTimeLayout = cboParticipanteFiltro_DesignTimeLayout
-        Me.cboParticipanteFiltro.Location = New System.Drawing.Point(423, 28)
+        Me.cboParticipanteFiltro.Location = New System.Drawing.Point(549, 28)
         Me.cboParticipanteFiltro.Name = "cboParticipanteFiltro"
         Me.cboParticipanteFiltro.SaveSettings = False
-        Me.cboParticipanteFiltro.Size = New System.Drawing.Size(220, 23)
-        Me.cboParticipanteFiltro.TabIndex = 6
+        Me.cboParticipanteFiltro.Size = New System.Drawing.Size(200, 23)
+        Me.cboParticipanteFiltro.TabIndex = 8
         Me.cboParticipanteFiltro.ValuesDataMember = Nothing
         '
         'lblEmpresaFiltro
         '
         Me.lblEmpresaFiltro.AutoSize = True
         Me.lblEmpresaFiltro.BackColor = System.Drawing.Color.Transparent
-        Me.lblEmpresaFiltro.Location = New System.Drawing.Point(646, 13)
+        Me.lblEmpresaFiltro.Location = New System.Drawing.Point(752, 13)
         Me.lblEmpresaFiltro.Name = "lblEmpresaFiltro"
-        Me.lblEmpresaFiltro.Size = New System.Drawing.Size(68, 16)
-        Me.lblEmpresaFiltro.TabIndex = 7
-        Me.lblEmpresaFiltro.Text = "Empresa:"
+        Me.lblEmpresaFiltro.Size = New System.Drawing.Size(75, 16)
+        Me.lblEmpresaFiltro.TabIndex = 9
+        Me.lblEmpresaFiltro.Text = "Empresas:"
         '
         'cboEmpresaFiltro
         '
-        Me.cboEmpresaFiltro.AutoSize = False
-        Me.cboEmpresaFiltro.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboEmpresaFiltro.Location = New System.Drawing.Point(649, 29)
+        Me.cboEmpresaFiltro.ButtonCancelText = "Cancelar"
+        cboEmpresaFiltro_DesignTimeLayout.LayoutString = resources.GetString("cboEmpresaFiltro_DesignTimeLayout.LayoutString")
+        Me.cboEmpresaFiltro.DesignTimeLayout = cboEmpresaFiltro_DesignTimeLayout
+        Me.cboEmpresaFiltro.Location = New System.Drawing.Point(755, 28)
         Me.cboEmpresaFiltro.Name = "cboEmpresaFiltro"
-        Me.cboEmpresaFiltro.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.cboEmpresaFiltro.Size = New System.Drawing.Size(200, 20)
-        Me.cboEmpresaFiltro.TabIndex = 8
+        Me.cboEmpresaFiltro.SaveSettings = False
+        Me.cboEmpresaFiltro.Size = New System.Drawing.Size(170, 23)
+        Me.cboEmpresaFiltro.TabIndex = 10
+        Me.cboEmpresaFiltro.ValuesDataMember = Nothing
         '
         'lblTituloFiltro
         '
         Me.lblTituloFiltro.AutoSize = True
         Me.lblTituloFiltro.BackColor = System.Drawing.Color.Transparent
-        Me.lblTituloFiltro.Location = New System.Drawing.Point(852, 13)
+        Me.lblTituloFiltro.Location = New System.Drawing.Point(928, 13)
         Me.lblTituloFiltro.Name = "lblTituloFiltro"
         Me.lblTituloFiltro.Size = New System.Drawing.Size(46, 16)
-        Me.lblTituloFiltro.TabIndex = 9
+        Me.lblTituloFiltro.TabIndex = 11
         Me.lblTituloFiltro.Text = "Título:"
         '
         'txtTituloFiltro
         '
         Me.txtTituloFiltro.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.txtTituloFiltro.Location = New System.Drawing.Point(855, 28)
+        Me.txtTituloFiltro.Location = New System.Drawing.Point(931, 28)
         Me.txtTituloFiltro.MaxLength = 150
         Me.txtTituloFiltro.Name = "txtTituloFiltro"
-        Me.txtTituloFiltro.Size = New System.Drawing.Size(220, 23)
-        Me.txtTituloFiltro.TabIndex = 10
+        Me.txtTituloFiltro.Size = New System.Drawing.Size(145, 23)
+        Me.txtTituloFiltro.TabIndex = 12
         '
         'btnFiltrar
         '
@@ -295,7 +329,7 @@ Partial Class usrAdmEvento
         Me.btnFiltrar.Name = "btnFiltrar"
         Me.btnFiltrar.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnFiltrar.Size = New System.Drawing.Size(91, 23)
-        Me.btnFiltrar.TabIndex = 11
+        Me.btnFiltrar.TabIndex = 13
         Me.btnFiltrar.Text = "Filtrar"
         Me.btnFiltrar.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
@@ -316,10 +350,8 @@ Partial Class usrAdmEvento
         '
         'pagCalendario
         '
-        Me.pagCalendario.Controls.Add(Me.schMain)
+        Me.pagCalendario.Controls.Add(Me.pnlCalendario)
         Me.pagCalendario.Controls.Add(Me.lblPeriodo)
-        Me.pagCalendario.Controls.Add(Me.cboVisao)
-        Me.pagCalendario.Controls.Add(Me.lblVisao)
         Me.pagCalendario.Controls.Add(Me.btnProximo)
         Me.pagCalendario.Controls.Add(Me.btnHoje)
         Me.pagCalendario.Controls.Add(Me.btnAnterior)
@@ -335,50 +367,30 @@ Partial Class usrAdmEvento
         Me.btnAnterior.Location = New System.Drawing.Point(6, 6)
         Me.btnAnterior.Name = "btnAnterior"
         Me.btnAnterior.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.btnAnterior.Size = New System.Drawing.Size(91, 23)
+        Me.btnAnterior.Size = New System.Drawing.Size(100, 23)
         Me.btnAnterior.TabIndex = 0
-        Me.btnAnterior.Text = "< Anterior"
+        Me.btnAnterior.Text = "< Mês anterior"
         Me.btnAnterior.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'btnHoje
         '
-        Me.btnHoje.Location = New System.Drawing.Point(103, 6)
+        Me.btnHoje.Location = New System.Drawing.Point(112, 6)
         Me.btnHoje.Name = "btnHoje"
         Me.btnHoje.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnHoje.Size = New System.Drawing.Size(91, 23)
         Me.btnHoje.TabIndex = 1
-        Me.btnHoje.Text = "Hoje"
+        Me.btnHoje.Text = "Mês atual"
         Me.btnHoje.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'btnProximo
         '
-        Me.btnProximo.Location = New System.Drawing.Point(200, 6)
+        Me.btnProximo.Location = New System.Drawing.Point(209, 6)
         Me.btnProximo.Name = "btnProximo"
         Me.btnProximo.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.btnProximo.Size = New System.Drawing.Size(91, 23)
+        Me.btnProximo.Size = New System.Drawing.Size(100, 23)
         Me.btnProximo.TabIndex = 2
-        Me.btnProximo.Text = "Próximo >"
+        Me.btnProximo.Text = "Próximo mês >"
         Me.btnProximo.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
-        '
-        'lblVisao
-        '
-        Me.lblVisao.AutoSize = True
-        Me.lblVisao.BackColor = System.Drawing.Color.Transparent
-        Me.lblVisao.Location = New System.Drawing.Point(305, 10)
-        Me.lblVisao.Name = "lblVisao"
-        Me.lblVisao.Size = New System.Drawing.Size(45, 16)
-        Me.lblVisao.TabIndex = 3
-        Me.lblVisao.Text = "Visão:"
-        '
-        'cboVisao
-        '
-        Me.cboVisao.AutoSize = False
-        Me.cboVisao.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboVisao.Location = New System.Drawing.Point(352, 7)
-        Me.cboVisao.Name = "cboVisao"
-        Me.cboVisao.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.cboVisao.Size = New System.Drawing.Size(120, 20)
-        Me.cboVisao.TabIndex = 4
         '
         'lblPeriodo
         '
@@ -386,20 +398,30 @@ Partial Class usrAdmEvento
         Me.lblPeriodo.BackColor = System.Drawing.Color.Transparent
         Me.lblPeriodo.Font = New System.Drawing.Font("Arial", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblPeriodo.ForeColor = System.Drawing.Color.SteelBlue
-        Me.lblPeriodo.Location = New System.Drawing.Point(490, 10)
+        Me.lblPeriodo.Location = New System.Drawing.Point(320, 10)
         Me.lblPeriodo.Name = "lblPeriodo"
         Me.lblPeriodo.Size = New System.Drawing.Size(0, 16)
-        Me.lblPeriodo.TabIndex = 5
+        Me.lblPeriodo.TabIndex = 3
+        '
+        'pnlCalendario
+        '
+        Me.pnlCalendario.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.pnlCalendario.AutoScroll = True
+        Me.pnlCalendario.BackColor = System.Drawing.Color.Transparent
+        Me.pnlCalendario.Controls.Add(Me.schMain)
+        Me.pnlCalendario.Location = New System.Drawing.Point(6, 35)
+        Me.pnlCalendario.Name = "pnlCalendario"
+        Me.pnlCalendario.Size = New System.Drawing.Size(1170, 348)
+        Me.pnlCalendario.TabIndex = 4
         '
         'schMain
         '
-        Me.schMain.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.schMain.Location = New System.Drawing.Point(6, 35)
+        Me.schMain.Location = New System.Drawing.Point(0, 0)
         Me.schMain.Name = "schMain"
         Me.schMain.Size = New System.Drawing.Size(1170, 348)
-        Me.schMain.TabIndex = 6
+        Me.schMain.TabIndex = 0
         Me.schMain.VisualStyleManager = Me.vsmMain
         '
         'pagGrid
@@ -503,8 +525,10 @@ Partial Class usrAdmEvento
         Me.grpDados.Controls.Add(Me.lblDescricao)
         Me.grpDados.Controls.Add(Me.txtChamado)
         Me.grpDados.Controls.Add(Me.lblChamado)
-        Me.grpDados.Controls.Add(Me.cboEmpresa)
-        Me.grpDados.Controls.Add(Me.lblEmpresa)
+        Me.grpDados.Controls.Add(Me.cboEmpresas)
+        Me.grpDados.Controls.Add(Me.lblEmpresas)
+        Me.grpDados.Controls.Add(Me.cboTimes)
+        Me.grpDados.Controls.Add(Me.lblTimes)
         Me.grpDados.Controls.Add(Me.cboParticipantes)
         Me.grpDados.Controls.Add(Me.lblParticipantes)
         Me.grpDados.Controls.Add(Me.txtLocal)
@@ -678,47 +702,71 @@ Partial Class usrAdmEvento
         Me.cboParticipantes.Location = New System.Drawing.Point(9, 109)
         Me.cboParticipantes.Name = "cboParticipantes"
         Me.cboParticipantes.SaveSettings = False
-        Me.cboParticipantes.Size = New System.Drawing.Size(500, 23)
+        Me.cboParticipantes.Size = New System.Drawing.Size(380, 23)
         Me.cboParticipantes.TabIndex = 14
         Me.cboParticipantes.ValuesDataMember = Nothing
         '
-        'lblEmpresa
+        'lblTimes
         '
-        Me.lblEmpresa.AutoSize = True
-        Me.lblEmpresa.BackColor = System.Drawing.Color.Transparent
-        Me.lblEmpresa.Location = New System.Drawing.Point(512, 93)
-        Me.lblEmpresa.Name = "lblEmpresa"
-        Me.lblEmpresa.Size = New System.Drawing.Size(68, 16)
-        Me.lblEmpresa.TabIndex = 15
-        Me.lblEmpresa.Text = "Empresa:"
+        Me.lblTimes.AutoSize = True
+        Me.lblTimes.BackColor = System.Drawing.Color.Transparent
+        Me.lblTimes.Location = New System.Drawing.Point(392, 93)
+        Me.lblTimes.Name = "lblTimes"
+        Me.lblTimes.Size = New System.Drawing.Size(45, 16)
+        Me.lblTimes.TabIndex = 15
+        Me.lblTimes.Text = "Times:"
         '
-        'cboEmpresa
+        'cboTimes
         '
-        Me.cboEmpresa.AutoSize = False
-        Me.cboEmpresa.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
-        Me.cboEmpresa.Location = New System.Drawing.Point(515, 110)
-        Me.cboEmpresa.Name = "cboEmpresa"
-        Me.cboEmpresa.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.cboEmpresa.Size = New System.Drawing.Size(250, 20)
-        Me.cboEmpresa.TabIndex = 16
+        Me.cboTimes.ButtonCancelText = "Cancelar"
+        cboTimes_DesignTimeLayout.LayoutString = resources.GetString("cboTimes_DesignTimeLayout.LayoutString")
+        Me.cboTimes.DesignTimeLayout = cboTimes_DesignTimeLayout
+        Me.cboTimes.Location = New System.Drawing.Point(395, 109)
+        Me.cboTimes.Name = "cboTimes"
+        Me.cboTimes.SaveSettings = False
+        Me.cboTimes.Size = New System.Drawing.Size(240, 23)
+        Me.cboTimes.TabIndex = 16
+        Me.cboTimes.ValuesDataMember = Nothing
+        '
+        'lblEmpresas
+        '
+        Me.lblEmpresas.AutoSize = True
+        Me.lblEmpresas.BackColor = System.Drawing.Color.Transparent
+        Me.lblEmpresas.Location = New System.Drawing.Point(638, 93)
+        Me.lblEmpresas.Name = "lblEmpresas"
+        Me.lblEmpresas.Size = New System.Drawing.Size(75, 16)
+        Me.lblEmpresas.TabIndex = 17
+        Me.lblEmpresas.Text = "Empresas:"
+        '
+        'cboEmpresas
+        '
+        Me.cboEmpresas.ButtonCancelText = "Cancelar"
+        cboEmpresas_DesignTimeLayout.LayoutString = resources.GetString("cboEmpresas_DesignTimeLayout.LayoutString")
+        Me.cboEmpresas.DesignTimeLayout = cboEmpresas_DesignTimeLayout
+        Me.cboEmpresas.Location = New System.Drawing.Point(641, 109)
+        Me.cboEmpresas.Name = "cboEmpresas"
+        Me.cboEmpresas.SaveSettings = False
+        Me.cboEmpresas.Size = New System.Drawing.Size(220, 23)
+        Me.cboEmpresas.TabIndex = 18
+        Me.cboEmpresas.ValuesDataMember = Nothing
         '
         'lblChamado
         '
         Me.lblChamado.AutoSize = True
         Me.lblChamado.BackColor = System.Drawing.Color.Transparent
-        Me.lblChamado.Location = New System.Drawing.Point(768, 93)
+        Me.lblChamado.Location = New System.Drawing.Point(864, 93)
         Me.lblChamado.Name = "lblChamado"
         Me.lblChamado.Size = New System.Drawing.Size(67, 16)
-        Me.lblChamado.TabIndex = 17
+        Me.lblChamado.TabIndex = 19
         Me.lblChamado.Text = "Chamado:"
         '
         'txtChamado
         '
-        Me.txtChamado.Location = New System.Drawing.Point(771, 109)
+        Me.txtChamado.Location = New System.Drawing.Point(867, 109)
         Me.txtChamado.MaxLength = 10
         Me.txtChamado.Name = "txtChamado"
         Me.txtChamado.Size = New System.Drawing.Size(90, 23)
-        Me.txtChamado.TabIndex = 18
+        Me.txtChamado.TabIndex = 20
         '
         'lblDescricao
         '
@@ -727,7 +775,7 @@ Partial Class usrAdmEvento
         Me.lblDescricao.Location = New System.Drawing.Point(6, 133)
         Me.lblDescricao.Name = "lblDescricao"
         Me.lblDescricao.Size = New System.Drawing.Size(75, 16)
-        Me.lblDescricao.TabIndex = 19
+        Me.lblDescricao.TabIndex = 21
         Me.lblDescricao.Text = "Descrição:"
         '
         'txtDescricao
@@ -743,7 +791,7 @@ Partial Class usrAdmEvento
         Me.txtDescricao.Name = "txtDescricao"
         Me.txtDescricao.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.txtDescricao.Size = New System.Drawing.Size(1164, 316)
-        Me.txtDescricao.TabIndex = 20
+        Me.txtDescricao.TabIndex = 22
         '
         'grpControl2
         '
@@ -837,6 +885,7 @@ Partial Class usrAdmEvento
         Me.pagGrid.ResumeLayout(False)
         Me.pagGrid.PerformLayout()
         CType(Me.schMain, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.pnlCalendario.ResumeLayout(False)
         Me.pagCalendario.ResumeLayout(False)
         Me.pagCalendario.PerformLayout()
         CType(Me.tabVisao, System.ComponentModel.ISupportInitialize).EndInit()
@@ -860,10 +909,12 @@ Partial Class usrAdmEvento
     Friend WithEvents dtpTerminoFiltro As Janus.Windows.CalendarCombo.CalendarCombo
     Friend WithEvents lblTipoFiltro As System.Windows.Forms.Label
     Friend WithEvents cboTipoFiltro As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents lblTimeFiltro As System.Windows.Forms.Label
+    Friend WithEvents cboTimeFiltro As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents lblParticipanteFiltro As System.Windows.Forms.Label
     Friend WithEvents cboParticipanteFiltro As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents lblEmpresaFiltro As System.Windows.Forms.Label
-    Friend WithEvents cboEmpresaFiltro As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents cboEmpresaFiltro As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents lblTituloFiltro As System.Windows.Forms.Label
     Friend WithEvents txtTituloFiltro As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents btnFiltrar As Janus.Windows.EditControls.UIButton
@@ -872,9 +923,8 @@ Partial Class usrAdmEvento
     Friend WithEvents btnAnterior As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnHoje As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnProximo As Janus.Windows.EditControls.UIButton
-    Friend WithEvents lblVisao As System.Windows.Forms.Label
-    Friend WithEvents cboVisao As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblPeriodo As System.Windows.Forms.Label
+    Friend WithEvents pnlCalendario As System.Windows.Forms.Panel
     Friend WithEvents schMain As Janus.Windows.Schedule.Schedule
     Friend WithEvents pagGrid As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents grdListagem As Janus.Windows.GridEX.GridEX
@@ -898,8 +948,10 @@ Partial Class usrAdmEvento
     Friend WithEvents txtLocal As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents lblParticipantes As System.Windows.Forms.Label
     Friend WithEvents cboParticipantes As Janus.Windows.GridEX.EditControls.CheckedComboBox
-    Friend WithEvents lblEmpresa As System.Windows.Forms.Label
-    Friend WithEvents cboEmpresa As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents lblTimes As System.Windows.Forms.Label
+    Friend WithEvents cboTimes As Janus.Windows.GridEX.EditControls.CheckedComboBox
+    Friend WithEvents lblEmpresas As System.Windows.Forms.Label
+    Friend WithEvents cboEmpresas As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents lblChamado As System.Windows.Forms.Label
     Friend WithEvents txtChamado As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents lblDescricao As System.Windows.Forms.Label
