@@ -51,6 +51,9 @@ ToastUI
 <member name="F:ToastUI.ToastCloseReason.Programmatic">
  <summary>Toast.Close() ou ToastManager.CloseAll() por código.</summary>
 </member>
+<member name="F:ToastUI.ToastCloseReason.OkButton">
+ <summary>Clique no botão OK (ShowOkButton).</summary>
+</member>
 <member name="P:ToastUI.ToastEventArgs.CloseToast">
  <summary>Fecha a notificação depois do clique (padrão = ToastManager.CloseOnClick).</summary>
 </member>
@@ -65,6 +68,9 @@ ToastUI
 </member>
 <member name="E:ToastUI.Toast.Closed">
  <summary>A notificação foi fechada (veja e.Reason).</summary>
+</member>
+<member name="E:ToastUI.Toast.OkClick">
+ <summary>Clique no botão OK (ShowOkButton). Depois do evento a notificação fecha com Reason = OkButton.</summary>
 </member>
 <member name="P:ToastUI.Toast.Message">
  <summary>Texto (quebra em até ToastTheme.MaxLines linhas, depois "...").</summary>
@@ -86,6 +92,12 @@ ToastUI
 </member>
 <member name="P:ToastUI.Toast.Timestamp">
  <summary>Hora exibida ao lado do Caption.</summary>
+</member>
+<member name="P:ToastUI.Toast.ShowOkButton">
+ <summary>Mostra o botão OK (com check) no canto inferior direito. Use para "marcar como lida".</summary>
+</member>
+<member name="P:ToastUI.Toast.OkText">
+ <summary>Texto do botão OK (padrão "OK").</summary>
 </member>
 <member name="P:ToastUI.Toast.Tag">
  <summary>Qualquer objeto seu (ex.: o registro que deve ser aberto ao clicar).</summary>
@@ -114,6 +126,9 @@ ToastUI
 </member>
 <member name="E:ToastUI.ToastManager.ToastClicked">
  <summary>Clique no corpo de qualquer notificação (dispara depois do Toast.Click).</summary>
+</member>
+<member name="E:ToastUI.ToastManager.ToastOkClicked">
+ <summary>Clique no botão OK de uma notificação (Toast.ShowOkButton).</summary>
 </member>
 <member name="E:ToastUI.ToastManager.ToastClosed">
  <summary>Uma notificação foi fechada (e.Reason diz como).</summary>
@@ -145,7 +160,7 @@ ToastUI
 <member name="T:ToastUI.ToastRenderer">
  <summary>Desenho das notificações com GDI+ (sem estado).</summary>
 </member>
-<member name="M:ToastUI.ToastRenderer.RenderStatic(ToastUI.Toast,ToastUI.ToastTheme,ToastUI.ToastLayout,System.Int32,System.Boolean,System.Boolean)">
+<member name="M:ToastUI.ToastRenderer.RenderStatic(ToastUI.Toast,ToastUI.ToastTheme,ToastUI.ToastLayout,System.Int32,System.Boolean,System.Boolean,System.Boolean)">
  <summary>Cartão (e sombra, se margin > 0) sem a barra de tempo. Bitmap ARGB do tamanho da janela.</summary>
 </member>
 <member name="M:ToastUI.ToastRenderer.DrawProgress(System.Drawing.Graphics,System.Drawing.Rectangle,System.Int32,System.Double,System.Drawing.Color,System.Single)">

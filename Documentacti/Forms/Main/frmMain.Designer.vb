@@ -32,6 +32,7 @@ Partial Class frmMain
         Dim UiStatusBarPanel10 As Janus.Windows.UI.StatusBar.UIStatusBarPanel = New Janus.Windows.UI.StatusBar.UIStatusBarPanel()
         Dim UiStatusBarPanel11 As Janus.Windows.UI.StatusBar.UIStatusBarPanel = New Janus.Windows.UI.StatusBar.UIStatusBarPanel()
         Dim UiStatusBarPanel12 As Janus.Windows.UI.StatusBar.UIStatusBarPanel = New Janus.Windows.UI.StatusBar.UIStatusBarPanel()
+        Dim UiStatusBarPanel13 As Janus.Windows.UI.StatusBar.UIStatusBarPanel = New Janus.Windows.UI.StatusBar.UIStatusBarPanel()
         Me.errInfo = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.tmrHora = New System.Windows.Forms.Timer(Me.components)
         Me.errMsg = New System.Windows.Forms.ErrorProvider(Me.components)
@@ -44,6 +45,7 @@ Partial Class frmMain
         Me.mnuMain = New System.Windows.Forms.MenuStrip()
         Me.mnuChamados = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuEventos = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuMonitorFiscal = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuCadastros = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuEmpresas = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuUsuarios = New System.Windows.Forms.ToolStripMenuItem()
@@ -96,6 +98,13 @@ Partial Class frmMain
         Me.stbMain.Location = New System.Drawing.Point(0, 454)
         Me.stbMain.Name = "stbMain"
         Me.stbMain.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        UiStatusBarPanel13.AutoSize = System.Windows.Forms.StatusBarPanelAutoSize.Contents
+        UiStatusBarPanel13.BorderColor = System.Drawing.Color.Empty
+        UiStatusBarPanel13.Key = "pnlNotificacao"
+        UiStatusBarPanel13.ProgressBarValue = 0
+        UiStatusBarPanel13.ToolTipText = "Notificações"
+        UiStatusBarPanel13.MinWidth = 26
+        UiStatusBarPanel13.Width = 26
         UiStatusBarPanel7.BorderColor = System.Drawing.Color.Empty
         UiStatusBarPanel7.DrawBorder = False
         UiStatusBarPanel7.Key = "pnlProgressBar"
@@ -128,7 +137,7 @@ Partial Class frmMain
         UiStatusBarPanel12.Key = "pnlDataHora"
         UiStatusBarPanel12.ProgressBarValue = 0
         UiStatusBarPanel12.Width = 110
-        Me.stbMain.Panels.AddRange(New Janus.Windows.UI.StatusBar.UIStatusBarPanel() {UiStatusBarPanel7, UiStatusBarPanel8, UiStatusBarPanel9, UiStatusBarPanel10, UiStatusBarPanel11, UiStatusBarPanel12})
+        Me.stbMain.Panels.AddRange(New Janus.Windows.UI.StatusBar.UIStatusBarPanel() {UiStatusBarPanel13, UiStatusBarPanel7, UiStatusBarPanel8, UiStatusBarPanel9, UiStatusBarPanel10, UiStatusBarPanel11, UiStatusBarPanel12})
         Me.stbMain.PanelsBorderColor = System.Drawing.SystemColors.ControlDark
         Me.stbMain.Size = New System.Drawing.Size(725, 25)
         Me.stbMain.TabIndex = 16
@@ -205,7 +214,7 @@ Partial Class frmMain
         Me.mnuMain.BackColor = System.Drawing.Color.Transparent
         Me.mnuMain.Dock = System.Windows.Forms.DockStyle.None
         Me.mnuMain.GripMargin = New System.Windows.Forms.Padding(6, 2, 0, 6)
-        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuEventos, Me.mnuCadastros, Me.mnuRelatorios, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuConfiguracao, Me.mnuVerificarVersao, Me.mnuSair})
+        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuEventos, Me.mnuMonitorFiscal, Me.mnuCadastros, Me.mnuRelatorios, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuConfiguracao, Me.mnuVerificarVersao, Me.mnuSair})
         Me.mnuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow
         Me.mnuMain.Location = New System.Drawing.Point(7, 8)
         Me.mnuMain.Name = "mnuMain"
@@ -226,6 +235,13 @@ Partial Class frmMain
         Me.mnuEventos.Size = New System.Drawing.Size(132, 20)
         Me.mnuEventos.Tag = "usrAdmEvento"
         Me.mnuEventos.Text = "Calendário de Eventos"
+        '
+        'mnuMonitorFiscal
+        '
+        Me.mnuMonitorFiscal.Name = "mnuMonitorFiscal"
+        Me.mnuMonitorFiscal.Size = New System.Drawing.Size(95, 20)
+        Me.mnuMonitorFiscal.Tag = "usrAdmMonitorFiscal"
+        Me.mnuMonitorFiscal.Text = "Monitor Fiscal"
         '
         'mnuCadastros
         '
@@ -344,6 +360,7 @@ Partial Class frmMain
     Friend WithEvents mnuMain As System.Windows.Forms.MenuStrip
     Friend WithEvents mnuChamados As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuEventos As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuMonitorFiscal As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuCadastros As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuEmpresas As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuUsuarios As System.Windows.Forms.ToolStripMenuItem

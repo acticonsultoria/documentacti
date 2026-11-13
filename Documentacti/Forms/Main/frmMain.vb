@@ -24,6 +24,23 @@ Public Class frmMain
     Private oEventosNotificados As New HashSet(Of String)
     Private bNotificacaoEventoIndisponivel As Boolean = False
 
+    'Sino da barra de status: avisos guardados no banco até serem lidos (inclusive os que chegaram com o sistema fechado)
+    'mais os chamados com mensagens não lidas no chat (última consulta das notificações)
+    Private oClsFrmNotificacao As New clsFrmNotificacao
+    Private oTabelaChatPendente As DataTable
+    Private iQuantidadeSino As Integer = -1
+    Private bSinoIndisponivel As Boolean = False
+    'Avisos do banco já mostrados em toast nesta sessão e a última quantidade lida (aumento = aviso novo de fora, ex.: nota técnica)
+    Private oNotificacoesSinoExibidas As New HashSet(Of Long)
+    Private iQuantidadeBancoSino As Integer = -1
+    Private bAbrirSinoAoMostrar As Boolean = False
+    Private oFormNotificacao As frmNotificacao
+
+    'Coleta das notas técnicas (Monitor Fiscal) em segundo plano: no máximo uma tentativa por hora nesta máquina;
+    'a janela de 60 minutos entre coletas também vale entre máquinas (data da última coleta no banco)
+    Private dProximaColetaNotas As Date = Date.MinValue
+    Private bColetandoNotas As Boolean = False
+
     'Logo de fundo da aba principal (carregada uma vez; o My.Resources cria uma cópia a cada leitura)
     Private oLogoFundo As Image = My.Resources.logo_documentacti_fundo
 
@@ -123,6 +140,8 @@ Public Class frmMain
         Try
 
             Call VerificarNotificacoes()
+            Call AtualizarSino()
+            Call ColetarNotasTecnicas()
 
         Catch ex As Exception
             'Falha de conexão: interrompe as notificações e avisa na barra de status (voltam ao trocar de usuário)
@@ -136,6 +155,12 @@ Public Class frmMain
 
         'Sistema aberto por um item da Jump List
         Call ExecutarComandoPendente()
+
+        'Notificações não lidas no login: abre a lista do sino depois que a tela aparecer
+        If bAbrirSinoAoMostrar Then
+            bAbrirSinoAoMostrar = False
+            BeginInvoke(New MethodInvoker(AddressOf AbrirSino))
+        End If
 
     End Sub
 
@@ -169,6 +194,30 @@ Public Class frmMain
         Try
 
             Call AbrirTela(New usrAdmEvento, "Calendário de Eventos")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub mnuMonitorFiscal_Click(sender As Object, e As EventArgs) Handles mnuMonitorFiscal.Click
+
+        Try
+
+            Call AbrirTela(New usrAdmMonitorFiscal, "Monitor Fiscal")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub stbMain_PanelClick(sender As Object, e As Janus.Windows.UI.StatusBar.StatusBarEventArgs) Handles stbMain.PanelClick
+
+        Try
+
+            If e.Panel.Key = "pnlNotificacao" Then Call AbrirSino()
 
         Catch ex As Exception
             Call TratamentoErro(ex.Message, Me.Text)
@@ -247,6 +296,7 @@ Public Class frmMain
 
             tmrNotificacao.Stop()
             oToastManager.CloseAll()
+            If IsNothing(oFormNotificacao) = False AndAlso oFormNotificacao.IsDisposed = False Then oFormNotificacao.Close()
 
             Dim oClsFrmLogin As New clsFrmLogin
             oClsFrmLogin.InsertLog("logout")
@@ -590,6 +640,11 @@ Public Class frmMain
             oEventosNotificados.Clear()
             bNotificacaoEventoIndisponivel = False
             bNotificacaoIniciada = False
+            oTabelaChatPendente = Nothing
+            iQuantidadeSino = -1
+            bSinoIndisponivel = False
+            oNotificacoesSinoExibidas.Clear()
+            iQuantidadeBancoSino = -1
 
             oToastManager.AppCaption = "Documentacti"
             oToastManager.MaxVisible = 4
@@ -601,9 +656,23 @@ Public Class frmMain
             bSilenciarNotificacao = False
 
             Call VerificarNotificacoes()
+            Call AtualizarSino()
+
+            'Já há notificações não lidas (sistema fechado / máquina desligada / sessão anterior): abre o sistema com a lista do sino aberta.
+            'Na abertura do sistema a tela ainda não apareceu: abre no frmMain_Shown
+            If iQuantidadeSino > 0 Then
+                If Me.Visible Then
+                    BeginInvoke(New MethodInvoker(AddressOf AbrirSino))
+                Else
+                    bAbrirSinoAoMostrar = True
+                End If
+            End If
 
             tmrNotificacao.Interval = gcIntervaloNotificacao
             tmrNotificacao.Start()
+
+            'Notas técnicas: confere os portais oficiais logo após o login (em segundo plano)
+            Call ColetarNotasTecnicas()
 
         Catch ex As Exception
             Informacao("Notificações do chat indisponíveis: " & ex.Message, gColorInformacaoErro)
@@ -626,6 +695,9 @@ Public Class frmMain
             For Each oRow As DataRow In oTabela.Select("canal <> 1")
                 oTabela.Rows.Remove(oRow)
             Next
+
+            'Sino: chamados com mensagens não lidas (saem sozinhos quando a conversa é lida)
+            oTabelaChatPendente = oTabela.Copy()
 
             For Each oRow As DataRow In oTabela.Rows
                 Dim sChave As String = oRow.Item("codigo_atividade") & "|" & oRow.Item("canal") & "|" & oRow.Item("codigo_mensagem")
@@ -684,29 +756,39 @@ Public Class frmMain
 
             If oNovos.Count = 0 Then Exit Sub
 
+            'Exibidas: não voltam a aparecer (nem no próximo login) - ficam no sino até serem lidas
+            Dim oCodigosSino As New List(Of Long)
+            For Each oRow As DataRow In oNovos
+                oCodigosSino.Add(RegistrarSino("CHAMADO", CLng(oRow.Item("codigo_atividade")), _
+                                               "Novo chamado sem responsável #" & oRow.Item("codigo_atividade").ToString, _
+                                               oRow.Item("titulo").ToString & " - " & oRow.Item("empresa").ToString & _
+                                               IIf(oRow.Item("criador").ToString = "", "", " - por " & oRow.Item("criador").ToString).ToString, _
+                                               Nothing))
+                oClsUsrAdmChamado.UpdateChamadoNotificacao(CLng(oRow.Item("codigo_atividade")))
+            Next
+
             'Muitos pendentes (ex.: ao entrar no sistema): um resumo em vez de uma notificação por chamado
             If oNovos.Count > 3 Then
                 Dim oToast As New Toast("Chamados sem responsável", _
-                                        oNovos.Count & " chamado(s) do seu time aguardando responsável.", _
+                                        oNovos.Count & " chamado(s) do seu time aguardando responsável." & vbCrLf & "OK marca todos como lidos.", _
                                         ToastType.Warning) With {.Caption = "Chamados", .Duration = 10000}
-                AddHandler oToast.Click, Sub(s, a) AbrirChamado(CLng(oNovos(0).Item("codigo_atividade")))
+                Dim lPrimeiro As Long = CLng(oNovos(0).Item("codigo_atividade"))
+                AddHandler oToast.Click, Sub(s, a) AbrirChamado(lPrimeiro)
+                Call ConfigurarOkSino(oToast, oCodigosSino, False)
                 oToastManager.Show(oToast)
             Else
-                For Each oRow As DataRow In oNovos
+                For i As Integer = 0 To oNovos.Count - 1
+                    Dim oRow As DataRow = oNovos(i)
                     Dim lChamado As Long = CLng(oRow.Item("codigo_atividade"))
                     Dim oToast As New Toast("Novo chamado sem responsável", _
                                             "#" & lChamado & " - " & oRow.Item("titulo").ToString & vbCrLf & _
                                             oRow.Item("empresa").ToString & IIf(oRow.Item("criador").ToString = "", "", "  ·  por " & oRow.Item("criador").ToString), _
                                             ToastType.Warning) With {.Caption = "Chamado #" & lChamado, .Duration = 10000}
                     AddHandler oToast.Click, Sub(s, a) AbrirChamado(lChamado)
+                    Call ConfigurarOkSino(oToast, New List(Of Long) From {oCodigosSino(i)}, True)
                     oToastManager.Show(oToast)
                 Next
             End If
-
-            'Exibidas: não voltam a aparecer (nem no próximo login)
-            For Each oRow As DataRow In oNovos
-                oClsUsrAdmChamado.UpdateChamadoNotificacao(CLng(oRow.Item("codigo_atividade")))
-            Next
 
         Catch ex As Exception
             bNotificacaoChamadoIndisponivel = True
@@ -734,28 +816,42 @@ Public Class frmMain
 
             If oNovos.Count = 0 Then Exit Sub
 
+            'Avisados (ou silenciados): não voltam a aparecer (nem no próximo login) - ficam no sino até serem lidos
+            Dim oCodigosSino As New List(Of Long)
+            For Each oRow As DataRow In oNovos
+                Dim sTitulo As String
+                Select Case oRow.Item("tipo_notificacao").ToString
+                    Case "ALTERACAO" : sTitulo = "Evento alterado: "
+                    Case "EXCLUSAO" : sTitulo = "Evento excluído: "
+                    Case Else : sTitulo = "Você foi incluído no evento: "
+                End Select
+                oCodigosSino.Add(RegistrarSino("EVENTO", CLng(oRow.Item("codigo")), sTitulo & oRow.Item("titulo").ToString, _
+                                               IIf(oRow.Item("detalhe_notificacao").ToString = "", _
+                                                   oRow.Item("tipo_evento").ToString & " - " & Format(CDate(oRow.Item("data_inicio")), "dd/MM/yyyy HH:mm"), _
+                                                   oRow.Item("detalhe_notificacao").ToString).ToString & _
+                                               IIf(oRow.Item("criador").ToString = "", "", " - por " & oRow.Item("criador").ToString).ToString, _
+                                               CDate(oRow.Item("data_inicio"))))
+                oClsUsrAdmEvento.UpdateNotificacao(CLng(oRow.Item("codigo")))
+            Next
+
             If bSilenciarNotificacao = False Then
 
                 'Muitos pendentes (ex.: ao entrar no sistema): um resumo em vez de uma notificação por aviso
                 If oNovos.Count > 3 Then
                     Dim oToast As New Toast("Calendário de eventos", _
-                                            "Você tem " & oNovos.Count & " aviso(s) de eventos (inclusões, alterações ou exclusões).", _
+                                            "Você tem " & oNovos.Count & " aviso(s) de eventos (inclusões, alterações ou exclusões)." & vbCrLf & "OK marca todos como lidos.", _
                                             ToastType.Info) With {.Caption = "Calendário de Eventos", .Duration = 10000}
                     Dim dPrimeiro As Date = CDate(oNovos(0).Item("data_inicio"))
                     AddHandler oToast.Click, Sub(s, a) AbrirEvento(0, dPrimeiro, False)
+                    Call ConfigurarOkSino(oToast, oCodigosSino, False)
                     oToastManager.Show(oToast)
                 Else
-                    For Each oRow As DataRow In oNovos
-                        Call NotificarEvento(oRow)
+                    For i As Integer = 0 To oNovos.Count - 1
+                        Call NotificarEvento(oNovos(i), oCodigosSino(i))
                     Next
                 End If
 
             End If
-
-            'Avisados (ou silenciados): não voltam a aparecer (nem no próximo login)
-            For Each oRow As DataRow In oNovos
-                oClsUsrAdmEvento.UpdateNotificacao(CLng(oRow.Item("codigo")))
-            Next
 
         Catch ex As Exception
             bNotificacaoEventoIndisponivel = True
@@ -764,7 +860,7 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub NotificarEvento(ByVal oRow As DataRow)
+    Private Sub NotificarEvento(ByVal oRow As DataRow, ByVal lCodigoSino As Long)
 
         Try
 
@@ -800,6 +896,7 @@ Public Class frmMain
 
             End Select
 
+            Call ConfigurarOkSino(oToast, New List(Of Long) From {lCodigoSino}, True)
             oToastManager.Show(oToast)
 
         Catch ex As Exception
@@ -846,17 +943,21 @@ Public Class frmMain
             Dim sCaption As String = "Chamado #" & lChamado & "  ·  Chat"
 
             'Uma notificação por conversa: mensagens seguidas atualizam a mesma
+            'Tag = última mensagem avisada (o OK marca a conversa como lida até ela)
             Dim oToast As Toast = Nothing
             If oToastsChat.TryGetValue(sChave, oToast) AndAlso oToast.IsOpen Then
                 oToast.Title = oRow.Item("nome_usuario").ToString
                 oToast.Message = sTexto
                 oToast.Caption = sCaption
+                oToast.Tag = CInt(oRow.Item("codigo_mensagem"))
                 oToast.RestartTimer()
                 Exit Sub
             End If
 
-            oToast = New Toast(oRow.Item("nome_usuario").ToString, sTexto, ToastType.Message) With {.Caption = sCaption, .Duration = 8000}
+            oToast = New Toast(oRow.Item("nome_usuario").ToString, sTexto, ToastType.Message) With {.Caption = sCaption, .Duration = 8000, .ShowOkButton = True}
+            oToast.Tag = CInt(oRow.Item("codigo_mensagem"))
             AddHandler oToast.Click, Sub(s, a) AbrirChatChamado(lChamado, iCanal)
+            AddHandler oToast.OkClick, Sub(s, a) MarcarChatLido(lChamado, iCanal, CInt(a.Toast.Tag))
 
             oToastsChat(sChave) = oToast
             oToastManager.Show(oToast)
@@ -931,6 +1032,415 @@ Public Class frmMain
 
         Catch ex As Exception
             Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: SINO / MONITOR FISCAL :::"
+
+    Private Function RegistrarSino(ByVal sTipo As String, _
+                                   ByVal lCodigoReferencia As Long, _
+                                   ByVal sTitulo As String, _
+                                   ByVal sMensagem As String, _
+                                   ByVal oDataReferencia As Object) As Long
+
+        'Guarda o aviso no sino (fica até o usuário ler) e retorna o código gravado (0 = sem sino).
+        'Banco ainda sem a tabela: segue só com os toasts
+        If bSinoIndisponivel Then Return 0
+
+        Try
+
+            Return oClsFrmNotificacao.Insert(sTipo, lCodigoReferencia, sTitulo, sMensagem, oDataReferencia)
+
+        Catch ex As Exception
+            bSinoIndisponivel = True
+            Informacao("Sino de notificações indisponível: " & ex.Message, gColorInformacaoErro)
+            Return 0
+        End Try
+
+    End Function
+
+    Private Sub ConfigurarOkSino(ByVal oToast As Toast, ByVal oCodigos As List(Of Long), ByVal bMarcarAoClicar As Boolean)
+
+        'Botão OK (check) do toast: marca como lido no sino. Clique no corpo (abre o item) também marca, quando é um item só
+        Dim oValidos As List(Of Long) = oCodigos.Where(Function(l) l > 0).ToList()
+        If oValidos.Count = 0 Then Exit Sub
+
+        For Each lCodigo As Long In oValidos
+            oNotificacoesSinoExibidas.Add(lCodigo)
+        Next
+
+        oToast.ShowOkButton = True
+        AddHandler oToast.OkClick, Sub(s, a) MarcarSinoLido(oValidos)
+        If bMarcarAoClicar Then AddHandler oToast.Click, Sub(s, a) MarcarSinoLido(oValidos)
+
+    End Sub
+
+    Private Sub MarcarSinoLido(ByVal oCodigos As List(Of Long))
+
+        Try
+
+            For Each lCodigo As Long In oCodigos
+                oClsFrmNotificacao.UpdateLida(lCodigo)
+            Next
+
+            Call AtualizarSino()
+
+        Catch ex As Exception
+            Informacao("Não foi possível marcar a notificação como lida: " & ex.Message, gColorInformacaoErro)
+        End Try
+
+    End Sub
+
+    Public Sub MarcarChatLido(ByVal lChamado As Long, ByVal iCanal As Integer, ByVal iMensagem As Integer)
+
+        'OK no toast do chat: conversa lida até a última mensagem avisada (sai do sino na hora)
+        Try
+
+            Dim oClsUsrAdmChamado As New clsUsrAdmChamado
+            oClsUsrAdmChamado.UpdateChatLeitura(lChamado, iCanal, iMensagem)
+
+            If IsNothing(oTabelaChatPendente) = False Then
+                For Each oRow As DataRow In oTabelaChatPendente.Select("codigo_atividade = " & lChamado & " AND canal = " & iCanal & " AND codigo_mensagem <= " & iMensagem)
+                    oTabelaChatPendente.Rows.Remove(oRow)
+                Next
+            End If
+
+            Call AtualizarSino()
+
+        Catch ex As Exception
+            Informacao("Não foi possível marcar o chat como lido: " & ex.Message, gColorInformacaoErro)
+        End Try
+
+    End Sub
+
+    Private Sub NotificarNovasDoSino()
+
+        'Avisos gravados direto no banco por outra máquina (nota técnica nova do Monitor Fiscal): também viram toast com OK
+        Try
+
+            Dim oTabela As DataTable = oClsFrmNotificacao.LoadGrid()
+            Dim oNovas As New List(Of DataRow)
+
+            For Each oRow As DataRow In oTabela.Select("lida = 0 AND tipo = 'NOTA_TECNICA'")
+                If oNotificacoesSinoExibidas.Add(CLng(oRow.Item("codigo"))) Then oNovas.Add(oRow)
+            Next
+
+            If oNovas.Count = 0 OrElse bSilenciarNotificacao Then Exit Sub
+
+            If oNovas.Count > 3 Then
+                Dim oCodigos As List(Of Long) = oNovas.Select(Function(r) CLng(r.Item("codigo"))).ToList()
+                Dim oToast As New Toast("Notas técnicas", _
+                                        oNovas.Count & " nota(s) técnica(s) nova(s) ou atualizada(s) nos portais oficiais." & vbCrLf & "OK marca todas como lidas.", _
+                                        ToastType.Info) With {.Caption = "Monitor Fiscal", .Duration = 12000}
+                AddHandler oToast.Click, Sub(s, a) AbrirMonitorFiscal(0)
+                Call ConfigurarOkSino(oToast, oCodigos, False)
+                oToastManager.Show(oToast)
+            Else
+                For Each oRow As DataRow In oNovas
+                    Dim lNota As Long = CLng(oRow.Item("codigo_referencia"))
+                    Dim oToast As New Toast(oRow.Item("titulo").ToString, oRow.Item("mensagem").ToString, ToastType.Info) _
+                                            With {.Caption = "Monitor Fiscal", .Duration = 12000}
+                    AddHandler oToast.Click, Sub(s, a) AbrirMonitorFiscal(lNota)
+                    Call ConfigurarOkSino(oToast, New List(Of Long) From {CLng(oRow.Item("codigo"))}, True)
+                    oToastManager.Show(oToast)
+                Next
+            End If
+
+        Catch
+            'Toast é complemento: o aviso continua no sino
+        End Try
+
+    End Sub
+
+    Private Function QuantidadeSinoBanco() As Integer
+
+        If bSinoIndisponivel Then Return 0
+
+        Try
+
+            Return oClsFrmNotificacao.Quantidade()
+
+        Catch ex As Exception
+            bSinoIndisponivel = True
+            Informacao("Sino de notificações indisponível: " & ex.Message, gColorInformacaoErro)
+            Return 0
+        End Try
+
+    End Function
+
+    Private Function QuantidadeChatPendente() As Integer
+
+        'Um item por chamado (não por mensagem)
+        If IsNothing(oTabelaChatPendente) OrElse oTabelaChatPendente.Rows.Count = 0 Then Return 0
+
+        Return oTabelaChatPendente.DefaultView.ToTable(True, "codigo_atividade").Rows.Count
+
+    End Function
+
+    Public Sub AtualizarSino()
+
+        Try
+
+            If IsNothing(goUsuario) OrElse IsNothing(goUsuario.sUsuario) OrElse goUsuario.sUsuario = "" Then Exit Sub
+
+            Dim iQuantidadeBanco As Integer = QuantidadeSinoBanco()
+
+            'Primeira leitura após o login: o que já estava pendente fica só no sino (o toast de pendências avisa);
+            'depois, aumento no banco = aviso novo vindo de fora (nota técnica) e vira toast
+            If iQuantidadeBancoSino < 0 Then
+                If iQuantidadeBanco > 0 Then
+                    For Each oRow As DataRow In oClsFrmNotificacao.LoadGrid().Select("lida = 0")
+                        oNotificacoesSinoExibidas.Add(CLng(oRow.Item("codigo")))
+                    Next
+                End If
+            ElseIf iQuantidadeBanco > iQuantidadeBancoSino Then
+                Call NotificarNovasDoSino()
+            End If
+            iQuantidadeBancoSino = iQuantidadeBanco
+
+            Dim iQuantidade As Integer = iQuantidadeBanco + QuantidadeChatPendente()
+
+            'Só redesenha quando muda
+            If iQuantidade = iQuantidadeSino Then Exit Sub
+            iQuantidadeSino = iQuantidade
+
+            Dim oPanel As Janus.Windows.UI.StatusBar.UIStatusBarPanel = stbMain.Panels("pnlNotificacao")
+            Dim oImagemAnterior As Image = oPanel.Image
+
+            oPanel.Image = DesenharSino(iQuantidade)
+
+            'Contador ao lado do sino, em texto (o painel cresce conforme o número)
+            oPanel.Text = IIf(iQuantidade = 0, "", IIf(iQuantidade > 99, "99+", iQuantidade.ToString)).ToString
+            oPanel.FormatStyle.ForeColor = Color.FromArgb(200, 30, 30)
+            oPanel.FormatStyle.FontBold = Janus.Windows.UI.TriState.True
+
+            oPanel.ToolTipText = IIf(iQuantidade = 0, "Notificações: nenhuma pendente", "Notificações: " & iQuantidade & " não lida(s) - clique para ver").ToString
+
+            If IsNothing(oImagemAnterior) = False Then oImagemAnterior.Dispose()
+
+        Catch
+            'Sino é só visual: não interrompe as notificações
+        End Try
+
+    End Sub
+
+    Private Function DesenharSino(ByVal iQuantidade As Integer) As Image
+
+        'Ícone do sino desenhado na hora em 16x16: a barra de status do Janus redimensiona qualquer imagem para esse
+        'tamanho (ImageSize), por isso o contador vai como texto do painel, ao lado; aqui só o pontinho vermelho de pendência
+        Dim oImagem As New Bitmap(16, 16)
+
+        Using oGraphics As Graphics = Graphics.FromImage(oImagem)
+
+            oGraphics.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+            oGraphics.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
+            oGraphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit
+
+            'Mesmo cinza do texto da barra; mais claro quando não há nada pendente
+            Dim oCor As Color = IIf(iQuantidade > 0, Color.FromArgb(70, 70, 70), Color.FromArgb(125, 125, 125))
+
+            Using oBrush As New SolidBrush(oCor)
+
+                'Corpo: ombros arredondados, lados quase retos e a boca abrindo na base
+                Using oPath As New Drawing2D.GraphicsPath
+                    oPath.AddBezier(8.0!, 1.8!, 4.6!, 1.8!, 3.4!, 4.4!, 3.4!, 7.4!)
+                    oPath.AddLine(3.4!, 7.4!, 3.4!, 9.8!)
+                    oPath.AddBezier(3.4!, 9.8!, 3.4!, 11.0!, 2.2!, 11.5!, 1.6!, 12.4!)
+                    oPath.AddLine(1.6!, 12.4!, 14.4!, 12.4!)
+                    oPath.AddBezier(14.4!, 12.4!, 13.8!, 11.5!, 12.6!, 11.0!, 12.6!, 9.8!)
+                    oPath.AddLine(12.6!, 9.8!, 12.6!, 7.4!)
+                    oPath.AddBezier(12.6!, 7.4!, 12.6!, 4.4!, 11.4!, 1.8!, 8.0!, 1.8!)
+                    oPath.CloseFigure()
+                    oGraphics.FillPath(oBrush, oPath)
+                End Using
+
+                'Pino no topo e badalo embaixo
+                oGraphics.FillEllipse(oBrush, 6.8!, 0.4!, 2.4!, 2.4!)
+                oGraphics.FillEllipse(oBrush, 6.3!, 12.6!, 3.4!, 3.0!)
+
+            End Using
+
+            If iQuantidade > 0 Then
+
+                'Pontinho vermelho no canto superior direito, com contorno branco separando do sino
+                Using oBorda As New SolidBrush(Color.White)
+                    oGraphics.FillEllipse(oBorda, 9.5!, 0.0!, 6.5!, 6.5!)
+                End Using
+                Using oBrush As New SolidBrush(Color.FromArgb(214, 40, 40))
+                    oGraphics.FillEllipse(oBrush, 10.5!, 1.0!, 4.5!, 4.5!)
+                End Using
+
+            End If
+
+        End Using
+
+        Return oImagem
+
+    End Function
+
+    Public Sub AbrirSino()
+
+        'Lista do sino logo acima do ícone: avisos do banco + chamados com mensagens não lidas no chat
+        Try
+
+            If IsNothing(goUsuario) OrElse IsNothing(goUsuario.sUsuario) OrElse goUsuario.sUsuario = "" Then Exit Sub
+
+            If WindowState = FormWindowState.Minimized Then WindowState = FormWindowState.Maximized
+            Activate()
+
+            If IsNothing(oFormNotificacao) = False AndAlso oFormNotificacao.IsDisposed = False Then oFormNotificacao.Close()
+
+            Cursor.Current = Cursors.WaitCursor
+
+            Dim oTabela As DataTable
+
+            If bSinoIndisponivel Then
+                oTabela = New DataTable
+                For Each sColuna As String In New String() {"codigo", "tipo", "origem", "codigo_referencia", "titulo", "mensagem", "data_referencia", "data_notificacao", "lida", "situacao", "data_leitura"}
+                    oTabela.Columns.Add(sColuna)
+                Next
+            Else
+                oTabela = oClsFrmNotificacao.LoadGrid()
+            End If
+
+            If oTabela.Columns.Contains("canal") = False Then oTabela.Columns.Add("canal", GetType(Integer))
+            If oTabela.Columns.Contains("codigo_mensagem") = False Then oTabela.Columns.Add("codigo_mensagem", GetType(Integer))
+
+            Call AdicionarChatPendente(oTabela)
+
+            oFormNotificacao = New frmNotificacao
+            oFormNotificacao.oTabela = oTabela
+
+            'Canto inferior esquerdo, logo acima do sino (dentro da área de trabalho da tela)
+            Dim oPanel As Janus.Windows.UI.StatusBar.UIStatusBarPanel = stbMain.Panels("pnlNotificacao")
+            Dim oPonto As Point = stbMain.PointToScreen(New Point(oPanel.Bounds.Left, 0))
+            Dim oArea As Rectangle = Screen.FromControl(Me).WorkingArea
+
+            oFormNotificacao.Location = New Point(Math.Max(oArea.Left, Math.Min(oPonto.X, oArea.Right - oFormNotificacao.Width)), _
+                                                  Math.Max(oArea.Top, oPonto.Y - oFormNotificacao.Height))
+
+            Cursor.Current = Cursors.Default
+
+            oFormNotificacao.Show(Me)
+
+        Catch ex As Exception
+            Cursor.Current = Cursors.Default
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub AdicionarChatPendente(ByVal oTabela As DataTable)
+
+        'Uma linha por chamado: quantidade de mensagens não lidas e a última delas
+        If IsNothing(oTabelaChatPendente) OrElse oTabelaChatPendente.Rows.Count = 0 Then Exit Sub
+
+        Dim iPosicao As Integer = 0
+
+        For Each oChamado As DataRow In oTabelaChatPendente.DefaultView.ToTable(True, "codigo_atividade", "canal").Rows
+
+            Dim oMensagens() As DataRow = oTabelaChatPendente.Select("codigo_atividade = " & oChamado.Item("codigo_atividade") & " AND canal = " & oChamado.Item("canal"), "codigo_mensagem DESC")
+            Dim oUltima As DataRow = oMensagens(0)
+            Dim sTexto As String = oUltima.Item("mensagem").ToString
+            If sTexto.Trim = "" Then sTexto = "Arquivo: " & oUltima.Item("nome_arquivo").ToString
+
+            Dim oNova As DataRow = oTabela.NewRow()
+            oNova.Item("codigo") = 0
+            oNova.Item("tipo") = "CHAT"
+            oNova.Item("origem") = "CHAT"
+            oNova.Item("codigo_referencia") = oChamado.Item("codigo_atividade")
+            oNova.Item("titulo") = "Chamado #" & oChamado.Item("codigo_atividade").ToString & " - " & oMensagens.Length & " mensagem(ns) não lida(s)"
+            oNova.Item("mensagem") = oUltima.Item("nome_usuario").ToString & ": " & sTexto
+            oNova.Item("data_notificacao") = oUltima.Item("data_hora")
+            oNova.Item("lida") = 0
+            oNova.Item("situacao") = "NÃO LIDA"
+            oNova.Item("canal") = oChamado.Item("canal")
+            oNova.Item("codigo_mensagem") = oUltima.Item("codigo_mensagem")
+
+            'Chat no topo da lista
+            oTabela.Rows.InsertAt(oNova, iPosicao)
+            iPosicao += 1
+
+        Next
+
+    End Sub
+
+    Public Sub AbrirNotificacao(ByVal sTipo As String, _
+                                ByVal lCodigoReferencia As Long, _
+                                ByVal oDataReferencia As Object, _
+                                ByVal iCanal As Integer)
+
+        'Duplo clique numa notificação do sino
+        Try
+
+            Select Case sTipo
+
+                Case "CHAT"
+                    Call AbrirChatChamado(lCodigoReferencia, iCanal)
+
+                Case "CHAMADO"
+                    Call AbrirChamado(lCodigoReferencia)
+
+                Case "EVENTO"
+                    'Evento excluído: o calendário abre no mês e avisa que o evento não foi encontrado
+                    Call AbrirEvento(lCodigoReferencia, IIf(IsDBNull(oDataReferencia) OrElse IsNothing(oDataReferencia), Today, oDataReferencia), True)
+
+                Case "NOTA_TECNICA"
+                    Call AbrirMonitorFiscal(lCodigoReferencia)
+
+            End Select
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub AbrirMonitorFiscal(ByVal lNotaTecnica As Long)
+
+        Try
+
+            If WindowState = FormWindowState.Minimized Then WindowState = FormWindowState.Maximized
+            Activate()
+
+            Call AbrirTela(New usrAdmMonitorFiscal, "Monitor Fiscal")
+
+            If tabMain.TabPages.Contains("usrAdmMonitorFiscal") = False Then Exit Sub
+
+            For Each oControl As Control In tabMain.TabPages("usrAdmMonitorFiscal").Controls
+                If TypeOf oControl Is usrAdmMonitorFiscal Then CType(oControl, usrAdmMonitorFiscal).SelecionarNotaTecnica(lNotaTecnica)
+            Next
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Async Sub ColetarNotasTecnicas()
+
+        'Notas técnicas novas viram aviso no sino de todos, mesmo sem ninguém abrir o Monitor Fiscal.
+        'Uma tentativa por hora nesta máquina; falha (portal fora, sem internet, banco sem a proc) só espera a próxima
+        If bColetandoNotas OrElse Now < dProximaColetaNotas Then Exit Sub
+        If IsNothing(goUsuario) OrElse IsNothing(goUsuario.sUsuario) OrElse goUsuario.sUsuario = "" Then Exit Sub
+
+        bColetandoNotas = True
+        dProximaColetaNotas = Now.AddMinutes(clsMonitorFiscal.gcIntervaloColetaMinutos)
+
+        Try
+
+            Dim oClsUsrAdmMonitorFiscal As New clsUsrAdmMonitorFiscal
+            Dim bColetou As Boolean = Await System.Threading.Tasks.Task.Run(Function() oClsUsrAdmMonitorFiscal.AtualizarNotasTecnicas(False))
+
+            If bColetou Then Call AtualizarSino()
+
+        Catch
+            'Sem aviso na tela: a coleta é de fundo e a tela do Monitor Fiscal mostra o erro quando aberta
+        Finally
+            bColetandoNotas = False
         End Try
 
     End Sub

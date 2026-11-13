@@ -141,14 +141,17 @@
     <Compile Include="Class\Database\MySQLHelper.vb" />
     <Compile Include="Class\Forms\Administracao\clsUsrAdmChamado.vb" />
     <Compile Include="Class\Forms\Administracao\clsUsrAdmEvento.vb" />
+    <Compile Include="Class\Forms\Administracao\clsUsrAdmMonitorFiscal.vb" />
     <Compile Include="Class\Forms\Main\clsFrmLogin.vb" />
     <Compile Include="Class\Forms\Main\clsFrmMain.vb" />
     <Compile Include="Class\Forms\Main\clsFrmConfiguracao.vb" />
+    <Compile Include="Class\Forms\Main\clsFrmNotificacao.vb" />
     <Compile Include="Class\Forms\Main\clsFrmCfgGrid.vb" />
     <Compile Include="Class\Function\clsConfigXML.vb" />
     <Compile Include="Class\Function\clsBarraTarefas.vb" />
     <Compile Include="Class\Function\clsDllEmbutida.vb" />
     <Compile Include="Class\Function\clsJumpList.vb" />
+    <Compile Include="Class\Function\clsMonitorFiscal.vb" />
     <Compile Include="Class\Function\clsFtp.vb" />
     <Compile Include="Class\Forms\Cadastro\clsUsrCadEmpresa.vb" />
     <Compile Include="Class\Forms\Cadastro\clsUsrCadUsuario.vb" />
@@ -177,6 +180,12 @@
       <DependentUpon>usrAdmEvento.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\Administracao\usrAdmEvento.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Administracao\usrAdmMonitorFiscal.Designer.vb">
+      <DependentUpon>usrAdmMonitorFiscal.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Administracao\usrAdmMonitorFiscal.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Forms\Cadastro\usrCadAviso.Designer.vb">
@@ -219,6 +228,12 @@
       <DependentUpon>frmConfiguracao.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\Main\frmConfiguracao.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\frmNotificacao.Designer.vb">
+      <DependentUpon>frmNotificacao.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Main\frmNotificacao.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Main\frmAlterarSenha.Designer.vb">
@@ -271,6 +286,9 @@
     <EmbeddedResource Include="Forms\Administracao\usrAdmEvento.resx">
       <DependentUpon>usrAdmEvento.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Administracao\usrAdmMonitorFiscal.resx">
+      <DependentUpon>usrAdmMonitorFiscal.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Cadastro\usrCadAviso.resx">
       <DependentUpon>usrCadAviso.vb</DependentUpon>
     </EmbeddedResource>
@@ -291,6 +309,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Main\frmConfiguracao.resx">
       <DependentUpon>frmConfiguracao.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Main\frmNotificacao.resx">
+      <DependentUpon>frmNotificacao.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Main\frmAlterarSenha.resx">
       <DependentUpon>frmAlterarSenha.vb</DependentUpon>
