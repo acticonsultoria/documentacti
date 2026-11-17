@@ -205,7 +205,7 @@ Public Class usrRelApontamento
             Call AdicionarOpcaoTodos(cboEmpresaHistorico, "TODAS")
             Call LoadCombo(cboTipoAtendimentoHistorico, "sp_select_combo_administracao_chamado_tipo_atendimento")
             Call AdicionarOpcaoTodos(cboTipoAtendimentoHistorico, "TODOS")
-            Call LoadComboLista(cboSituacaoHistorico, "-1=TODAS;0=EM ANDAMENTO;1=NORMAL;2=ANULADO")
+            Call LoadComboLista(cboSituacaoHistorico, "-1=TODAS;0=EM ANDAMENTO;1=NORMAL;2=ANULADO;3=RETRABALHO")
 
             dtpInicioHistorico.Value = New Date(Now.Year, Now.Month, 1) : dtpInicioHistorico.Checked = True
             dtpTerminoHistorico.Value = Now.Date : dtpTerminoHistorico.Checked = True
@@ -407,15 +407,19 @@ Public Class usrRelApontamento
                                                                                IIf(dtpInicioHistorico.Checked = False, Nothing, dtpInicioHistorico.Value.Date), _
                                                                                IIf(dtpTerminoHistorico.Checked = False, Nothing, dtpTerminoHistorico.Value.Date))
 
-            'Total no período: anulados e em andamento não contam nas horas
+            'Total no período: anulados e em andamento não contam nas horas; retrabalho conta (e aparece à parte)
             Dim lTotal As Long = 0
+            Dim lRetrabalho As Long = 0
             For Each oDataRow As DataRow In oTabela.Rows
-                If oDataRow.Item("situacao").ToString = "NORMAL" AndAlso IsDBNull(oDataRow.Item("duracao_segundos")) = False Then
+                Dim sSituacao As String = oDataRow.Item("situacao").ToString
+                If (sSituacao = "NORMAL" OrElse sSituacao = "RETRABALHO") AndAlso IsDBNull(oDataRow.Item("duracao_segundos")) = False Then
                     lTotal += CLng(oDataRow.Item("duracao_segundos"))
+                    If sSituacao = "RETRABALHO" Then lRetrabalho += CLng(oDataRow.Item("duracao_segundos"))
                 End If
             Next
 
-            lblTotalHistorico.Text = oTabela.Rows.Count & " apontamento(s) | Total: " & FormatarDuracao(lTotal) & " (" & Format(lTotal / 3600, "N2") & " h)"
+            lblTotalHistorico.Text = oTabela.Rows.Count & " apontamento(s) | Total: " & FormatarDuracao(lTotal) & " (" & Format(lTotal / 3600, "N2") & " h)" & _
+                                     " | Retrabalho: " & FormatarDuracao(lRetrabalho) & " (" & Format(lRetrabalho / 3600, "N2") & " h)"
 
             Cursor.Current = Cursors.Default
 

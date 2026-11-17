@@ -23,6 +23,9 @@ Public Class frmMain
     'Avisos do calendário já exibidos nesta sessão (evento | tipo | data do aviso)
     Private oEventosNotificados As New HashSet(Of String)
     Private bNotificacaoEventoIndisponivel As Boolean = False
+    'Avisos de alterações no checklist dos chamados (incluído, editado, excluído, concluído)
+    Private oChecklistNotificados As New HashSet(Of Long)
+    Private bNotificacaoChecklistIndisponivel As Boolean = False
 
     'Sino da barra de status: avisos guardados no banco até serem lidos (inclusive os que chegaram com o sistema fechado)
     'mais os chamados com mensagens não lidas no chat (última consulta das notificações)
@@ -182,6 +185,30 @@ Public Class frmMain
         Try
 
             Call AbrirTela(New usrAdmChamado, "Chamados")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub mnuAgrupamentos_Click(sender As Object, e As EventArgs) Handles mnuAgrupamentos.Click
+
+        Try
+
+            Call AbrirTela(New usrAdmAgrupamento, "Agrupamentos")
+
+        Catch ex As Exception
+            Call TratamentoErro(ex.Message, Me.Text)
+        End Try
+
+    End Sub
+
+    Private Sub mnuPatchNotes_Click(sender As Object, e As EventArgs) Handles mnuPatchNotes.Click
+
+        Try
+
+            Call AbrirTela(New usrAdmPatchNote, "Patch Notes")
 
         Catch ex As Exception
             Call TratamentoErro(ex.Message, Me.Text)
@@ -423,6 +450,22 @@ Public Class frmMain
 
     End Sub
 
+    Private Sub GerarChamadosRecorrentes()
+
+        'Falha na geração não impede o login (fica registrada na própria recorrência ou na barra de status)
+        Try
+
+            Dim oClsFrmRecorrencia As New clsFrmRecorrencia
+            Dim iGerados As Integer = oClsFrmRecorrencia.GerarChamados()
+
+            If iGerados > 0 Then Informacao(iGerados & " chamado(s) recorrente(s) gerado(s) hoje.", Color.Blue)
+
+        Catch ex As Exception
+            Informacao("Não foi possível gerar os chamados recorrentes: " & ex.Message, gColorInformacaoErro)
+        End Try
+
+    End Sub
+
     Private Function Login() As Boolean
 
         Try
@@ -442,6 +485,9 @@ Public Class frmMain
 
             'Relatórios: somente super_adm (coluna marcada manualmente no banco)
             mnuRelatorios.Visible = goUsuario.bSuperAdm
+
+            'Chamados recorrentes: a proc gera as ocorrências do dia uma única vez (primeiro login do dia, em qualquer estação)
+            Call GerarChamadosRecorrentes()
 
             'Seta Retorno da Função
             Login = True
@@ -639,6 +685,8 @@ Public Class frmMain
             bNotificacaoChamadoIndisponivel = False
             oEventosNotificados.Clear()
             bNotificacaoEventoIndisponivel = False
+            oChecklistNotificados.Clear()
+            bNotificacaoChecklistIndisponivel = False
             bNotificacaoIniciada = False
             oTabelaChatPendente = Nothing
             iQuantidadeSino = -1
@@ -686,6 +734,7 @@ Public Class frmMain
 
             Call VerificarChamadosSemResponsavel()
             Call VerificarEventosDesignados()
+            Call VerificarChecklistAlterado()
 
             Dim oClsUsrAdmChamado As New clsUsrAdmChamado
             Dim oTabela As DataTable = oClsUsrAdmChamado.LoadChatNotificacao()
@@ -860,6 +909,79 @@ Public Class frmMain
 
     End Sub
 
+    Private Sub VerificarChecklistAlterado()
+
+        'Falha aqui (ex.: banco ainda sem a proc) não pode derrubar as notificações do chat
+        If bNotificacaoChecklistIndisponivel Then Exit Sub
+
+        Try
+
+            Dim oClsUsrAdmChamado As New clsUsrAdmChamado
+            Dim oTabela As DataTable = oClsUsrAdmChamado.LoadChecklistNotificacao()
+            Dim oNovos As New List(Of DataRow)
+
+            For Each oRow As DataRow In oTabela.Rows
+                If oChecklistNotificados.Add(CLng(oRow.Item("codigo"))) Then oNovos.Add(oRow)
+            Next
+
+            If oNovos.Count = 0 Then Exit Sub
+
+            'Exibidos (ou silenciados): não voltam a aparecer (nem no próximo login) - ficam no sino até serem lidos
+            Dim oCodigosSino As New List(Of Long)
+            For Each oRow As DataRow In oNovos
+                oCodigosSino.Add(RegistrarSino("CHAMADO", CLng(oRow.Item("codigo_atividade")), _
+                                               "Checklist " & DescricaoAcaoChecklist(oRow.Item("acao").ToString) & " #" & oRow.Item("codigo_atividade").ToString, _
+                                               oRow.Item("texto").ToString & " - " & oRow.Item("titulo").ToString & _
+                                               IIf(oRow.Item("usuario_acao").ToString = "", "", " - por " & oRow.Item("usuario_acao").ToString).ToString, _
+                                               Nothing))
+                oClsUsrAdmChamado.UpdateChecklistNotificacao(CLng(oRow.Item("codigo")))
+            Next
+
+            If bSilenciarNotificacao Then Exit Sub
+
+            'Muitos avisos de uma vez (ex.: ao entrar no sistema): um resumo em vez de uma notificação por item
+            If oNovos.Count > 3 Then
+                Dim oToast As New Toast("Checklist dos chamados", _
+                                        oNovos.Count & " alteração(ões) no checklist dos seus chamados." & vbCrLf & "OK marca todas como lidas.", _
+                                        ToastType.Info) With {.Caption = "Checklist", .Duration = 10000}
+                Dim lPrimeiro As Long = CLng(oNovos(0).Item("codigo_atividade"))
+                AddHandler oToast.Click, Sub(s, a) AbrirChamado(lPrimeiro)
+                Call ConfigurarOkSino(oToast, oCodigosSino, False)
+                oToastManager.Show(oToast)
+            Else
+                For i As Integer = 0 To oNovos.Count - 1
+                    Dim oRow As DataRow = oNovos(i)
+                    Dim lChamado As Long = CLng(oRow.Item("codigo_atividade"))
+                    Dim oToast As New Toast("Item do checklist " & DescricaoAcaoChecklist(oRow.Item("acao").ToString), _
+                                            oRow.Item("texto").ToString & vbCrLf & "#" & lChamado & " - " & oRow.Item("titulo").ToString & _
+                                            IIf(oRow.Item("usuario_acao").ToString = "", "", "  ·  por " & oRow.Item("usuario_acao").ToString), _
+                                            If(oRow.Item("acao").ToString = "EXCLUSAO", ToastType.Warning, ToastType.Info)) With {.Caption = "Chamado #" & lChamado, .Duration = 10000}
+                    AddHandler oToast.Click, Sub(s, a) AbrirChamado(lChamado)
+                    Call ConfigurarOkSino(oToast, New List(Of Long) From {oCodigosSino(i)}, True)
+                    oToastManager.Show(oToast)
+                Next
+            End If
+
+        Catch ex As Exception
+            bNotificacaoChecklistIndisponivel = True
+            Informacao("Notificações do checklist indisponíveis: " & ex.Message, gColorInformacaoErro)
+        End Try
+
+    End Sub
+
+    Private Function DescricaoAcaoChecklist(ByVal sAcao As String) As String
+
+        Select Case sAcao
+            Case "INCLUSAO" : Return "incluído"
+            Case "ALTERACAO" : Return "editado"
+            Case "EXCLUSAO" : Return "excluído"
+            Case "CONCLUSAO" : Return "concluído"
+            Case "REABERTURA" : Return "reaberto"
+            Case Else : Return "alterado"
+        End Select
+
+    End Function
+
     Private Sub NotificarEvento(ByVal oRow As DataRow, ByVal lCodigoSino As Long)
 
         Try
@@ -1017,9 +1139,9 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub AbrirChamado(ByVal lChamado As Long)
+    Public Sub AbrirChamado(ByVal lChamado As Long)
 
-        'Clique na notificação de chamado sem responsável: traz o sistema para frente e abre o chamado
+        'Clique na notificação de chamado sem responsável (ou em outra tela, ex.: Agrupamentos): traz o sistema para frente e abre o chamado
         Try
 
             If WindowState = FormWindowState.Minimized Then WindowState = FormWindowState.Maximized

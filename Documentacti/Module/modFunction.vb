@@ -1298,4 +1298,91 @@ Public Module modFunction
 
 #End Region
 
+#Region "::: MARKDOWN :::"
+
+    Public Function MarkdownParaHtml(ByVal sMarkdown As String) As String
+
+        'Markdown simples (patch notes): # / ## / ### títulos, "- " ou "* " tópicos (2 espaços = subtópico),
+        '**negrito**, *itálico*, `código` e parágrafos. O resto é exibido como texto (HTML escapado).
+        Try
+
+            Dim oHtml As New System.Text.StringBuilder
+            Dim iNivelLista As Integer = 0
+            Dim bParagrafo As Boolean = False
+
+            oHtml.Append("<html><head><meta http-equiv=""X-UA-Compatible"" content=""IE=edge""><meta charset=""utf-8""><style>")
+            oHtml.Append("body{font-family:Arial,sans-serif;font-size:13px;color:#222;margin:12px 16px;line-height:1.45}")
+            oHtml.Append("h1{font-size:18px;color:#1F4E9C;margin:4px 0 10px;border-bottom:1px solid #C9D6EA;padding-bottom:4px}")
+            oHtml.Append("h2{font-size:15px;color:#1F4E9C;margin:14px 0 6px}h3{font-size:13px;color:#333;margin:10px 0 4px}")
+            oHtml.Append("ul{margin:4px 0 8px 18px;padding:0}li{margin:3px 0}p{margin:6px 0}")
+            oHtml.Append("code{background:#F1F3F5;border:1px solid #E1E4E8;padding:0 3px;font-family:Consolas,monospace;font-size:12px}")
+            oHtml.Append("</style></head><body>")
+
+            For Each sLinhaOriginal As String In IIf(IsNothing(sMarkdown), "", sMarkdown).ToString.Replace(vbCrLf, vbLf).Split(CChar(vbLf))
+
+                Dim sLinha As String = sLinhaOriginal.TrimEnd()
+                Dim sConteudo As String = sLinha.TrimStart()
+                Dim iRecuo As Integer = sLinha.Length - sConteudo.Length
+                Dim bTopico As Boolean = sConteudo.StartsWith("- ") OrElse sConteudo.StartsWith("* ")
+
+                'Fecha parágrafo / listas quando a estrutura muda
+                If bParagrafo AndAlso (sConteudo = "" OrElse bTopico OrElse sConteudo.StartsWith("#")) Then
+                    oHtml.Append("</p>") : bParagrafo = False
+                End If
+
+                Dim iNivel As Integer = IIf(bTopico, iRecuo \ 2 + 1, 0)
+                Do While iNivelLista > iNivel
+                    oHtml.Append("</ul>") : iNivelLista -= 1
+                Loop
+
+                If sConteudo = "" Then Continue For
+
+                If sConteudo.StartsWith("### ") Then
+                    oHtml.Append("<h3>" & MarkdownInline(sConteudo.Substring(4)) & "</h3>")
+                ElseIf sConteudo.StartsWith("## ") Then
+                    oHtml.Append("<h2>" & MarkdownInline(sConteudo.Substring(3)) & "</h2>")
+                ElseIf sConteudo.StartsWith("# ") Then
+                    oHtml.Append("<h1>" & MarkdownInline(sConteudo.Substring(2)) & "</h1>")
+                ElseIf bTopico Then
+                    Do While iNivelLista < iNivel
+                        oHtml.Append("<ul>") : iNivelLista += 1
+                    Loop
+                    oHtml.Append("<li>" & MarkdownInline(sConteudo.Substring(2)) & "</li>")
+                Else
+                    oHtml.Append(IIf(bParagrafo, "<br>", "<p>").ToString & MarkdownInline(sConteudo))
+                    bParagrafo = True
+                End If
+
+            Next
+
+            If bParagrafo Then oHtml.Append("</p>")
+            Do While iNivelLista > 0
+                oHtml.Append("</ul>") : iNivelLista -= 1
+            Loop
+
+            oHtml.Append("</body></html>")
+
+            Return oHtml.ToString
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Private Function MarkdownInline(ByVal sTexto As String) As String
+
+        'Escapa o HTML e aplica **negrito**, *itálico* e `código`
+        Dim sHtml As String = System.Net.WebUtility.HtmlEncode(sTexto)
+
+        sHtml = System.Text.RegularExpressions.Regex.Replace(sHtml, "`([^`]+)`", "<code>$1</code>")
+        sHtml = System.Text.RegularExpressions.Regex.Replace(sHtml, "\*\*(.+?)\*\*", "<b>$1</b>")
+        sHtml = System.Text.RegularExpressions.Regex.Replace(sHtml, "(^|[^*])\*([^*]+)\*(?!\*)", "$1<i>$2</i>")
+
+        Return sHtml
+
+    End Function
+
+#End Region
+
 End Module

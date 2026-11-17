@@ -45,6 +45,11 @@ Public Module modDeclaration
     Public Const gcStatusChamadoConcluido As Integer = 6
     Public Const gcStatusChamadoCancelado As Integer = 14
 
+    'Situação do apontamento (sp_update_administracao_chamado_apontamento_situacao)
+    Public Const gcSituacaoApontamentoNormal As Integer = 0
+    Public Const gcSituacaoApontamentoAnulado As Integer = 1 'não conta nas horas
+    Public Const gcSituacaoApontamentoRetrabalho As Integer = 2 'conta nas horas e é identificado nos relatórios
+
 #End Region
 
 #Region "::: ESTRUTURAS :::"

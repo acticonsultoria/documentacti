@@ -9,6 +9,11 @@ Public Class usrAdmChamado
 #Region "::: VARIAVEIS :::"
 
     Private oClsUsrAdmChamado As New clsUsrAdmChamado
+    Private oClsUsrAdmAgrupamento As New clsUsrAdmAgrupamento
+    Private oClsFrmRecorrencia As New clsFrmRecorrencia
+
+    'Recorrência do chamado aberto (Nothing = sem recorrência); em chamado novo fica pendente até o Salvar
+    Private oRecorrencia As clsFrmRecorrencia.RegraRecorrencia = Nothing
     Private oFtp As New clsFtp
 
     'Apontamentos em andamento: tabela ligada à grid (a duração é recalculada pelo Timer)
@@ -431,6 +436,9 @@ Public Class usrAdmChamado
 
         Try
 
+            'Linha de filtro: só filtra, não grava
+            If IsNothing(grdChecklist.CurrentRow) OrElse grdChecklist.CurrentRow.RowType <> RowType.Record Then Exit Sub
+
             'Check gravado na hora
             If e.Column.Key = "concluido" Then grdChecklist.UpdateData()
 
@@ -443,6 +451,9 @@ Public Class usrAdmChamado
     Private Sub grdChecklist_CellUpdated(sender As Object, e As ColumnActionEventArgs) Handles grdChecklist.CellUpdated
 
         Try
+
+            'Linha de filtro: só filtra, não grava
+            If IsNothing(grdChecklist.CurrentRow) OrElse grdChecklist.CurrentRow.RowType <> RowType.Record Then Exit Sub
 
             If e.Column.Key = "concluido" Then
 
@@ -467,6 +478,45 @@ Public Class usrAdmChamado
         Catch ex As Exception
             Call TratarErro(ex)
             Me.BeginInvoke(New MethodInvoker(AddressOf LoadGridChecklist))
+        End Try
+
+    End Sub
+
+    Private Sub btnIncluirAgrupamento_Click(sender As Object, e As EventArgs) Handles btnIncluirAgrupamento.Click
+
+        Try
+
+            Call IncluirAgrupamento()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub grdAgrupamentoChamado_RowDoubleClick(sender As Object, e As RowActionEventArgs) Handles grdAgrupamentoChamado.RowDoubleClick
+
+        Try
+
+            If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
+
+            If IsNothing(grdAgrupamentoChamado.CurrentColumn) Then Exit Sub
+            If grdAgrupamentoChamado.CurrentColumn.Key = "excluir" Then Call RemoverAgrupamento()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub btnRecorrencia_Click(sender As Object, e As EventArgs) Handles btnRecorrencia.Click
+
+        Try
+
+            Call ConfigurarRecorrencia()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
         End Try
 
     End Sub
@@ -769,6 +819,22 @@ Public Class usrAdmChamado
 
     End Sub
 
+    Private Sub grdApontamentoAndamento_CellUpdated(sender As Object, e As ColumnActionEventArgs) Handles grdApontamentoAndamento.CellUpdated
+
+        Try
+
+            'Somente o início é editável enquanto o apontamento está em andamento
+            If e.Column.Key = "data_hora_inicio" Then Call AtualizarInicioApontamentoAndamento(grdApontamentoAndamento.CurrentRow)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        Finally
+            'Recarrega após o evento: recalcula a duração com o valor gravado (ou descarta o valor inválido)
+            Me.BeginInvoke(New MethodInvoker(AddressOf RecarregarAndamento))
+        End Try
+
+    End Sub
+
     Private Sub grdApontamentoHistorico_CellUpdated(sender As Object, e As ColumnActionEventArgs) Handles grdApontamentoHistorico.CellUpdated
 
         Try
@@ -785,7 +851,7 @@ Public Class usrAdmChamado
                     'Mantém o início e recalcula o término com a nova duração
                     Call AtualizarApontamento(grdApontamentoHistorico.CurrentRow, TerminoPelaDuracao(grdApontamentoHistorico.CurrentRow, e.Column.Key))
 
-                Case "anulado"
+                Case "situacao_codigo"
                     Call AtualizarSituacaoApontamento(grdApontamentoHistorico.CurrentRow)
 
             End Select
@@ -820,7 +886,7 @@ Public Class usrAdmChamado
         Try
 
             'Combos de situação e empresa: gravam ao escolher, sem precisar sair da célula
-            If (e.Column.Key = "anulado" OrElse e.Column.Key = "codigo_empresa_cliente") AndAlso e.Column.Table IsNot grdApontamentoHistorico.RootTable Then grdApontamentoHistorico.UpdateData()
+            If (e.Column.Key = "situacao_codigo" OrElse e.Column.Key = "codigo_empresa_cliente") AndAlso e.Column.Table IsNot grdApontamentoHistorico.RootTable Then grdApontamentoHistorico.UpdateData()
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -909,6 +975,9 @@ Public Class usrAdmChamado
 
         Try
 
+            'Edição do início em andamento: não atualiza a grid para não descartar o valor digitado
+            If grdApontamentoAndamento.EditMode = EditMode.EditOn Then Exit Sub
+
             iContadorSincronizacao += 1
 
             'Sincroniza periodicamente com o banco (ex.: apontamento encerrado pelo fechamento do chamado)
@@ -946,7 +1015,7 @@ Public Class usrAdmChamado
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrAdmChamado_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
-            Call AddComboAutoComplete(New UIComboBox() {cboTipoAtividade, cboPrioridade, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio, cboCanal})
+            Call AddComboAutoComplete(New UIComboBox() {cboTipoAtividade, cboPrioridade, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio, cboCanal, cboAgrupamentoFiltro, cboAgrupamentoChamado})
 
             'Combos - Chamados
             Call LoadCombo(cboStatusFiltro, "sp_select_combo_status_atividade")
@@ -968,6 +1037,9 @@ Public Class usrAdmChamado
             'Módulo pré-definido (mesmo cadastro da Base de Conhecimento) e canal de atendimento
             Call LoadCombo(cboModulo, "sp_select_combo_cadastro_basico_modulo")
             Call LoadCombo(cboCanal, "sp_select_combo_administracao_chamado_canal")
+            'Agrupamentos ativos: filtro da grid e inclusão do chamado (aba Agrupamentos)
+            Call LoadCombo(cboAgrupamentoFiltro, "sp_select_combo_administracao_agrupamento")
+            Call LoadCombo(cboAgrupamentoChamado, "sp_select_combo_administracao_agrupamento")
 
             'Combos - Apontamentos
             Call LoadCombo(cboEmpresaApontamento, "sp_select_combo_administracao_chamado_empresa")
@@ -982,6 +1054,11 @@ Public Class usrAdmChamado
             Call LoadCombo(cboResponsavelRelatorio, "sp_select_combo_administracao_chamado_usuario")
             Call LoadComboLista(cboAgruparRelatorio, "EMPRESA=Empresa (cliente);RESPONSAVEL=Responsável;TIPO_ATIVIDADE=Tipo de atividade;TIPO_ATENDIMENTO=Tipo de atendimento;CHAMADO=Chamado;DIA=Dia")
             Call LoadComboLista(cboGraficoRelatorio, "PIZZA=Pizza;COLUNA=Colunas;BARRA=Barras")
+            'Situação: anulado não entra no relatório de horas; retrabalho conta e pode ser separado
+            Call LoadComboLista(cboSituacaoRelatorio, "-1=TODAS;1=SEM RETRABALHO;3=SOMENTE RETRABALHO")
+            cboSituacaoRelatorio.SelectedValue = "-1"
+            Call LoadComboLista(cboSituacaoApontamento, "-1=TODAS;1=NORMAL;2=ANULADO;3=RETRABALHO")
+            cboSituacaoApontamento.SelectedValue = "-1"
             cboResponsavelApontamento.SelectedValue = goUsuario.lUsuario
             'Apontamentos sempre do usuário logado: o responsável fica travado
             cboResponsavelApontamento.Enabled = False
@@ -1004,6 +1081,8 @@ Public Class usrAdmChamado
             Call ConfiguraGrid(grdComentario)
             Call ConfiguraGrid(grdComentarioDev)
             Call ConfiguraGrid(grdChecklist)
+            Call ConfiguraGrid(grdAgrupamentoChamado)
+            grdAgrupamentoChamado.RootTable.Columns("excluir").CellToolTipText = "Duplo clique para remover o chamado do agrupamento."
             Call ConfiguraGrid(grdChecklistEmpresa)
             Call ConfiguraGrid(grdApontamentoHistorico)
             Call ConfiguraGrid(grdApontamentoAndamento)
@@ -1107,6 +1186,8 @@ Public Class usrAdmChamado
             Call LoadGridArquivo()
             Call LoadGridChecklist()
             Call LoadGridChecklistEmpresa()
+            Call LoadGridAgrupamento()
+            Call LoadRecorrencia()
             Call LoadGridComentario()
             If goUsuario.bInterno = True Then Call LoadGridComentarioDev()
             Call CarregarChat()
@@ -1328,6 +1409,13 @@ Public Class usrAdmChamado
             pagChecklistEmpresa.TabVisible = False
             Call LimparChat()
 
+            'Agrupamentos e recorrência: só depois de salvar (a recorrência pode ser configurada antes e fica pendente)
+            grdAgrupamentoChamado.DataSource = Nothing
+            cboAgrupamentoChamado.SelectedIndex = -1
+            txtMotivoAgrupamento.Text = ""
+            oRecorrencia = Nothing
+            Call MostrarRecorrencia()
+
             'Sugere o usuário autenticado como responsável
             Call SetCheckedValues(cboResponsavel, goUsuario.lUsuario.ToString)
 
@@ -1434,6 +1522,11 @@ Public Class usrAdmChamado
                     frmMain.Informacao("Registro inserido com sucesso! Chamado " & txtCodigo.Text & " disponível para apontamento.", Color.Blue)
                 End If
 
+                'Recorrência configurada antes de salvar: o chamado novo passa a ser o modelo (1ª ocorrência)
+                If IsNothing(oRecorrencia) = False AndAlso oRecorrencia.lCodigo = 0 Then
+                    Call SalvarRecorrencia(oRecorrencia)
+                End If
+
             End If
 
             'Empresas vinculadas: mostra/oculta a aba Checklist Empresa
@@ -1465,7 +1558,8 @@ Public Class usrAdmChamado
                                            txtTituloFiltro.Text.Trim, _
                                            -1, _
                                            IIf(cboTipoAtendimentoFiltro.SelectedIndex = -1, -1, cboTipoAtendimentoFiltro.SelectedValue), _
-                                           GetCheckedValues(cboTimeFiltro))
+                                           GetCheckedValues(cboTimeFiltro), _
+                                           IIf(cboAgrupamentoFiltro.SelectedIndex = -1, -1, cboAgrupamentoFiltro.SelectedValue))
 
             Call FiltrarResponsaveis()
 
@@ -2534,15 +2628,21 @@ Public Class usrAdmChamado
                                                                    IIf(cboTipoAtividadeRelatorio.SelectedIndex = -1, -1, cboTipoAtividadeRelatorio.SelectedValue), _
                                                                    IIf(cboTipoAtendimentoRelatorio.SelectedIndex = -1, -1, cboTipoAtendimentoRelatorio.SelectedValue), _
                                                                    IIf(cboResponsavelRelatorio.SelectedIndex = -1, -1, cboResponsavelRelatorio.SelectedValue), _
-                                                                   IIf(cboAgruparRelatorio.SelectedIndex = -1, "EMPRESA", cboAgruparRelatorio.SelectedValue))
+                                                                   IIf(cboAgruparRelatorio.SelectedIndex = -1, "EMPRESA", cboAgruparRelatorio.SelectedValue), _
+                                                                   IIf(cboSituacaoRelatorio.SelectedIndex = -1, -1, CInt(cboSituacaoRelatorio.SelectedValue)))
 
             Dim lTotal As Long = 0
+            Dim lRetrabalho As Long = 0
 
             For Each oDataRow As DataRow In oTabelaRelatorio.Rows
                 lTotal += CLng(oDataRow.Item("segundos"))
+                lRetrabalho += CLng(oDataRow.Item("segundos_retrabalho"))
             Next
 
+            'Retrabalho já está dentro do total (conta nas horas); aparece à parte para identificação
             lblTotalRelatorio.Text = "Total: " & FormatarDuracao(lTotal) & " (" & Format(lTotal / 3600, "N2") & " h)" & _
+                                     " - Retrabalho: " & FormatarDuracao(lRetrabalho) & " (" & Format(lRetrabalho / 3600, "N2") & " h" & _
+                                     IIf(lTotal > 0, " / " & Format(100 * lRetrabalho / IIf(lTotal = 0, 1, lTotal), "N2") & "%", "") & ")" & _
                                      IIf(cboAgruparRelatorio.SelectedValue = "TIPO_ATENDIMENTO", " - chamado com mais de um tipo conta em cada tipo", "")
 
             Call GerarGraficoRelatorio()
@@ -2790,7 +2890,8 @@ Public Class usrAdmChamado
                                                                 IIf(cboEmpresaApontamento.SelectedIndex = -1, -1, cboEmpresaApontamento.SelectedValue), _
                                                                 -1, _
                                                                 IIf(dtpInicioApontamento.Checked = False, Nothing, dtpInicioApontamento.Value.Date), _
-                                                                IIf(dtpTerminoApontamento.Checked = False, Nothing, dtpTerminoApontamento.Value.Date))
+                                                                IIf(dtpTerminoApontamento.Checked = False, Nothing, dtpTerminoApontamento.Value.Date), _
+                                                                IIf(cboSituacaoApontamento.SelectedIndex = -1, -1, CInt(cboSituacaoApontamento.SelectedValue)))
 
             'Empresa do apontamento (grid filha): lista de empresas do combo + as que já aparecem no histórico
             '(ex.: empresa inativada); o banco aceita só as vinculadas ao chamado
@@ -2838,6 +2939,18 @@ Public Class usrAdmChamado
         Try
 
             Call LoadGridApontamentoHistorico()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub RecarregarAndamento()
+
+        Try
+
+            Call LoadGridApontamentoAndamento()
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -3044,11 +3157,12 @@ Public Class usrAdmChamado
 
     End Sub
 
-    Private Function ApontamentoAnulado(ByVal oRow As GridEXRow) As Boolean
+    Private Function SituacaoApontamento(ByVal oRow As GridEXRow) As Integer
 
-        Dim oValor As Object = oRow.Cells("anulado").Value
+        '0 = normal, 1 = anulado, 2 = retrabalho
+        Dim oValor As Object = oRow.Cells("situacao_codigo").Value
 
-        Return IsDBNull(oValor) = False AndAlso IsNothing(oValor) = False AndAlso CLng(oValor) = 1
+        Return IIf(IsDBNull(oValor) OrElse IsNothing(oValor), 0, CInt(oValor))
 
     End Function
 
@@ -3058,11 +3172,18 @@ Public Class usrAdmChamado
 
             If IsNothing(oRow) OrElse oRow.RowType <> RowType.Record Then Exit Sub
 
-            Dim bAnulado As Boolean = ApontamentoAnulado(oRow)
+            Dim iSituacao As Integer = SituacaoApontamento(oRow)
 
-            If bAnulado AndAlso MsgBox("Deseja anular este apontamento?" & vbCrLf & vbCrLf & _
-                                       "Ele continua no histórico, mas deixa de contar nas horas (totais, relatório e horas do chamado).", _
-                                       MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then
+            If iSituacao = gcSituacaoApontamentoAnulado AndAlso MsgBox("Deseja anular este apontamento?" & vbCrLf & vbCrLf & _
+                                                                     "Ele continua no histórico, mas deixa de contar nas horas (totais, relatório e horas do chamado).", _
+                                                                     MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then
+                Me.BeginInvoke(New MethodInvoker(AddressOf RecarregarHistorico))
+                Exit Sub
+            End If
+
+            If iSituacao = gcSituacaoApontamentoRetrabalho AndAlso MsgBox("Deseja marcar este apontamento como retrabalho?" & vbCrLf & vbCrLf & _
+                                                                        "Ele continua contando nas horas (totais, relatório e horas do chamado) e passa a ser identificado como retrabalho nos relatórios.", _
+                                                                        MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then
                 Me.BeginInvoke(New MethodInvoker(AddressOf RecarregarHistorico))
                 Exit Sub
             End If
@@ -3073,11 +3194,15 @@ Public Class usrAdmChamado
                                                              oRow.Cells("codigo_usuario").Value, _
                                                              oRow.Cells("codigo_chamado").Value, _
                                                              oRow.Cells("codigo_apontamento").Value, _
-                                                             bAnulado)
+                                                             iSituacao)
 
             Cursor.Current = Cursors.Default
 
-            frmMain.Informacao(IIf(bAnulado, "Apontamento anulado: não conta mais nas horas.", "Apontamento voltou a contar nas horas."), Color.Blue)
+            Select Case iSituacao
+                Case gcSituacaoApontamentoAnulado : frmMain.Informacao("Apontamento anulado: não conta mais nas horas.", Color.Blue)
+                Case gcSituacaoApontamentoRetrabalho : frmMain.Informacao("Apontamento marcado como retrabalho: continua contando nas horas.", Color.Blue)
+                Case Else : frmMain.Informacao("Apontamento voltou à situação normal.", Color.Blue)
+            End Select
 
             'Recarrega após o evento para atualizar horas, totais e formatação da linha
             Me.BeginInvoke(New MethodInvoker(AddressOf RecarregarHistorico))
@@ -3141,6 +3266,53 @@ Public Class usrAdmChamado
 
     End Sub
 
+    Private Sub AtualizarInicioApontamentoAndamento(ByVal oRow As GridEXRow)
+
+        Try
+
+            If IsNothing(oRow) OrElse oRow.RowType <> RowType.Record Then Exit Sub
+
+            Dim oInicio As Object = oRow.Cells("data_hora_inicio").Value
+            Dim dAgora As Date = Date.Now.Add(oDiferencaServidor)
+            Dim oDataRow As DataRow = CType(oRow.DataRow, DataRowView).Row
+
+            'Validação antes de persistir (o banco valida novamente)
+            If IsDBNull(oInicio) OrElse IsNothing(oInicio) OrElse IsDate(oInicio) = False Then
+                Throw New ArgumentException("Informe uma data/hora de início válida (dd/MM/yyyy HH:mm:ss).")
+            End If
+
+            If CDate(oInicio) > dAgora Then
+                Throw New ArgumentException("A data/hora de início não pode ser maior que a data/hora atual.")
+            End If
+
+            'A observação é regravada pela proc: sem ela na consulta o valor atual seria apagado
+            If oDataRow.Table.Columns.Contains("observacao") = False Then
+                Throw New ArgumentException("Não foi possível carregar a observação do apontamento. Atualize o banco de dados antes de alterar o início.")
+            End If
+
+            Cursor.Current = Cursors.WaitCursor
+
+            'Mantém o apontamento em andamento (término nulo), a observação e a empresa atuais
+            Call oClsUsrAdmChamado.UpdateApontamento(oRow.Cells("codigo_empresa").Value, _
+                                                     oRow.Cells("codigo_usuario").Value, _
+                                                     oRow.Cells("codigo_chamado").Value, _
+                                                     oRow.Cells("codigo_apontamento").Value, _
+                                                     CDate(oInicio), _
+                                                     Nothing, _
+                                                     oDataRow.Item("observacao").ToString.Trim, _
+                                                     CInt(oRow.Cells("codigo_empresa_cliente").Value))
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Início do apontamento do chamado " & oRow.Cells("codigo_chamado").Value & " atualizado com sucesso!", Color.Blue)
+
+        Catch ex As Exception
+            Cursor.Current = Cursors.Default
+            Throw ex
+        End Try
+
+    End Sub
+
     Private Function TerminoPelaDuracao(ByVal oRow As GridEXRow, ByVal sColuna As String) As Date
 
         Try
@@ -3187,6 +3359,205 @@ Public Class usrAdmChamado
         End Try
 
     End Function
+
+#End Region
+
+#Region "::: AGRUPAMENTO :::"
+
+    Private Sub LoadGridAgrupamento()
+
+        Try
+
+            If IsNumeric(txtCodigo.Text) = False Then
+                grdAgrupamentoChamado.DataSource = Nothing
+                Exit Sub
+            End If
+
+            Call oClsUsrAdmAgrupamento.LoadGridChamado(grdAgrupamentoChamado, -1, CLng(txtCodigo.Text))
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub IncluirAgrupamento()
+
+        Try
+
+            frmMain.errInfo.Clear()
+
+            If IsNumeric(txtCodigo.Text) = False Then
+                frmMain.Informacao("Salve o chamado antes de incluí-lo em um agrupamento.", gColorInformacaoErro)
+                Exit Sub
+            End If
+
+            If cboAgrupamentoChamado.SelectedIndex = -1 Then
+                frmMain.errInfo.SetError(cboAgrupamentoChamado, "Escolha o agrupamento.")
+                cboAgrupamentoChamado.Focus()
+                Exit Sub
+            End If
+
+            If txtMotivoAgrupamento.Text.Trim = "" Then
+                frmMain.errInfo.SetError(txtMotivoAgrupamento, "Informe o motivo da inclusão do chamado no agrupamento.")
+                txtMotivoAgrupamento.Focus()
+                Exit Sub
+            End If
+
+            Cursor.Current = Cursors.WaitCursor
+
+            Call oClsUsrAdmAgrupamento.InsertChamado(CLng(cboAgrupamentoChamado.SelectedValue), CLng(txtCodigo.Text), txtMotivoAgrupamento.Text.Trim)
+
+            frmMain.Informacao("Chamado " & txtCodigo.Text & " incluído no agrupamento AG-" & cboAgrupamentoChamado.SelectedValue.ToString & "!", Color.Blue)
+
+            cboAgrupamentoChamado.SelectedIndex = -1
+            txtMotivoAgrupamento.Text = ""
+
+            Call LoadGridAgrupamento()
+
+            Cursor.Current = Cursors.Default
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub RemoverAgrupamento()
+
+        Try
+
+            With grdAgrupamentoChamado.CurrentRow.Cells
+
+                If MsgBox("Deseja remover o chamado " & txtCodigo.Text & " do agrupamento " & .Item("agrupamento").Value.ToString & "?", _
+                          MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then Exit Sub
+
+                Cursor.Current = Cursors.WaitCursor
+
+                Call oClsUsrAdmAgrupamento.DeleteChamado(CLng(.Item("codigo_agrupamento").Value), CLng(txtCodigo.Text))
+
+            End With
+
+            Call LoadGridAgrupamento()
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Chamado removido do agrupamento.", Color.Blue)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: RECORRÊNCIA :::"
+
+    Private Sub LoadRecorrencia()
+
+        Try
+
+            oRecorrencia = IIf(IsNumeric(txtCodigo.Text), oClsFrmRecorrencia.Load(CLng(txtCodigo.Text)), Nothing)
+
+            Call MostrarRecorrencia()
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub MostrarRecorrencia()
+
+        'Indicação na barra do chamado: regra (modelo), origem (gerado) ou pendente (chamado novo)
+        If IsNothing(oRecorrencia) Then
+            lblRecorrencia.Text = ""
+        ElseIf oRecorrencia.lCodigo = 0 Then
+            lblRecorrencia.Text = "Recorrência será criada ao salvar: " & oRecorrencia.Descricao()
+        ElseIf oRecorrencia.bModelo = False Then
+            lblRecorrencia.Text = "Gerado pela recorrência do chamado " & oRecorrencia.lChamadoModelo
+        ElseIf oRecorrencia.bAtivo = False Then
+            lblRecorrencia.Text = "Recorrência encerrada"
+        Else
+            lblRecorrencia.Text = oRecorrencia.Descricao() & _
+                                  IIf(IsNothing(oRecorrencia.oProximaOcorrencia), "", " (próx.: " & Format(oRecorrencia.oProximaOcorrencia, "dd/MM/yyyy") & ")").ToString
+        End If
+
+    End Sub
+
+    Private Sub ConfigurarRecorrencia()
+
+        Try
+
+            'Chamado gerado: a regra fica no chamado de origem
+            If IsNothing(oRecorrencia) = False AndAlso oRecorrencia.lCodigo > 0 AndAlso oRecorrencia.bModelo = False Then
+                If MsgBox("Este chamado foi gerado pela recorrência do chamado " & oRecorrencia.lChamadoModelo & "." & vbCrLf & vbCrLf & _
+                          "A recorrência é configurada no chamado de origem. Deseja abri-lo?", _
+                          MsgBoxStyle.Question + MsgBoxStyle.YesNo, gAplicacao) = MsgBoxResult.Yes Then
+                    Call AbrirChamado(oRecorrencia.lChamadoModelo)
+                End If
+                Exit Sub
+            End If
+
+            Dim oForm As New frmRecorrencia
+            oForm.oRegra = oRecorrencia
+            oForm.ShowDialog(Me)
+
+            Select Case oForm.eResultado
+
+                Case frmRecorrencia.ResultadoRecorrencia.Salvar
+
+                    If IsNumeric(txtCodigo.Text) Then
+                        Call SalvarRecorrencia(oForm.oRegra)
+                    Else
+                        'Chamado novo: grava junto com o chamado no Salvar
+                        oRecorrencia = oForm.oRegra
+                        Call MostrarRecorrencia()
+                        frmMain.Informacao("A recorrência será criada quando o chamado for salvo.", Color.Blue)
+                    End If
+
+                Case frmRecorrencia.ResultadoRecorrencia.Remover
+
+                    Cursor.Current = Cursors.WaitCursor
+                    Call oClsFrmRecorrencia.Encerrar(oRecorrencia.lCodigo)
+                    Call LoadRecorrencia()
+                    Cursor.Current = Cursors.Default
+                    frmMain.Informacao("Recorrência removida. Os chamados já gerados continuam como estão.", Color.Blue)
+
+            End Select
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub SalvarRecorrencia(ByVal oRegra As clsFrmRecorrencia.RegraRecorrencia)
+
+        Try
+
+            Cursor.Current = Cursors.WaitCursor
+
+            If oRegra.lCodigo > 0 Then
+                Call oClsFrmRecorrencia.Update(oRegra)
+            Else
+                Call oClsFrmRecorrencia.Insert(CLng(txtCodigo.Text), oRegra)
+            End If
+
+            Call LoadRecorrencia()
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Recorrência salva: " & oRecorrencia.Descricao() & ". Os chamados já gerados não são alterados.", Color.Blue)
+
+        Catch ex As Exception
+            Cursor.Current = Cursors.Default
+            'Recorrência inválida (ex.: data de início): mantém a regra para corrigir sem perder o chamado
+            Throw ex
+        End Try
+
+    End Sub
 
 #End Region
 

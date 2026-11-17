@@ -31,6 +31,8 @@ Partial Class usrCadEmpresa
         Dim grdArquivos_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim grdArquivos_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Dim grdHistorico_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim grdAcesso_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
+        Dim grdAcesso_DesignTimeLayout_Reference_0 As Janus.Windows.Common.Layouts.JanusLayoutReference = New Janus.Windows.Common.Layouts.JanusLayoutReference("GridEXLayoutData.RootTable.Columns.Column0.Image")
         Me.tabMain = New Janus.Windows.UI.Tab.UITab()
         Me.pagLista = New Janus.Windows.UI.Tab.UITabPage()
         Me.pagDados = New Janus.Windows.UI.Tab.UITabPage()
@@ -63,54 +65,31 @@ Partial Class usrCadEmpresa
         Me.cboTime = New Janus.Windows.EditControls.UIComboBox()
         Me.lblModulo = New System.Windows.Forms.Label()
         Me.cboModulo = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
+        Me.lblResponsavelBkp = New System.Windows.Forms.Label()
+        Me.cboResponsavelBkp = New Janus.Windows.EditControls.UIComboBox()
         Me.lblFocalPoint = New System.Windows.Forms.Label()
         Me.txtFocalPoint = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.lblCelular = New System.Windows.Forms.Label()
         Me.txtCelular = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.lblEmail = New System.Windows.Forms.Label()
         Me.txtEmail = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
-        Me.grpTeamViewer = New Janus.Windows.EditControls.UIGroupBox()
-        Me.lblIdTeamViewer = New System.Windows.Forms.Label()
-        Me.txtIdTeamViewer = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
-        Me.lblSenhaTeamViewer = New System.Windows.Forms.Label()
-        Me.txtSenhaTeamViewer = New Janus.Windows.GridEX.EditControls.EditBox()
-        Me.grpMstsc = New Janus.Windows.EditControls.UIGroupBox()
-        Me.lblIpMstsc = New System.Windows.Forms.Label()
-        Me.txtIpMstsc = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
-        Me.lblUsuarioMstsc = New System.Windows.Forms.Label()
-        Me.txtUsuarioMstsc = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
-        Me.lblSenhaMstsc = New System.Windows.Forms.Label()
-        Me.txtSenhaMstsc = New Janus.Windows.GridEX.EditControls.EditBox()
-        Me.grpVpn = New Janus.Windows.EditControls.UIGroupBox()
-        Me.lblIpVpn = New System.Windows.Forms.Label()
-        Me.txtIpVpn = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
-        Me.lblUsuarioVpn = New System.Windows.Forms.Label()
-        Me.txtUsuarioVpn = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
-        Me.lblSenhaVpn = New System.Windows.Forms.Label()
-        Me.txtSenhaVpn = New Janus.Windows.GridEX.EditControls.EditBox()
-        Me.lblLocalPastaServidor = New System.Windows.Forms.Label()
-        Me.txtLocalPastaServidor = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
-        Me.grpSql = New Janus.Windows.EditControls.UIGroupBox()
-        Me.lblServidorSql = New System.Windows.Forms.Label()
-        Me.txtServidorSql = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
-        Me.lblUsuarioSql = New System.Windows.Forms.Label()
-        Me.txtUsuarioSql = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
-        Me.lblSenhaSql = New System.Windows.Forms.Label()
-        Me.txtSenhaSql = New Janus.Windows.GridEX.EditControls.EditBox()
-        Me.grpWindows = New Janus.Windows.EditControls.UIGroupBox()
-        Me.lblDominioUsuarioWindows = New System.Windows.Forms.Label()
-        Me.txtDominioUsuarioWindows = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
-        Me.lblSenhaWindows = New System.Windows.Forms.Label()
-        Me.txtSenhaWindows = New Janus.Windows.GridEX.EditControls.EditBox()
+        Me.lblTipoAcesso = New System.Windows.Forms.Label()
+        Me.cboTipoAcesso = New Janus.Windows.EditControls.UIComboBox()
+        Me.lblSubtipoAcesso = New System.Windows.Forms.Label()
+        Me.cboSubtipoAcesso = New Janus.Windows.EditControls.UIComboBox()
+        Me.lblValorAcesso = New System.Windows.Forms.Label()
+        Me.txtValorAcesso = New Janus.Windows.GridEX.EditControls.EditBox()
+        Me.btnAdicionarAcesso = New Janus.Windows.EditControls.UIButton()
+        Me.grdAcesso = New Janus.Windows.GridEX.GridEX()
         Me.tabDadosEmpresa = New Janus.Windows.UI.Tab.UITab()
         Me.pagObservacao = New Janus.Windows.UI.Tab.UITabPage()
+        Me.pagAcesso = New Janus.Windows.UI.Tab.UITabPage()
         Me.pagArquivos = New Janus.Windows.UI.Tab.UITabPage()
         Me.pagHistorico = New Janus.Windows.UI.Tab.UITabPage()
         Me.txtObservacao = New Janus.Windows.GridEX.EditControls.EditBox()
         Me.grdArquivos = New Janus.Windows.GridEX.GridEX()
         Me.grdHistorico = New Janus.Windows.GridEX.GridEX()
         Me.grpControl2 = New Janus.Windows.EditControls.UIGroupBox()
-        Me.chkMostrarSenha = New Janus.Windows.EditControls.UICheckBox()
         Me.btnSalvar = New Janus.Windows.EditControls.UIButton()
         Me.btnVoltar = New Janus.Windows.EditControls.UIButton()
         Me.btnSair2 = New Janus.Windows.EditControls.UIButton()
@@ -127,18 +106,10 @@ Partial Class usrCadEmpresa
         Me.grpControl.SuspendLayout()
         CType(Me.grpDadosGerais, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.grpDadosGerais.SuspendLayout()
-        CType(Me.grpTeamViewer, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.grpTeamViewer.SuspendLayout()
-        CType(Me.grpMstsc, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.grpMstsc.SuspendLayout()
-        CType(Me.grpVpn, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.grpVpn.SuspendLayout()
-        CType(Me.grpSql, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.grpSql.SuspendLayout()
-        CType(Me.grpWindows, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.grpWindows.SuspendLayout()
+        CType(Me.grdAcesso, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.tabDadosEmpresa, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.tabDadosEmpresa.SuspendLayout()
+        Me.pagAcesso.SuspendLayout()
         Me.pagObservacao.SuspendLayout()
         Me.pagArquivos.SuspendLayout()
         Me.pagHistorico.SuspendLayout()
@@ -179,11 +150,6 @@ Partial Class usrCadEmpresa
         '
         Me.pagDados.Controls.Add(Me.grpControl2)
         Me.pagDados.Controls.Add(Me.tabDadosEmpresa)
-        Me.pagDados.Controls.Add(Me.grpWindows)
-        Me.pagDados.Controls.Add(Me.grpSql)
-        Me.pagDados.Controls.Add(Me.grpVpn)
-        Me.pagDados.Controls.Add(Me.grpMstsc)
-        Me.pagDados.Controls.Add(Me.grpTeamViewer)
         Me.pagDados.Controls.Add(Me.grpDadosGerais)
         Me.pagDados.Key = "pagDados"
         Me.pagDados.Location = New System.Drawing.Point(1, 22)
@@ -382,6 +348,8 @@ Partial Class usrCadEmpresa
         Me.grpDadosGerais.Controls.Add(Me.lblCelular)
         Me.grpDadosGerais.Controls.Add(Me.txtFocalPoint)
         Me.grpDadosGerais.Controls.Add(Me.lblFocalPoint)
+        Me.grpDadosGerais.Controls.Add(Me.cboResponsavelBkp)
+        Me.grpDadosGerais.Controls.Add(Me.lblResponsavelBkp)
         Me.grpDadosGerais.Controls.Add(Me.cboModulo)
         Me.grpDadosGerais.Controls.Add(Me.lblModulo)
         Me.grpDadosGerais.Controls.Add(Me.cboTime)
@@ -532,9 +500,29 @@ Partial Class usrCadEmpresa
         Me.cboModulo.Location = New System.Drawing.Point(271, 70)
         Me.cboModulo.Name = "cboModulo"
         Me.cboModulo.SaveSettings = False
-        Me.cboModulo.Size = New System.Drawing.Size(314, 20)
+        Me.cboModulo.Size = New System.Drawing.Size(160, 20)
         Me.cboModulo.TabIndex = 13
         Me.cboModulo.ValuesDataMember = Nothing
+        '
+        'lblResponsavelBkp
+        '
+        Me.lblResponsavelBkp.AutoSize = True
+        Me.lblResponsavelBkp.BackColor = System.Drawing.Color.Transparent
+        Me.lblResponsavelBkp.Location = New System.Drawing.Point(431, 54)
+        Me.lblResponsavelBkp.Name = "lblResponsavelBkp"
+        Me.lblResponsavelBkp.TabIndex = 14
+        Me.lblResponsavelBkp.Text = "Responsável BKP:"
+        '
+        'cboResponsavelBkp
+        '
+        Me.cboResponsavelBkp.AutoSize = False
+        Me.cboResponsavelBkp.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboResponsavelBkp.Location = New System.Drawing.Point(434, 70)
+        Me.cboResponsavelBkp.Name = "cboResponsavelBkp"
+        Me.cboResponsavelBkp.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboResponsavelBkp.Size = New System.Drawing.Size(151, 20)
+        Me.cboResponsavelBkp.TabIndex = 15
+        Me.ToolTip.SetToolTip(Me.cboResponsavelBkp, "Responsável pelo backup (usuários do time da empresa)")
         '
         'lblFocalPoint
         '
@@ -542,7 +530,7 @@ Partial Class usrCadEmpresa
         Me.lblFocalPoint.BackColor = System.Drawing.Color.Transparent
         Me.lblFocalPoint.Location = New System.Drawing.Point(588, 54)
         Me.lblFocalPoint.Name = "lblFocalPoint"
-        Me.lblFocalPoint.TabIndex = 14
+        Me.lblFocalPoint.TabIndex = 16
         Me.lblFocalPoint.Text = "Focal Point:"
         '
         'txtFocalPoint
@@ -551,7 +539,7 @@ Partial Class usrCadEmpresa
         Me.txtFocalPoint.Name = "txtFocalPoint"
         Me.txtFocalPoint.MaxLength = 100
         Me.txtFocalPoint.Size = New System.Drawing.Size(200, 20)
-        Me.txtFocalPoint.TabIndex = 15
+        Me.txtFocalPoint.TabIndex = 17
         '
         'lblCelular
         '
@@ -559,7 +547,7 @@ Partial Class usrCadEmpresa
         Me.lblCelular.BackColor = System.Drawing.Color.Transparent
         Me.lblCelular.Location = New System.Drawing.Point(794, 54)
         Me.lblCelular.Name = "lblCelular"
-        Me.lblCelular.TabIndex = 16
+        Me.lblCelular.TabIndex = 18
         Me.lblCelular.Text = "Celular:"
         '
         'txtCelular
@@ -568,7 +556,7 @@ Partial Class usrCadEmpresa
         Me.txtCelular.Name = "txtCelular"
         Me.txtCelular.MaxLength = 100
         Me.txtCelular.Size = New System.Drawing.Size(144, 20)
-        Me.txtCelular.TabIndex = 17
+        Me.txtCelular.TabIndex = 19
         '
         'lblEmail
         '
@@ -576,7 +564,7 @@ Partial Class usrCadEmpresa
         Me.lblEmail.BackColor = System.Drawing.Color.Transparent
         Me.lblEmail.Location = New System.Drawing.Point(944, 54)
         Me.lblEmail.Name = "lblEmail"
-        Me.lblEmail.TabIndex = 18
+        Me.lblEmail.TabIndex = 20
         Me.lblEmail.Text = "E-mail:"
         '
         'txtEmail
@@ -587,350 +575,112 @@ Partial Class usrCadEmpresa
         Me.txtEmail.Name = "txtEmail"
         Me.txtEmail.MaxLength = 100
         Me.txtEmail.Size = New System.Drawing.Size(226, 20)
-        Me.txtEmail.TabIndex = 19
+        Me.txtEmail.TabIndex = 21
         '
-        'grpTeamViewer
+        'lblTipoAcesso
         '
-        Me.grpTeamViewer.BackColor = System.Drawing.Color.Transparent
-        Me.grpTeamViewer.Controls.Add(Me.txtSenhaTeamViewer)
-        Me.grpTeamViewer.Controls.Add(Me.lblSenhaTeamViewer)
-        Me.grpTeamViewer.Controls.Add(Me.txtIdTeamViewer)
-        Me.grpTeamViewer.Controls.Add(Me.lblIdTeamViewer)
-        Me.grpTeamViewer.FormatStyle.ForeColor = System.Drawing.Color.Blue
-        Me.grpTeamViewer.Location = New System.Drawing.Point(7, 110)
-        Me.grpTeamViewer.Name = "grpTeamViewer"
-        Me.grpTeamViewer.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.grpTeamViewer.Size = New System.Drawing.Size(386, 58)
-        Me.grpTeamViewer.TabIndex = 1
-        Me.grpTeamViewer.Text = "Team Viewer"
-        Me.grpTeamViewer.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
+        Me.lblTipoAcesso.AutoSize = True
+        Me.lblTipoAcesso.BackColor = System.Drawing.Color.Transparent
+        Me.lblTipoAcesso.Location = New System.Drawing.Point(0, 6)
+        Me.lblTipoAcesso.Name = "lblTipoAcesso"
+        Me.lblTipoAcesso.TabIndex = 0
+        Me.lblTipoAcesso.Text = "Tipo:"
         '
-        'lblIdTeamViewer
+        'cboTipoAcesso
         '
-        Me.lblIdTeamViewer.AutoSize = True
-        Me.lblIdTeamViewer.BackColor = System.Drawing.Color.Transparent
-        Me.lblIdTeamViewer.Location = New System.Drawing.Point(6, 16)
-        Me.lblIdTeamViewer.Name = "lblIdTeamViewer"
-        Me.lblIdTeamViewer.TabIndex = 0
-        Me.lblIdTeamViewer.Text = "ID:"
+        Me.cboTipoAcesso.AutoSize = False
+        Me.cboTipoAcesso.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboTipoAcesso.ComboStyle = Janus.Windows.EditControls.ComboStyle.Combo
+        Me.cboTipoAcesso.Location = New System.Drawing.Point(3, 22)
+        Me.cboTipoAcesso.Name = "cboTipoAcesso"
+        Me.cboTipoAcesso.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboTipoAcesso.Size = New System.Drawing.Size(200, 20)
+        Me.cboTipoAcesso.TabIndex = 1
+        Me.ToolTip.SetToolTip(Me.cboTipoAcesso, "Escolha um tipo já usado ou digite um novo (ex.: MSTSC, VPN, SQL SERVER)")
         '
-        'txtIdTeamViewer
+        'lblSubtipoAcesso
         '
-        Me.txtIdTeamViewer.Location = New System.Drawing.Point(9, 32)
-        Me.txtIdTeamViewer.Name = "txtIdTeamViewer"
-        Me.txtIdTeamViewer.MaxLength = 50
-        Me.txtIdTeamViewer.Size = New System.Drawing.Size(180, 20)
-        Me.txtIdTeamViewer.TabIndex = 1
+        Me.lblSubtipoAcesso.AutoSize = True
+        Me.lblSubtipoAcesso.BackColor = System.Drawing.Color.Transparent
+        Me.lblSubtipoAcesso.Location = New System.Drawing.Point(206, 6)
+        Me.lblSubtipoAcesso.Name = "lblSubtipoAcesso"
+        Me.lblSubtipoAcesso.TabIndex = 2
+        Me.lblSubtipoAcesso.Text = "Subtipo:"
         '
-        'lblSenhaTeamViewer
+        'cboSubtipoAcesso
         '
-        Me.lblSenhaTeamViewer.AutoSize = True
-        Me.lblSenhaTeamViewer.BackColor = System.Drawing.Color.Transparent
-        Me.lblSenhaTeamViewer.Location = New System.Drawing.Point(192, 16)
-        Me.lblSenhaTeamViewer.Name = "lblSenhaTeamViewer"
-        Me.lblSenhaTeamViewer.TabIndex = 2
-        Me.lblSenhaTeamViewer.Text = "Senha:"
+        Me.cboSubtipoAcesso.AutoSize = False
+        Me.cboSubtipoAcesso.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
+        Me.cboSubtipoAcesso.ComboStyle = Janus.Windows.EditControls.ComboStyle.Combo
+        Me.cboSubtipoAcesso.Location = New System.Drawing.Point(209, 22)
+        Me.cboSubtipoAcesso.Name = "cboSubtipoAcesso"
+        Me.cboSubtipoAcesso.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.cboSubtipoAcesso.Size = New System.Drawing.Size(200, 20)
+        Me.cboSubtipoAcesso.TabIndex = 3
+        Me.ToolTip.SetToolTip(Me.cboSubtipoAcesso, "Escolha um subtipo já usado ou digite um novo (ex.: IP, USUÁRIO, SENHA)")
         '
-        'txtSenhaTeamViewer
+        'lblValorAcesso
         '
-        Me.txtSenhaTeamViewer.Location = New System.Drawing.Point(195, 32)
-        Me.txtSenhaTeamViewer.Name = "txtSenhaTeamViewer"
-        Me.txtSenhaTeamViewer.MaxLength = 50
-        Me.txtSenhaTeamViewer.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtSenhaTeamViewer.Size = New System.Drawing.Size(182, 20)
-        Me.txtSenhaTeamViewer.TabIndex = 3
+        Me.lblValorAcesso.AutoSize = True
+        Me.lblValorAcesso.BackColor = System.Drawing.Color.Transparent
+        Me.lblValorAcesso.Location = New System.Drawing.Point(412, 6)
+        Me.lblValorAcesso.Name = "lblValorAcesso"
+        Me.lblValorAcesso.TabIndex = 4
+        Me.lblValorAcesso.Text = "Valor:"
         '
-        'grpMstsc
+        'txtValorAcesso
         '
-        Me.grpMstsc.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+        Me.txtValorAcesso.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.grpMstsc.BackColor = System.Drawing.Color.Transparent
-        Me.grpMstsc.Controls.Add(Me.txtSenhaMstsc)
-        Me.grpMstsc.Controls.Add(Me.lblSenhaMstsc)
-        Me.grpMstsc.Controls.Add(Me.txtUsuarioMstsc)
-        Me.grpMstsc.Controls.Add(Me.lblUsuarioMstsc)
-        Me.grpMstsc.Controls.Add(Me.txtIpMstsc)
-        Me.grpMstsc.Controls.Add(Me.lblIpMstsc)
-        Me.grpMstsc.FormatStyle.ForeColor = System.Drawing.Color.Blue
-        Me.grpMstsc.Location = New System.Drawing.Point(399, 110)
-        Me.grpMstsc.Name = "grpMstsc"
-        Me.grpMstsc.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.grpMstsc.Size = New System.Drawing.Size(790, 58)
-        Me.grpMstsc.TabIndex = 2
-        Me.grpMstsc.Text = "Acesso Remoto - MSTSC"
-        Me.grpMstsc.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
+        Me.txtValorAcesso.Location = New System.Drawing.Point(415, 22)
+        Me.txtValorAcesso.MaxLength = 500
+        Me.txtValorAcesso.Name = "txtValorAcesso"
+        Me.txtValorAcesso.Size = New System.Drawing.Size(665, 20)
+        Me.txtValorAcesso.TabIndex = 5
+        Me.txtValorAcesso.VisualStyle = Janus.Windows.GridEX.VisualStyle.VS2005
         '
-        'lblIpMstsc
+        'btnAdicionarAcesso
         '
-        Me.lblIpMstsc.AutoSize = True
-        Me.lblIpMstsc.BackColor = System.Drawing.Color.Transparent
-        Me.lblIpMstsc.Location = New System.Drawing.Point(6, 16)
-        Me.lblIpMstsc.Name = "lblIpMstsc"
-        Me.lblIpMstsc.TabIndex = 0
-        Me.lblIpMstsc.Text = "IP:"
+        Me.btnAdicionarAcesso.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnAdicionarAcesso.Image = Global.Documentacti.My.Resources.Resources.add
+        Me.btnAdicionarAcesso.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
+        Me.btnAdicionarAcesso.Location = New System.Drawing.Point(1086, 20)
+        Me.btnAdicionarAcesso.Name = "btnAdicionarAcesso"
+        Me.btnAdicionarAcesso.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.btnAdicionarAcesso.Size = New System.Drawing.Size(91, 23)
+        Me.btnAdicionarAcesso.TabIndex = 6
+        Me.btnAdicionarAcesso.Text = "Adicionar"
+        Me.btnAdicionarAcesso.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
-        'txtIpMstsc
+        'grdAcesso
         '
-        Me.txtIpMstsc.Location = New System.Drawing.Point(9, 32)
-        Me.txtIpMstsc.Name = "txtIpMstsc"
-        Me.txtIpMstsc.MaxLength = 50
-        Me.txtIpMstsc.Size = New System.Drawing.Size(250, 20)
-        Me.txtIpMstsc.TabIndex = 1
-        '
-        'lblUsuarioMstsc
-        '
-        Me.lblUsuarioMstsc.AutoSize = True
-        Me.lblUsuarioMstsc.BackColor = System.Drawing.Color.Transparent
-        Me.lblUsuarioMstsc.Location = New System.Drawing.Point(262, 16)
-        Me.lblUsuarioMstsc.Name = "lblUsuarioMstsc"
-        Me.lblUsuarioMstsc.TabIndex = 2
-        Me.lblUsuarioMstsc.Text = "Usuário:"
-        '
-        'txtUsuarioMstsc
-        '
-        Me.txtUsuarioMstsc.Location = New System.Drawing.Point(265, 32)
-        Me.txtUsuarioMstsc.Name = "txtUsuarioMstsc"
-        Me.txtUsuarioMstsc.MaxLength = 50
-        Me.txtUsuarioMstsc.Size = New System.Drawing.Size(250, 20)
-        Me.txtUsuarioMstsc.TabIndex = 3
-        '
-        'lblSenhaMstsc
-        '
-        Me.lblSenhaMstsc.AutoSize = True
-        Me.lblSenhaMstsc.BackColor = System.Drawing.Color.Transparent
-        Me.lblSenhaMstsc.Location = New System.Drawing.Point(518, 16)
-        Me.lblSenhaMstsc.Name = "lblSenhaMstsc"
-        Me.lblSenhaMstsc.TabIndex = 4
-        Me.lblSenhaMstsc.Text = "Senha:"
-        '
-        'txtSenhaMstsc
-        '
-        Me.txtSenhaMstsc.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+        Me.grdAcesso.AllowEdit = Janus.Windows.GridEX.InheritableBoolean.[True]
+        Me.grdAcesso.AlternatingColors = True
+        Me.grdAcesso.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtSenhaMstsc.Location = New System.Drawing.Point(521, 32)
-        Me.txtSenhaMstsc.Name = "txtSenhaMstsc"
-        Me.txtSenhaMstsc.MaxLength = 50
-        Me.txtSenhaMstsc.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtSenhaMstsc.Size = New System.Drawing.Size(260, 20)
-        Me.txtSenhaMstsc.TabIndex = 5
-        '
-        'grpVpn
-        '
-        Me.grpVpn.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.grpVpn.BackColor = System.Drawing.Color.Transparent
-        Me.grpVpn.Controls.Add(Me.txtLocalPastaServidor)
-        Me.grpVpn.Controls.Add(Me.lblLocalPastaServidor)
-        Me.grpVpn.Controls.Add(Me.txtSenhaVpn)
-        Me.grpVpn.Controls.Add(Me.lblSenhaVpn)
-        Me.grpVpn.Controls.Add(Me.txtUsuarioVpn)
-        Me.grpVpn.Controls.Add(Me.lblUsuarioVpn)
-        Me.grpVpn.Controls.Add(Me.txtIpVpn)
-        Me.grpVpn.Controls.Add(Me.lblIpVpn)
-        Me.grpVpn.FormatStyle.ForeColor = System.Drawing.Color.Blue
-        Me.grpVpn.Location = New System.Drawing.Point(7, 172)
-        Me.grpVpn.Name = "grpVpn"
-        Me.grpVpn.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.grpVpn.Size = New System.Drawing.Size(1182, 58)
-        Me.grpVpn.TabIndex = 3
-        Me.grpVpn.Text = "VPN"
-        Me.grpVpn.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
-        '
-        'lblIpVpn
-        '
-        Me.lblIpVpn.AutoSize = True
-        Me.lblIpVpn.BackColor = System.Drawing.Color.Transparent
-        Me.lblIpVpn.Location = New System.Drawing.Point(6, 16)
-        Me.lblIpVpn.Name = "lblIpVpn"
-        Me.lblIpVpn.TabIndex = 0
-        Me.lblIpVpn.Text = "IP:"
-        '
-        'txtIpVpn
-        '
-        Me.txtIpVpn.Location = New System.Drawing.Point(9, 32)
-        Me.txtIpVpn.Name = "txtIpVpn"
-        Me.txtIpVpn.MaxLength = 50
-        Me.txtIpVpn.Size = New System.Drawing.Size(200, 20)
-        Me.txtIpVpn.TabIndex = 1
-        '
-        'lblUsuarioVpn
-        '
-        Me.lblUsuarioVpn.AutoSize = True
-        Me.lblUsuarioVpn.BackColor = System.Drawing.Color.Transparent
-        Me.lblUsuarioVpn.Location = New System.Drawing.Point(212, 16)
-        Me.lblUsuarioVpn.Name = "lblUsuarioVpn"
-        Me.lblUsuarioVpn.TabIndex = 2
-        Me.lblUsuarioVpn.Text = "Usuário:"
-        '
-        'txtUsuarioVpn
-        '
-        Me.txtUsuarioVpn.Location = New System.Drawing.Point(215, 32)
-        Me.txtUsuarioVpn.Name = "txtUsuarioVpn"
-        Me.txtUsuarioVpn.MaxLength = 50
-        Me.txtUsuarioVpn.Size = New System.Drawing.Size(200, 20)
-        Me.txtUsuarioVpn.TabIndex = 3
-        '
-        'lblSenhaVpn
-        '
-        Me.lblSenhaVpn.AutoSize = True
-        Me.lblSenhaVpn.BackColor = System.Drawing.Color.Transparent
-        Me.lblSenhaVpn.Location = New System.Drawing.Point(418, 16)
-        Me.lblSenhaVpn.Name = "lblSenhaVpn"
-        Me.lblSenhaVpn.TabIndex = 4
-        Me.lblSenhaVpn.Text = "Senha:"
-        '
-        'txtSenhaVpn
-        '
-        Me.txtSenhaVpn.Location = New System.Drawing.Point(421, 32)
-        Me.txtSenhaVpn.Name = "txtSenhaVpn"
-        Me.txtSenhaVpn.MaxLength = 50
-        Me.txtSenhaVpn.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtSenhaVpn.Size = New System.Drawing.Size(200, 20)
-        Me.txtSenhaVpn.TabIndex = 5
-        '
-        'lblLocalPastaServidor
-        '
-        Me.lblLocalPastaServidor.AutoSize = True
-        Me.lblLocalPastaServidor.BackColor = System.Drawing.Color.Transparent
-        Me.lblLocalPastaServidor.Location = New System.Drawing.Point(624, 16)
-        Me.lblLocalPastaServidor.Name = "lblLocalPastaServidor"
-        Me.lblLocalPastaServidor.TabIndex = 6
-        Me.lblLocalPastaServidor.Text = "Local da Pasta no Servidor:"
-        '
-        'txtLocalPastaServidor
-        '
-        Me.txtLocalPastaServidor.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtLocalPastaServidor.Location = New System.Drawing.Point(627, 32)
-        Me.txtLocalPastaServidor.Name = "txtLocalPastaServidor"
-        Me.txtLocalPastaServidor.MaxLength = 100
-        Me.txtLocalPastaServidor.Size = New System.Drawing.Size(546, 20)
-        Me.txtLocalPastaServidor.TabIndex = 7
-        '
-        'grpSql
-        '
-        Me.grpSql.BackColor = System.Drawing.Color.Transparent
-        Me.grpSql.Controls.Add(Me.txtSenhaSql)
-        Me.grpSql.Controls.Add(Me.lblSenhaSql)
-        Me.grpSql.Controls.Add(Me.txtUsuarioSql)
-        Me.grpSql.Controls.Add(Me.lblUsuarioSql)
-        Me.grpSql.Controls.Add(Me.txtServidorSql)
-        Me.grpSql.Controls.Add(Me.lblServidorSql)
-        Me.grpSql.FormatStyle.ForeColor = System.Drawing.Color.Blue
-        Me.grpSql.Location = New System.Drawing.Point(7, 234)
-        Me.grpSql.Name = "grpSql"
-        Me.grpSql.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.grpSql.Size = New System.Drawing.Size(588, 58)
-        Me.grpSql.TabIndex = 4
-        Me.grpSql.Text = "SQL Server"
-        Me.grpSql.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
-        '
-        'lblServidorSql
-        '
-        Me.lblServidorSql.AutoSize = True
-        Me.lblServidorSql.BackColor = System.Drawing.Color.Transparent
-        Me.lblServidorSql.Location = New System.Drawing.Point(6, 16)
-        Me.lblServidorSql.Name = "lblServidorSql"
-        Me.lblServidorSql.TabIndex = 0
-        Me.lblServidorSql.Text = "Servidor:"
-        '
-        'txtServidorSql
-        '
-        Me.txtServidorSql.Location = New System.Drawing.Point(9, 32)
-        Me.txtServidorSql.Name = "txtServidorSql"
-        Me.txtServidorSql.MaxLength = 50
-        Me.txtServidorSql.Size = New System.Drawing.Size(250, 20)
-        Me.txtServidorSql.TabIndex = 1
-        '
-        'lblUsuarioSql
-        '
-        Me.lblUsuarioSql.AutoSize = True
-        Me.lblUsuarioSql.BackColor = System.Drawing.Color.Transparent
-        Me.lblUsuarioSql.Location = New System.Drawing.Point(262, 16)
-        Me.lblUsuarioSql.Name = "lblUsuarioSql"
-        Me.lblUsuarioSql.TabIndex = 2
-        Me.lblUsuarioSql.Text = "Usuário:"
-        '
-        'txtUsuarioSql
-        '
-        Me.txtUsuarioSql.Location = New System.Drawing.Point(265, 32)
-        Me.txtUsuarioSql.Name = "txtUsuarioSql"
-        Me.txtUsuarioSql.MaxLength = 50
-        Me.txtUsuarioSql.Size = New System.Drawing.Size(150, 20)
-        Me.txtUsuarioSql.TabIndex = 3
-        '
-        'lblSenhaSql
-        '
-        Me.lblSenhaSql.AutoSize = True
-        Me.lblSenhaSql.BackColor = System.Drawing.Color.Transparent
-        Me.lblSenhaSql.Location = New System.Drawing.Point(418, 16)
-        Me.lblSenhaSql.Name = "lblSenhaSql"
-        Me.lblSenhaSql.TabIndex = 4
-        Me.lblSenhaSql.Text = "Senha:"
-        '
-        'txtSenhaSql
-        '
-        Me.txtSenhaSql.Location = New System.Drawing.Point(421, 32)
-        Me.txtSenhaSql.Name = "txtSenhaSql"
-        Me.txtSenhaSql.MaxLength = 50
-        Me.txtSenhaSql.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtSenhaSql.Size = New System.Drawing.Size(158, 20)
-        Me.txtSenhaSql.TabIndex = 5
-        '
-        'grpWindows
-        '
-        Me.grpWindows.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.grpWindows.BackColor = System.Drawing.Color.Transparent
-        Me.grpWindows.Controls.Add(Me.txtSenhaWindows)
-        Me.grpWindows.Controls.Add(Me.lblSenhaWindows)
-        Me.grpWindows.Controls.Add(Me.txtDominioUsuarioWindows)
-        Me.grpWindows.Controls.Add(Me.lblDominioUsuarioWindows)
-        Me.grpWindows.FormatStyle.ForeColor = System.Drawing.Color.Blue
-        Me.grpWindows.Location = New System.Drawing.Point(601, 234)
-        Me.grpWindows.Name = "grpWindows"
-        Me.grpWindows.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.grpWindows.Size = New System.Drawing.Size(588, 58)
-        Me.grpWindows.TabIndex = 5
-        Me.grpWindows.Text = "Windows"
-        Me.grpWindows.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
-        '
-        'lblDominioUsuarioWindows
-        '
-        Me.lblDominioUsuarioWindows.AutoSize = True
-        Me.lblDominioUsuarioWindows.BackColor = System.Drawing.Color.Transparent
-        Me.lblDominioUsuarioWindows.Location = New System.Drawing.Point(6, 16)
-        Me.lblDominioUsuarioWindows.Name = "lblDominioUsuarioWindows"
-        Me.lblDominioUsuarioWindows.TabIndex = 0
-        Me.lblDominioUsuarioWindows.Text = "Domínio / Usuário:"
-        '
-        'txtDominioUsuarioWindows
-        '
-        Me.txtDominioUsuarioWindows.Location = New System.Drawing.Point(9, 32)
-        Me.txtDominioUsuarioWindows.Name = "txtDominioUsuarioWindows"
-        Me.txtDominioUsuarioWindows.MaxLength = 100
-        Me.txtDominioUsuarioWindows.Size = New System.Drawing.Size(330, 20)
-        Me.txtDominioUsuarioWindows.TabIndex = 1
-        '
-        'lblSenhaWindows
-        '
-        Me.lblSenhaWindows.AutoSize = True
-        Me.lblSenhaWindows.BackColor = System.Drawing.Color.Transparent
-        Me.lblSenhaWindows.Location = New System.Drawing.Point(342, 16)
-        Me.lblSenhaWindows.Name = "lblSenhaWindows"
-        Me.lblSenhaWindows.TabIndex = 2
-        Me.lblSenhaWindows.Text = "Senha:"
-        '
-        'txtSenhaWindows
-        '
-        Me.txtSenhaWindows.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtSenhaWindows.Location = New System.Drawing.Point(345, 32)
-        Me.txtSenhaWindows.Name = "txtSenhaWindows"
-        Me.txtSenhaWindows.MaxLength = 100
-        Me.txtSenhaWindows.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtSenhaWindows.Size = New System.Drawing.Size(234, 20)
-        Me.txtSenhaWindows.TabIndex = 3
+        grdAcesso_DesignTimeLayout_Reference_0.Instance = CType(resources.GetObject("grdAcesso_DesignTimeLayout_Reference_0.Instance"), Object)
+        grdAcesso_DesignTimeLayout.LayoutReferences.AddRange(New Janus.Windows.Common.Layouts.JanusLayoutReference() {grdAcesso_DesignTimeLayout_Reference_0})
+        grdAcesso_DesignTimeLayout.LayoutString = resources.GetString("grdAcesso_DesignTimeLayout.LayoutString")
+        Me.grdAcesso.DesignTimeLayout = grdAcesso_DesignTimeLayout
+        Me.grdAcesso.DynamicFiltering = True
+        Me.grdAcesso.FilterMode = Janus.Windows.GridEX.FilterMode.Automatic
+        Me.grdAcesso.FilterRowButtonStyle = Janus.Windows.GridEX.FilterRowButtonStyle.ConditionOperatorDropDown
+        Me.grdAcesso.FilterRowUpdateMode = Janus.Windows.GridEX.FilterRowUpdateMode.WhenValueChanges
+        Me.grdAcesso.FocusStyle = Janus.Windows.GridEX.FocusStyle.None
+        Me.grdAcesso.Font = New System.Drawing.Font("Arial", 8.25!)
+        Me.grdAcesso.GridLineStyle = Janus.Windows.GridEX.GridLineStyle.Solid
+        Me.grdAcesso.GroupByBoxVisible = False
+        Me.grdAcesso.Location = New System.Drawing.Point(3, 48)
+        Me.grdAcesso.Name = "grdAcesso"
+        Me.grdAcesso.Office2007ColorScheme = Janus.Windows.GridEX.Office2007ColorScheme.Silver
+        Me.grdAcesso.ScrollBars = Janus.Windows.GridEX.ScrollBars.Both
+        Me.grdAcesso.SelectedFormatStyle.BackColor = System.Drawing.Color.Empty
+        Me.grdAcesso.SelectedFormatStyle.ForeColor = System.Drawing.Color.Empty
+        Me.grdAcesso.Size = New System.Drawing.Size(1174, 296)
+        Me.grdAcesso.TabIndex = 7
+        Me.grdAcesso.TabStop = False
+        Me.grdAcesso.VisualStyle = Janus.Windows.GridEX.VisualStyle.Office2007
         '
         'tabDadosEmpresa
         '
@@ -938,14 +688,31 @@ Partial Class usrCadEmpresa
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.tabDadosEmpresa.BackColor = System.Drawing.Color.Transparent
-        Me.tabDadosEmpresa.Location = New System.Drawing.Point(7, 298)
+        Me.tabDadosEmpresa.Location = New System.Drawing.Point(7, 110)
         Me.tabDadosEmpresa.Name = "tabDadosEmpresa"
         Me.tabDadosEmpresa.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.tabDadosEmpresa.Size = New System.Drawing.Size(1182, 182)
-        Me.tabDadosEmpresa.TabIndex = 6
-        Me.tabDadosEmpresa.TabPages.AddRange(New Janus.Windows.UI.Tab.UITabPage() {Me.pagObservacao, Me.pagArquivos, Me.pagHistorico})
+        Me.tabDadosEmpresa.Size = New System.Drawing.Size(1182, 370)
+        Me.tabDadosEmpresa.TabIndex = 1
+        Me.tabDadosEmpresa.TabPages.AddRange(New Janus.Windows.UI.Tab.UITabPage() {Me.pagAcesso, Me.pagObservacao, Me.pagArquivos, Me.pagHistorico})
         Me.tabDadosEmpresa.TabStop = False
         Me.tabDadosEmpresa.VisualStyleManager = Me.vsmMain
+        '
+        'pagAcesso
+        '
+        Me.pagAcesso.Controls.Add(Me.grdAcesso)
+        Me.pagAcesso.Controls.Add(Me.btnAdicionarAcesso)
+        Me.pagAcesso.Controls.Add(Me.txtValorAcesso)
+        Me.pagAcesso.Controls.Add(Me.lblValorAcesso)
+        Me.pagAcesso.Controls.Add(Me.cboSubtipoAcesso)
+        Me.pagAcesso.Controls.Add(Me.lblSubtipoAcesso)
+        Me.pagAcesso.Controls.Add(Me.cboTipoAcesso)
+        Me.pagAcesso.Controls.Add(Me.lblTipoAcesso)
+        Me.pagAcesso.Key = "pagAcesso"
+        Me.pagAcesso.Location = New System.Drawing.Point(1, 22)
+        Me.pagAcesso.Name = "pagAcesso"
+        Me.pagAcesso.Size = New System.Drawing.Size(1180, 347)
+        Me.pagAcesso.TabStop = True
+        Me.pagAcesso.Text = "Informações de Acesso"
         '
         'pagObservacao
         '
@@ -953,7 +720,7 @@ Partial Class usrCadEmpresa
         Me.pagObservacao.Key = "pagObservacao"
         Me.pagObservacao.Location = New System.Drawing.Point(1, 22)
         Me.pagObservacao.Name = "pagObservacao"
-        Me.pagObservacao.Size = New System.Drawing.Size(1180, 159)
+        Me.pagObservacao.Size = New System.Drawing.Size(1180, 347)
         Me.pagObservacao.TabStop = True
         Me.pagObservacao.Text = "Observação"
         '
@@ -963,7 +730,7 @@ Partial Class usrCadEmpresa
         Me.pagArquivos.Key = "pagArquivos"
         Me.pagArquivos.Location = New System.Drawing.Point(1, 22)
         Me.pagArquivos.Name = "pagArquivos"
-        Me.pagArquivos.Size = New System.Drawing.Size(1180, 159)
+        Me.pagArquivos.Size = New System.Drawing.Size(1180, 347)
         Me.pagArquivos.TabStop = True
         Me.pagArquivos.Text = "Arquivos Anexados"
         '
@@ -973,7 +740,7 @@ Partial Class usrCadEmpresa
         Me.pagHistorico.Key = "pagHistorico"
         Me.pagHistorico.Location = New System.Drawing.Point(1, 22)
         Me.pagHistorico.Name = "pagHistorico"
-        Me.pagHistorico.Size = New System.Drawing.Size(1180, 159)
+        Me.pagHistorico.Size = New System.Drawing.Size(1180, 347)
         Me.pagHistorico.TabStop = True
         Me.pagHistorico.Text = "Histórico"
         '
@@ -1047,23 +814,12 @@ Partial Class usrCadEmpresa
         Me.grpControl2.Controls.Add(Me.btnSair2)
         Me.grpControl2.Controls.Add(Me.btnVoltar)
         Me.grpControl2.Controls.Add(Me.btnSalvar)
-        Me.grpControl2.Controls.Add(Me.chkMostrarSenha)
         Me.grpControl2.Location = New System.Drawing.Point(7, 486)
         Me.grpControl2.Name = "grpControl2"
         Me.grpControl2.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.grpControl2.Size = New System.Drawing.Size(1182, 51)
         Me.grpControl2.TabIndex = 7
         Me.grpControl2.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
-        '
-        'chkMostrarSenha
-        '
-        Me.chkMostrarSenha.BackColor = System.Drawing.Color.Transparent
-        Me.chkMostrarSenha.Location = New System.Drawing.Point(9, 18)
-        Me.chkMostrarSenha.Name = "chkMostrarSenha"
-        Me.chkMostrarSenha.Size = New System.Drawing.Size(150, 20)
-        Me.chkMostrarSenha.TabIndex = 0
-        Me.chkMostrarSenha.Text = "Mostrar senhas"
-        Me.chkMostrarSenha.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'btnSalvar
         '
@@ -1150,23 +906,11 @@ Partial Class usrCadEmpresa
         CType(Me.grpDadosGerais, System.ComponentModel.ISupportInitialize).EndInit()
         Me.grpDadosGerais.ResumeLayout(False)
         Me.grpDadosGerais.PerformLayout()
-        CType(Me.grpTeamViewer, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.grpTeamViewer.ResumeLayout(False)
-        Me.grpTeamViewer.PerformLayout()
-        CType(Me.grpMstsc, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.grpMstsc.ResumeLayout(False)
-        Me.grpMstsc.PerformLayout()
-        CType(Me.grpVpn, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.grpVpn.ResumeLayout(False)
-        Me.grpVpn.PerformLayout()
-        CType(Me.grpSql, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.grpSql.ResumeLayout(False)
-        Me.grpSql.PerformLayout()
-        CType(Me.grpWindows, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.grpWindows.ResumeLayout(False)
-        Me.grpWindows.PerformLayout()
+        CType(Me.grdAcesso, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.tabDadosEmpresa, System.ComponentModel.ISupportInitialize).EndInit()
         Me.tabDadosEmpresa.ResumeLayout(False)
+        Me.pagAcesso.ResumeLayout(False)
+        Me.pagAcesso.PerformLayout()
         Me.pagObservacao.ResumeLayout(False)
         Me.pagObservacao.PerformLayout()
         Me.pagArquivos.ResumeLayout(False)
@@ -1213,46 +957,24 @@ Partial Class usrCadEmpresa
     Friend WithEvents cboTime As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblModulo As System.Windows.Forms.Label
     Friend WithEvents cboModulo As Janus.Windows.GridEX.EditControls.CheckedComboBox
+    Friend WithEvents lblResponsavelBkp As System.Windows.Forms.Label
+    Friend WithEvents cboResponsavelBkp As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblFocalPoint As System.Windows.Forms.Label
     Friend WithEvents txtFocalPoint As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents lblCelular As System.Windows.Forms.Label
     Friend WithEvents txtCelular As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents lblEmail As System.Windows.Forms.Label
     Friend WithEvents txtEmail As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents grpTeamViewer As Janus.Windows.EditControls.UIGroupBox
-    Friend WithEvents lblIdTeamViewer As System.Windows.Forms.Label
-    Friend WithEvents txtIdTeamViewer As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents lblSenhaTeamViewer As System.Windows.Forms.Label
-    Friend WithEvents txtSenhaTeamViewer As Janus.Windows.GridEX.EditControls.EditBox
-    Friend WithEvents grpMstsc As Janus.Windows.EditControls.UIGroupBox
-    Friend WithEvents lblIpMstsc As System.Windows.Forms.Label
-    Friend WithEvents txtIpMstsc As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents lblUsuarioMstsc As System.Windows.Forms.Label
-    Friend WithEvents txtUsuarioMstsc As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents lblSenhaMstsc As System.Windows.Forms.Label
-    Friend WithEvents txtSenhaMstsc As Janus.Windows.GridEX.EditControls.EditBox
-    Friend WithEvents grpVpn As Janus.Windows.EditControls.UIGroupBox
-    Friend WithEvents lblIpVpn As System.Windows.Forms.Label
-    Friend WithEvents txtIpVpn As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents lblUsuarioVpn As System.Windows.Forms.Label
-    Friend WithEvents txtUsuarioVpn As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents lblSenhaVpn As System.Windows.Forms.Label
-    Friend WithEvents txtSenhaVpn As Janus.Windows.GridEX.EditControls.EditBox
-    Friend WithEvents lblLocalPastaServidor As System.Windows.Forms.Label
-    Friend WithEvents txtLocalPastaServidor As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents grpSql As Janus.Windows.EditControls.UIGroupBox
-    Friend WithEvents lblServidorSql As System.Windows.Forms.Label
-    Friend WithEvents txtServidorSql As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents lblUsuarioSql As System.Windows.Forms.Label
-    Friend WithEvents txtUsuarioSql As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents lblSenhaSql As System.Windows.Forms.Label
-    Friend WithEvents txtSenhaSql As Janus.Windows.GridEX.EditControls.EditBox
-    Friend WithEvents grpWindows As Janus.Windows.EditControls.UIGroupBox
-    Friend WithEvents lblDominioUsuarioWindows As System.Windows.Forms.Label
-    Friend WithEvents txtDominioUsuarioWindows As Janus.Windows.GridEX.EditControls.MaskedEditBox
-    Friend WithEvents lblSenhaWindows As System.Windows.Forms.Label
-    Friend WithEvents txtSenhaWindows As Janus.Windows.GridEX.EditControls.EditBox
+    Friend WithEvents lblTipoAcesso As System.Windows.Forms.Label
+    Friend WithEvents cboTipoAcesso As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents lblSubtipoAcesso As System.Windows.Forms.Label
+    Friend WithEvents cboSubtipoAcesso As Janus.Windows.EditControls.UIComboBox
+    Friend WithEvents lblValorAcesso As System.Windows.Forms.Label
+    Friend WithEvents txtValorAcesso As Janus.Windows.GridEX.EditControls.EditBox
+    Friend WithEvents btnAdicionarAcesso As Janus.Windows.EditControls.UIButton
+    Friend WithEvents grdAcesso As Janus.Windows.GridEX.GridEX
     Friend WithEvents tabDadosEmpresa As Janus.Windows.UI.Tab.UITab
+    Friend WithEvents pagAcesso As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents pagObservacao As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents pagArquivos As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents pagHistorico As Janus.Windows.UI.Tab.UITabPage
@@ -1260,7 +982,6 @@ Partial Class usrCadEmpresa
     Friend WithEvents grdArquivos As Janus.Windows.GridEX.GridEX
     Friend WithEvents grdHistorico As Janus.Windows.GridEX.GridEX
     Friend WithEvents grpControl2 As Janus.Windows.EditControls.UIGroupBox
-    Friend WithEvents chkMostrarSenha As Janus.Windows.EditControls.UICheckBox
     Friend WithEvents btnSalvar As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnVoltar As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnSair2 As Janus.Windows.EditControls.UIButton

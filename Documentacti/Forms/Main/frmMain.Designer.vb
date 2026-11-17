@@ -45,6 +45,8 @@ Partial Class frmMain
         Me.mnuMain = New System.Windows.Forms.MenuStrip()
         Me.mnuChamados = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuEventos = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuAgrupamentos = New System.Windows.Forms.ToolStripMenuItem()
+        Me.mnuPatchNotes = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuMonitorFiscal = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuCadastros = New System.Windows.Forms.ToolStripMenuItem()
         Me.mnuEmpresas = New System.Windows.Forms.ToolStripMenuItem()
@@ -214,7 +216,7 @@ Partial Class frmMain
         Me.mnuMain.BackColor = System.Drawing.Color.Transparent
         Me.mnuMain.Dock = System.Windows.Forms.DockStyle.None
         Me.mnuMain.GripMargin = New System.Windows.Forms.Padding(6, 2, 0, 6)
-        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuEventos, Me.mnuMonitorFiscal, Me.mnuCadastros, Me.mnuRelatorios, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuConfiguracao, Me.mnuVerificarVersao, Me.mnuSair})
+        Me.mnuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mnuChamados, Me.mnuAgrupamentos, Me.mnuEventos, Me.mnuMonitorFiscal, Me.mnuCadastros, Me.mnuRelatorios, Me.mnuTrocarUsuario, Me.mnuAlterarSenha, Me.mnuConfiguracao, Me.mnuVerificarVersao, Me.mnuPatchNotes, Me.mnuSair})
         Me.mnuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow
         Me.mnuMain.Location = New System.Drawing.Point(7, 8)
         Me.mnuMain.Name = "mnuMain"
@@ -228,6 +230,13 @@ Partial Class frmMain
         Me.mnuChamados.Size = New System.Drawing.Size(150, 20)
         Me.mnuChamados.Tag = "usrAdmChamado"
         Me.mnuChamados.Text = "Chamados / Apontamentos"
+        '
+        'mnuAgrupamentos
+        '
+        Me.mnuAgrupamentos.Name = "mnuAgrupamentos"
+        Me.mnuAgrupamentos.Size = New System.Drawing.Size(90, 20)
+        Me.mnuAgrupamentos.Tag = "usrAdmAgrupamento"
+        Me.mnuAgrupamentos.Text = "Agrupamentos"
         '
         'mnuEventos
         '
@@ -317,6 +326,13 @@ Partial Class frmMain
         Me.mnuVerificarVersao.Size = New System.Drawing.Size(101, 20)
         Me.mnuVerificarVersao.Text = "Verificar Versão"
         '
+        'mnuPatchNotes
+        '
+        Me.mnuPatchNotes.Name = "mnuPatchNotes"
+        Me.mnuPatchNotes.Size = New System.Drawing.Size(80, 20)
+        Me.mnuPatchNotes.Tag = "usrAdmPatchNote"
+        Me.mnuPatchNotes.Text = "Patch Notes"
+        '
         'mnuSair
         '
         Me.mnuSair.Name = "mnuSair"
@@ -360,6 +376,8 @@ Partial Class frmMain
     Friend WithEvents mnuMain As System.Windows.Forms.MenuStrip
     Friend WithEvents mnuChamados As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuEventos As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuAgrupamentos As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mnuPatchNotes As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuMonitorFiscal As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuCadastros As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mnuEmpresas As System.Windows.Forms.ToolStripMenuItem

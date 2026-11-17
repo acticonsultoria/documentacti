@@ -16,6 +16,12 @@ Public Class usrCadEmpresa
     Private sArquivoAtual As String = ""
     Private sModulosOriginais As String = ""
 
+    'Responsável BKP gravado (mantido ao recarregar o combo pela troca do time)
+    Private lResponsavelBkpAtual As Long = 0
+
+    'Evita recarregar combos dependentes durante o preenchimento da tela
+    Private bCarregando As Boolean = False
+
     'Anexos da empresa ficam na pasta da plataforma web (relativa à pasta de anexos de chamado do Config.xml)
     Private Const gcPastaFtpAnexoEmpresa As String = "../../../ajuda/listagem/uploads/"
 
@@ -134,16 +140,91 @@ Public Class usrCadEmpresa
 
     End Sub
 
-    Private Sub chkMostrarSenha_CheckedChanged(sender As Object, e As EventArgs) Handles chkMostrarSenha.CheckedChanged
+    Private Sub cboTime_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboTime.SelectedIndexChanged
 
         Try
 
-            'Senhas mascaradas por padrão (a tela costuma ficar aberta durante atendimentos)
-            Dim cMascara As Char = IIf(chkMostrarSenha.Checked, ChrW(0), "*"c)
+            If bCarregando = True Then Exit Sub
 
-            For Each oCampo As Janus.Windows.GridEX.EditControls.EditBox In {txtSenhaTeamViewer, txtSenhaMstsc, txtSenhaVpn, txtSenhaSql, txtSenhaWindows}
-                oCampo.PasswordChar = cMascara
-            Next
+            'Responsável BKP: somente usuários do time da empresa
+            Call LoadComboResponsavelBkp()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub cboTipoAcesso_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboTipoAcesso.SelectedIndexChanged, cboTipoAcesso.Leave
+
+        Try
+
+            If bCarregando = True Then Exit Sub
+
+            'Sugestões de subtipo já usadas para o tipo informado
+            Call LoadComboSubtipoAcesso()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub btnAdicionarAcesso_Click(sender As Object, e As EventArgs) Handles btnAdicionarAcesso.Click
+
+        Try
+
+            Call AdicionarAcesso()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub txtValorAcesso_KeyDown(sender As Object, e As KeyEventArgs) Handles txtValorAcesso.KeyDown
+
+        Try
+
+            'Enter no valor inclui a informação (mesmo comportamento do botão Adicionar)
+            If e.KeyCode = Keys.Enter Then
+                e.SuppressKeyPress = True
+                Call AdicionarAcesso()
+            End If
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub grdAcesso_CellUpdated(sender As Object, e As ColumnActionEventArgs) Handles grdAcesso.CellUpdated
+
+        Try
+
+            Select Case e.Column.Key
+
+                Case "tipo", "subtipo", "valor"
+                    Call AtualizarAcesso(grdAcesso.CurrentRow)
+
+            End Select
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+            'Recarrega para descartar o valor não gravado
+            Me.BeginInvoke(New MethodInvoker(AddressOf RecarregarAcesso))
+        End Try
+
+    End Sub
+
+    Private Sub grdAcesso_RowDoubleClick(sender As Object, e As RowActionEventArgs) Handles grdAcesso.RowDoubleClick
+
+        Try
+
+            If IsNothing(e.Row) OrElse e.Row.RowType <> RowType.Record Then Exit Sub
+
+            If IsNothing(grdAcesso.CurrentColumn) Then Exit Sub
+            If grdAcesso.CurrentColumn.Key = "excluir" Then Call ExcluirAcesso()
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -187,7 +268,8 @@ Public Class usrCadEmpresa
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrCadEmpresa_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
-            Call AddComboAutoComplete(New UIComboBox() {cboAtivoFiltro, cboTimeFiltro, cboAtivo, cboTime})
+            'Tipo e Subtipo de acesso ficam fora: são texto livre com sugestões (não voltam a seleção ao sair)
+            Call AddComboAutoComplete(New UIComboBox() {cboAtivoFiltro, cboTimeFiltro, cboAtivo, cboTime, cboResponsavelBkp})
 
             'Combos - Filtro
             'Padrão: somente empresas ativas, do mesmo time do usuário (TODOS quando o usuário não tem time)
@@ -212,6 +294,8 @@ Public Class usrCadEmpresa
             Call ConfiguraGrid(grdListagem)
             Call ConfiguraGrid(grdArquivos)
             Call ConfiguraGrid(grdHistorico)
+            Call ConfiguraGrid(grdAcesso)
+            grdAcesso.RootTable.Columns("excluir").CellToolTipText = "Duplo clique para excluir a informação de acesso."
 
             Call LoadGrid()
 
@@ -291,6 +375,8 @@ Public Class usrCadEmpresa
                 Exit Sub
             End If
 
+            bCarregando = True
+
             With oTabela.Rows(0)
 
                 lCodigoEmpresa = CLng(.Item("codigo"))
@@ -301,6 +387,7 @@ Public Class usrCadEmpresa
                 'ativo é TINYINT(1): o conector devolve Boolean
                 cboAtivo.SelectedValue = IIf(IsDBNull(.Item("ativo")) OrElse CBool(.Item("ativo")) = False, "0", "1")
                 If IsDBNull(.Item("tipo_time")) Then cboTime.SelectedIndex = -1 Else cboTime.SelectedValue = .Item("tipo_time")
+                lResponsavelBkpAtual = IIf(IsDBNull(.Item("codigo_usuario_bkp")), 0, .Item("codigo_usuario_bkp"))
                 sModulosOriginais = .Item("modulo_id").ToString
                 Call SetCheckedValues(cboModulo, sModulosOriginais)
                 txtFocalPoint.Text = .Item("focal_point").ToString
@@ -308,27 +395,21 @@ Public Class usrCadEmpresa
                 txtEmail.Text = .Item("email").ToString
                 'A web grava quebra de linha só com LF; a caixa de texto do Windows precisa de CRLF
                 txtObservacao.Text = .Item("observacao").ToString.Replace(vbCrLf, vbLf).Replace(vbLf, vbCrLf)
-                txtIdTeamViewer.Text = .Item("id_teamviewer").ToString
-                txtSenhaTeamViewer.Text = .Item("senha_teamviewer").ToString
-                txtIpMstsc.Text = .Item("ip_MSTSC").ToString
-                txtUsuarioMstsc.Text = .Item("usuario_MSTSC").ToString
-                txtSenhaMstsc.Text = .Item("senha_MSTSC").ToString
-                txtIpVpn.Text = .Item("ip_vpn").ToString
-                txtUsuarioVpn.Text = .Item("usuario_vpn").ToString
-                txtSenhaVpn.Text = .Item("senha_vpn").ToString
-                txtLocalPastaServidor.Text = .Item("local_pasta_servidor").ToString
-                txtServidorSql.Text = .Item("servidor_sql").ToString
-                txtUsuarioSql.Text = .Item("usuario_sql").ToString
-                txtSenhaSql.Text = .Item("senha_sql").ToString
-                txtDominioUsuarioWindows.Text = .Item("dominio_usuario_windows").ToString
-                txtSenhaWindows.Text = .Item("senha_windows").ToString
                 sArquivoAtual = .Item("arquivo").ToString
 
             End With
 
-            chkMostrarSenha.Checked = False
-            tabDadosEmpresa.SelectedTab = pagObservacao
+            bCarregando = False
 
+            'Responsável BKP depende do time já selecionado (limpa a seleção da empresa editada antes)
+            cboResponsavelBkp.SelectedIndex = -1
+            Call LoadComboResponsavelBkp()
+
+            tabDadosEmpresa.SelectedTab = pagAcesso
+
+            Call LoadComboTipoAcesso()
+            Call LimparAcesso()
+            Call LoadGridAcesso()
             Call oClsUsrCadEmpresa.LoadGridArquivo(grdArquivos, lCodigo)
             Call oClsUsrCadEmpresa.LoadGridHistorico(grdHistorico, lCodigo)
 
@@ -361,31 +442,20 @@ Public Class usrCadEmpresa
             oDados("nome_fantasia") = txtNomeFantasia.Text.Trim
             oDados("ativo") = CInt(cboAtivo.SelectedValue)
             oDados("telefone") = txtTelefone.Text.Trim
-            oDados("id_teamviewer") = txtIdTeamViewer.Text.Trim
-            oDados("senha_teamviewer") = txtSenhaTeamViewer.Text
-            oDados("ip_MSTSC") = txtIpMstsc.Text.Trim
-            oDados("usuario_MSTSC") = txtUsuarioMstsc.Text.Trim
-            oDados("senha_MSTSC") = txtSenhaMstsc.Text
             oDados("arquivo") = IIf(sArquivoAtual = "", Nothing, sArquivoAtual)
-            oDados("ip_vpn") = txtIpVpn.Text.Trim
-            oDados("usuario_vpn") = txtUsuarioVpn.Text.Trim
-            oDados("senha_vpn") = txtSenhaVpn.Text
-            oDados("local_pasta_servidor") = txtLocalPastaServidor.Text.Trim
-            oDados("servidor_sql") = txtServidorSql.Text.Trim
-            oDados("usuario_sql") = txtUsuarioSql.Text.Trim
-            oDados("senha_sql") = txtSenhaSql.Text
             oDados("modulo_empresa") = ModulosSelecionados()
-            oDados("dominio_usuario_windows") = txtDominioUsuarioWindows.Text.Trim
-            oDados("senha_windows") = txtSenhaWindows.Text
             oDados("tipo_time") = CInt(cboTime.SelectedValue)
+            oDados("codigo_usuario_bkp") = IIf(cboResponsavelBkp.SelectedIndex = -1, Nothing, cboResponsavelBkp.SelectedValue)
             oDados("focal_point") = txtFocalPoint.Text.Trim
             oDados("celular") = txtCelular.Text.Trim
             oDados("email") = txtEmail.Text.Trim
             oDados("observacao") = txtObservacao.Text.Trim.Replace(vbCrLf, vbLf) 'Mantém o formato da web (LF)
 
+            'As informações de acesso são gravadas linha a linha na grid (não dependem do Salvar)
             Call oClsUsrCadEmpresa.Update(oDados)
 
             sModulosOriginais = oDados("modulo_empresa").ToString
+            lResponsavelBkpAtual = IIf(IsNothing(oDados("codigo_usuario_bkp")), 0, oDados("codigo_usuario_bkp"))
 
             Cursor.Current = Cursors.Default
 
@@ -439,6 +509,230 @@ Public Class usrCadEmpresa
         End Try
 
     End Function
+
+    Private Sub LoadComboResponsavelBkp()
+
+        Try
+
+            'Mantém a seleção atual (ou o responsável gravado) se ele continuar na lista do novo time
+            Dim lSelecionado As Long = IIf(cboResponsavelBkp.SelectedIndex = -1, lResponsavelBkpAtual, CLng(cboResponsavelBkp.SelectedValue))
+            Dim iTime As Integer = IIf(cboTime.SelectedIndex = -1, 0, CInt(cboTime.SelectedValue))
+
+            Call LoadCombo(cboResponsavelBkp, "sp_select_combo_cadastro_empresa_usuario_bkp", oClsUsrCadEmpresa.ParametrosResponsavelBkp(iTime, lCodigoEmpresa))
+
+            'Seleção pela posição: o código vem do banco como Int64 e não casa com outro tipo no SelectedValue
+            Dim oLista As DataTable = CType(cboResponsavelBkp.DataSource, DataTable)
+            Dim oLinha() As DataRow = oLista.Select("codigo = " & lSelecionado)
+            cboResponsavelBkp.SelectedIndex = If(lSelecionado > 0 AndAlso oLinha.Length > 0, oLista.Rows.IndexOf(oLinha(0)), -1)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: ACESSO :::"
+
+    Private Sub LoadGridAcesso()
+
+        Try
+
+            Call oClsUsrCadEmpresa.LoadGridAcesso(grdAcesso, lCodigoEmpresa)
+
+            Call AtualizarSugestoesGridAcesso()
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub RecarregarAcesso()
+
+        Try
+
+            Call LoadGridAcesso()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub LoadComboTipoAcesso()
+
+        Try
+
+            Dim sTexto As String = cboTipoAcesso.Text
+
+            bCarregando = True
+            Call LoadCombo(cboTipoAcesso, "sp_select_combo_cadastro_empresa_acesso_tipo")
+            cboTipoAcesso.Text = sTexto
+            bCarregando = False
+
+            Call LoadComboSubtipoAcesso()
+
+        Catch ex As Exception
+            bCarregando = False
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub LoadComboSubtipoAcesso()
+
+        Try
+
+            'Mantém o que já foi digitado: o combo é texto livre com sugestões
+            Dim sTexto As String = cboSubtipoAcesso.Text
+
+            Call LoadCombo(cboSubtipoAcesso, "sp_select_combo_cadastro_empresa_acesso_subtipo", oClsUsrCadEmpresa.ParametrosSubtipoAcesso(cboTipoAcesso.Text.Trim))
+            cboSubtipoAcesso.Text = sTexto
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AtualizarSugestoesGridAcesso()
+
+        Try
+
+            'Combos das colunas Tipo/Subtipo: sugestões (LimitToList = False permite digitar valor novo)
+            For Each sColuna As String In {"tipo", "subtipo"}
+
+                Dim oColuna As GridEXColumn = grdAcesso.RootTable.Columns(sColuna)
+                Dim oValores As New List(Of String)
+
+                Dim oSugestoes As DataTable = If(sColuna = "tipo", CType(cboTipoAcesso.DataSource, DataTable), oClsUsrCadEmpresa.LoadSugestaoSubtipoAcesso())
+
+                For Each oDataRow As DataRow In oSugestoes.Rows
+                    If oValores.Contains(oDataRow.Item("descricao").ToString) = False Then oValores.Add(oDataRow.Item("descricao").ToString)
+                Next
+
+                oColuna.HasValueList = True
+                oColuna.ValueList.Clear()
+                For Each sValor As String In oValores
+                    oColuna.ValueList.Add(sValor, sValor)
+                Next
+
+            Next
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub LimparAcesso()
+
+        cboTipoAcesso.SelectedIndex = -1 : cboTipoAcesso.Text = ""
+        cboSubtipoAcesso.SelectedIndex = -1 : cboSubtipoAcesso.Text = ""
+        txtValorAcesso.Text = ""
+
+    End Sub
+
+    Private Sub AdicionarAcesso()
+
+        Try
+
+            If lCodigoEmpresa = 0 Then Exit Sub
+
+            frmMain.errInfo.Clear()
+
+            If cboTipoAcesso.Text.Trim = "" Then
+                frmMain.errInfo.SetError(cboTipoAcesso, "Informe o tipo (ex.: MSTSC, VPN, SQL SERVER).")
+                cboTipoAcesso.Focus()
+                Exit Sub
+            End If
+
+            If cboSubtipoAcesso.Text.Trim = "" Then
+                frmMain.errInfo.SetError(cboSubtipoAcesso, "Informe o subtipo (ex.: IP, USUÁRIO, SENHA).")
+                cboSubtipoAcesso.Focus()
+                Exit Sub
+            End If
+
+            Cursor.Current = Cursors.WaitCursor
+
+            Call oClsUsrCadEmpresa.InsertAcesso(lCodigoEmpresa, cboTipoAcesso.Text.Trim, cboSubtipoAcesso.Text.Trim, txtValorAcesso.Text.Trim)
+
+            'Mantém o tipo para incluir o próximo subtipo do mesmo acesso (ex.: IP, depois usuário e senha)
+            Dim sTipo As String = cboTipoAcesso.Text.Trim
+            Call LoadComboTipoAcesso()
+            Call LimparAcesso()
+            cboTipoAcesso.Text = sTipo
+            Call LoadComboSubtipoAcesso()
+
+            Call LoadGridAcesso()
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Informação de acesso incluída com sucesso!", Color.Blue)
+
+            cboSubtipoAcesso.Focus()
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AtualizarAcesso(ByVal oRow As GridEXRow)
+
+        Try
+
+            If IsNothing(oRow) OrElse oRow.RowType <> RowType.Record Then Exit Sub
+
+            Cursor.Current = Cursors.WaitCursor
+
+            Call oClsUsrCadEmpresa.UpdateAcesso(CLng(oRow.Cells("codigo").Value), _
+                                                oRow.Cells("tipo").Value.ToString.Trim, _
+                                                oRow.Cells("subtipo").Value.ToString.Trim, _
+                                                oRow.Cells("valor").Value.ToString.Trim)
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Informação de acesso alterada com sucesso!", Color.Blue)
+
+            'Recarrega após o evento (maiúsculas, usuário/data de alteração e novas sugestões)
+            Call LoadComboTipoAcesso()
+            Me.BeginInvoke(New MethodInvoker(AddressOf RecarregarAcesso))
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub ExcluirAcesso()
+
+        Try
+
+            With grdAcesso.CurrentRow
+
+                If MsgBox("Deseja excluir a informação de acesso " & .Cells("tipo").Value.ToString & " / " & .Cells("subtipo").Value.ToString & "?", _
+                          MsgBoxStyle.Question + MsgBoxStyle.YesNo + MsgBoxStyle.DefaultButton2, gAplicacao) = MsgBoxResult.No Then Exit Sub
+
+                Cursor.Current = Cursors.WaitCursor
+
+                Call oClsUsrCadEmpresa.DeleteAcesso(CLng(.Cells("codigo").Value))
+
+            End With
+
+            Call LoadGridAcesso()
+
+            Cursor.Current = Cursors.Default
+
+            frmMain.Informacao("Informação de acesso excluída com sucesso!", Color.Blue)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
 
 #End Region
 
