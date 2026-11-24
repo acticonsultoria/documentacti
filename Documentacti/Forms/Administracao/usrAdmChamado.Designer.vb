@@ -79,6 +79,7 @@ Partial Class usrAdmChamado
         Me.lblAberto = New System.Windows.Forms.Label()
         Me.picLegendaAberto = New System.Windows.Forms.PictureBox()
         Me.grdListagem = New Janus.Windows.GridEX.GridEX()
+        Me.btnAgruparListagem = New System.Windows.Forms.Button()
         Me.grpFiltro = New Janus.Windows.EditControls.UIGroupBox()
         Me.btnFiltrar = New Janus.Windows.EditControls.UIButton()
         Me.cboResponsavelFiltro = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
@@ -117,6 +118,7 @@ Partial Class usrAdmChamado
         Me.pagChecklist = New Janus.Windows.UI.Tab.UITabPage()
         Me.txtChecklist = New Janus.Windows.GridEX.EditControls.EditBox()
         Me.btnAdicionarChecklist = New Janus.Windows.EditControls.UIButton()
+        Me.btnMostrarChecklistOculto = New Janus.Windows.EditControls.UIButton()
         Me.btnTemplateEmpresa = New Janus.Windows.EditControls.UIButton()
         Me.grdChecklist = New Janus.Windows.GridEX.GridEX()
         Me.pagAgrupamento = New Janus.Windows.UI.Tab.UITabPage()
@@ -154,6 +156,7 @@ Partial Class usrAdmChamado
         Me.cboTipoAtendimento = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
         Me.lblTipoAtendimento = New System.Windows.Forms.Label()
         Me.cboResponsavel = New Janus.Windows.GridEX.EditControls.CheckedComboBox()
+        Me.btnTemplateResponsavel = New Janus.Windows.EditControls.UIButton()
         Me.lblResponsavel = New System.Windows.Forms.Label()
         Me.cboTipoAtividade = New Janus.Windows.EditControls.UIComboBox()
         Me.lblTipoChamado = New System.Windows.Forms.Label()
@@ -177,8 +180,10 @@ Partial Class usrAdmChamado
         Me.tlpApontamento = New System.Windows.Forms.TableLayoutPanel()
         Me.grpApontamentoHistorico = New Janus.Windows.EditControls.UIGroupBox()
         Me.grdApontamentoHistorico = New Janus.Windows.GridEX.GridEX()
+        Me.btnAgruparApontamentoHistorico = New System.Windows.Forms.Button()
         Me.grpApontamentoAndamento = New Janus.Windows.EditControls.UIGroupBox()
         Me.grdApontamentoAndamento = New Janus.Windows.GridEX.GridEX()
+        Me.btnAgruparApontamentoAndamento = New System.Windows.Forms.Button()
         Me.grpFiltroApontamento = New Janus.Windows.EditControls.UIGroupBox()
         Me.btnFiltrarApontamento = New Janus.Windows.EditControls.UIButton()
         Me.lblTotalApontamento = New System.Windows.Forms.Label()
@@ -204,6 +209,7 @@ Partial Class usrAdmChamado
         Me.chrRelatorio = New Dundas.Charting.WinControl.Chart()
         Me.grpResumoRelatorio = New Janus.Windows.EditControls.UIGroupBox()
         Me.grdRelatorio = New Janus.Windows.GridEX.GridEX()
+        Me.btnAgruparRelatorio = New System.Windows.Forms.Button()
         Me.grpFiltroRelatorio = New Janus.Windows.EditControls.UIGroupBox()
         Me.btnGerarRelatorio = New Janus.Windows.EditControls.UIButton()
         Me.lblTotalRelatorio = New System.Windows.Forms.Label()
@@ -311,6 +317,7 @@ Partial Class usrAdmChamado
         '
         Me.pagLista.Controls.Add(Me.grpControl)
         Me.pagLista.Controls.Add(Me.grpLegenda)
+        Me.pagLista.Controls.Add(Me.btnAgruparListagem)
         Me.pagLista.Controls.Add(Me.grdListagem)
         Me.pagLista.Controls.Add(Me.grpFiltro)
         Me.pagLista.Key = "pagLista"
@@ -483,6 +490,22 @@ Partial Class usrAdmChamado
         Me.picLegendaAberto.Size = New System.Drawing.Size(12, 12)
         Me.picLegendaAberto.TabIndex = 20
         Me.picLegendaAberto.TabStop = False
+        '
+        'btnAgruparListagem
+        '
+        Me.btnAgruparListagem.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnAgruparListagem.BackColor = System.Drawing.Color.Transparent
+        Me.btnAgruparListagem.FlatAppearance.BorderSize = 0
+        Me.btnAgruparListagem.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnAgruparListagem.Image = Global.Documentacti.My.Resources.Resources.merge
+        Me.btnAgruparListagem.Location = New System.Drawing.Point(8, 461)
+        Me.btnAgruparListagem.Margin = New System.Windows.Forms.Padding(0)
+        Me.btnAgruparListagem.Name = "btnAgruparListagem"
+        Me.btnAgruparListagem.Size = New System.Drawing.Size(24, 15)
+        Me.btnAgruparListagem.TabIndex = 99
+        Me.btnAgruparListagem.TabStop = False
+        Me.ToolTip.SetToolTip(Me.btnAgruparListagem, "Agrupar: exibe a área para arrastar o cabeçalho da coluna e agrupar")
+        Me.btnAgruparListagem.UseVisualStyleBackColor = False
         '
         'grdListagem
         '
@@ -991,6 +1014,7 @@ Partial Class usrAdmChamado
         '
         Me.pagChecklist.Controls.Add(Me.grdChecklist)
         Me.pagChecklist.Controls.Add(Me.btnAdicionarChecklist)
+        Me.pagChecklist.Controls.Add(Me.btnMostrarChecklistOculto)
         Me.pagChecklist.Controls.Add(Me.txtChecklist)
         Me.pagChecklist.Key = "pagChecklist"
         Me.pagChecklist.Location = New System.Drawing.Point(1, 22)
@@ -1006,7 +1030,7 @@ Partial Class usrAdmChamado
         Me.txtChecklist.Location = New System.Drawing.Point(3, 4)
         Me.txtChecklist.MaxLength = 500
         Me.txtChecklist.Name = "txtChecklist"
-        Me.txtChecklist.Size = New System.Drawing.Size(1038, 20)
+        Me.txtChecklist.Size = New System.Drawing.Size(902, 20)
         Me.txtChecklist.TabIndex = 0
         Me.txtChecklist.VisualStyle = Janus.Windows.GridEX.VisualStyle.VS2005
         '
@@ -1022,6 +1046,19 @@ Partial Class usrAdmChamado
         Me.btnAdicionarChecklist.TabIndex = 1
         Me.btnAdicionarChecklist.Text = "Adicionar item"
         Me.btnAdicionarChecklist.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
+        '
+        'btnMostrarChecklistOculto
+        '
+        Me.btnMostrarChecklistOculto.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnMostrarChecklistOculto.Location = New System.Drawing.Point(911, 3)
+        Me.btnMostrarChecklistOculto.Name = "btnMostrarChecklistOculto"
+        Me.btnMostrarChecklistOculto.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.btnMostrarChecklistOculto.Size = New System.Drawing.Size(130, 23)
+        Me.btnMostrarChecklistOculto.TabIndex = 3
+        Me.btnMostrarChecklistOculto.Text = "Mostrar todos"
+        Me.btnMostrarChecklistOculto.ToolTipText = "Volta a exibir os itens ocultos do checklist (ocultar: botão direito na grid)"
+        Me.btnMostrarChecklistOculto.Visible = False
+        Me.btnMostrarChecklistOculto.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'grdChecklist
         '
@@ -1048,6 +1085,7 @@ Partial Class usrAdmChamado
         Me.grdChecklist.Name = "grdChecklist"
         Me.grdChecklist.Office2007ColorScheme = Janus.Windows.GridEX.Office2007ColorScheme.Silver
         Me.grdChecklist.ScrollBars = Janus.Windows.GridEX.ScrollBars.Both
+        Me.grdChecklist.SelectionMode = Janus.Windows.GridEX.SelectionMode.MultipleSelection
         Me.grdChecklist.SelectedFormatStyle.BackColor = System.Drawing.Color.Empty
         Me.grdChecklist.SelectedFormatStyle.ForeColor = System.Drawing.Color.Empty
         Me.grdChecklist.Size = New System.Drawing.Size(1174, 173)
@@ -1345,6 +1383,7 @@ Partial Class usrAdmChamado
         Me.grpDados.Controls.Add(Me.lblModulo)
         Me.grpDados.Controls.Add(Me.cboTipoAtendimento)
         Me.grpDados.Controls.Add(Me.lblTipoAtendimento)
+        Me.grpDados.Controls.Add(Me.btnTemplateResponsavel)
         Me.grpDados.Controls.Add(Me.cboResponsavel)
         Me.grpDados.Controls.Add(Me.lblResponsavel)
         Me.grpDados.Controls.Add(Me.cboTipoAtividade)
@@ -1534,9 +1573,21 @@ Partial Class usrAdmChamado
         Me.cboResponsavel.Location = New System.Drawing.Point(9, 109)
         Me.cboResponsavel.Name = "cboResponsavel"
         Me.cboResponsavel.SaveSettings = False
-        Me.cboResponsavel.Size = New System.Drawing.Size(400, 23)
+        Me.cboResponsavel.Size = New System.Drawing.Size(370, 23)
         Me.cboResponsavel.TabIndex = 18
         Me.cboResponsavel.ValuesDataMember = Nothing
+        '
+        'btnTemplateResponsavel
+        '
+        Me.btnTemplateResponsavel.Image = Global.Documentacti.My.Resources.Resources.config
+        Me.btnTemplateResponsavel.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Center
+        Me.btnTemplateResponsavel.Location = New System.Drawing.Point(382, 109)
+        Me.btnTemplateResponsavel.Name = "btnTemplateResponsavel"
+        Me.btnTemplateResponsavel.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
+        Me.btnTemplateResponsavel.Size = New System.Drawing.Size(27, 23)
+        Me.btnTemplateResponsavel.TabIndex = 19
+        Me.btnTemplateResponsavel.ToolTipText = "Template: vincular ao chamado como responsáveis os usuários ativos de um time"
+        Me.btnTemplateResponsavel.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'lblResponsavel
         '
@@ -1784,6 +1835,7 @@ Partial Class usrAdmChamado
         'grpApontamentoHistorico
         '
         Me.grpApontamentoHistorico.BackColor = System.Drawing.Color.Transparent
+        Me.grpApontamentoHistorico.Controls.Add(Me.btnAgruparApontamentoHistorico)
         Me.grpApontamentoHistorico.Controls.Add(Me.grdApontamentoHistorico)
         Me.grpApontamentoHistorico.Dock = System.Windows.Forms.DockStyle.Fill
         Me.grpApontamentoHistorico.FormatStyle.ForeColor = System.Drawing.Color.Blue
@@ -1795,6 +1847,22 @@ Partial Class usrAdmChamado
         Me.grpApontamentoHistorico.TabIndex = 1
         Me.grpApontamentoHistorico.Text = "Histórico de Apontamentos por Chamado (expanda o chamado e edite Início, Término, Duração, Horas e Observação na própria célula)"
         Me.grpApontamentoHistorico.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
+        '
+        'btnAgruparApontamentoHistorico
+        '
+        Me.btnAgruparApontamentoHistorico.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnAgruparApontamentoHistorico.BackColor = System.Drawing.Color.Transparent
+        Me.btnAgruparApontamentoHistorico.FlatAppearance.BorderSize = 0
+        Me.btnAgruparApontamentoHistorico.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnAgruparApontamentoHistorico.Image = Global.Documentacti.My.Resources.Resources.merge
+        Me.btnAgruparApontamentoHistorico.Location = New System.Drawing.Point(12, 156)
+        Me.btnAgruparApontamentoHistorico.Margin = New System.Windows.Forms.Padding(0)
+        Me.btnAgruparApontamentoHistorico.Name = "btnAgruparApontamentoHistorico"
+        Me.btnAgruparApontamentoHistorico.Size = New System.Drawing.Size(24, 15)
+        Me.btnAgruparApontamentoHistorico.TabIndex = 99
+        Me.btnAgruparApontamentoHistorico.TabStop = False
+        Me.ToolTip.SetToolTip(Me.btnAgruparApontamentoHistorico, "Agrupar: exibe a área para arrastar o cabeçalho da coluna e agrupar")
+        Me.btnAgruparApontamentoHistorico.UseVisualStyleBackColor = False
         '
         'grdApontamentoHistorico
         '
@@ -1829,6 +1897,7 @@ Partial Class usrAdmChamado
         'grpApontamentoAndamento
         '
         Me.grpApontamentoAndamento.BackColor = System.Drawing.Color.Transparent
+        Me.grpApontamentoAndamento.Controls.Add(Me.btnAgruparApontamentoAndamento)
         Me.grpApontamentoAndamento.Controls.Add(Me.grdApontamentoAndamento)
         Me.grpApontamentoAndamento.Dock = System.Windows.Forms.DockStyle.Fill
         Me.grpApontamentoAndamento.FormatStyle.ForeColor = System.Drawing.Color.Blue
@@ -1840,6 +1909,22 @@ Partial Class usrAdmChamado
         Me.grpApontamentoAndamento.TabIndex = 0
         Me.grpApontamentoAndamento.Text = "Apontamentos em Andamento (contando horas)"
         Me.grpApontamentoAndamento.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
+        '
+        'btnAgruparApontamentoAndamento
+        '
+        Me.btnAgruparApontamentoAndamento.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnAgruparApontamentoAndamento.BackColor = System.Drawing.Color.Transparent
+        Me.btnAgruparApontamentoAndamento.FlatAppearance.BorderSize = 0
+        Me.btnAgruparApontamentoAndamento.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnAgruparApontamentoAndamento.Image = Global.Documentacti.My.Resources.Resources.merge
+        Me.btnAgruparApontamentoAndamento.Location = New System.Drawing.Point(12, 116)
+        Me.btnAgruparApontamentoAndamento.Margin = New System.Windows.Forms.Padding(0)
+        Me.btnAgruparApontamentoAndamento.Name = "btnAgruparApontamentoAndamento"
+        Me.btnAgruparApontamentoAndamento.Size = New System.Drawing.Size(24, 15)
+        Me.btnAgruparApontamentoAndamento.TabIndex = 99
+        Me.btnAgruparApontamentoAndamento.TabStop = False
+        Me.ToolTip.SetToolTip(Me.btnAgruparApontamentoAndamento, "Agrupar: exibe a área para arrastar o cabeçalho da coluna e agrupar")
+        Me.btnAgruparApontamentoAndamento.UseVisualStyleBackColor = False
         '
         'grdApontamentoAndamento
         '
@@ -2187,6 +2272,7 @@ Partial Class usrAdmChamado
         'grpResumoRelatorio
         '
         Me.grpResumoRelatorio.BackColor = System.Drawing.Color.Transparent
+        Me.grpResumoRelatorio.Controls.Add(Me.btnAgruparRelatorio)
         Me.grpResumoRelatorio.Controls.Add(Me.grdRelatorio)
         Me.grpResumoRelatorio.Dock = System.Windows.Forms.DockStyle.Fill
         Me.grpResumoRelatorio.FormatStyle.ForeColor = System.Drawing.Color.Blue
@@ -2198,6 +2284,22 @@ Partial Class usrAdmChamado
         Me.grpResumoRelatorio.TabIndex = 0
         Me.grpResumoRelatorio.Text = "Horas apontadas (apontamentos encerrados)"
         Me.grpResumoRelatorio.VisualStyle = Janus.Windows.UI.Dock.PanelVisualStyle.Office2007
+        '
+        'btnAgruparRelatorio
+        '
+        Me.btnAgruparRelatorio.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnAgruparRelatorio.BackColor = System.Drawing.Color.Transparent
+        Me.btnAgruparRelatorio.FlatAppearance.BorderSize = 0
+        Me.btnAgruparRelatorio.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnAgruparRelatorio.Image = Global.Documentacti.My.Resources.Resources.merge
+        Me.btnAgruparRelatorio.Location = New System.Drawing.Point(12, 330)
+        Me.btnAgruparRelatorio.Margin = New System.Windows.Forms.Padding(0)
+        Me.btnAgruparRelatorio.Name = "btnAgruparRelatorio"
+        Me.btnAgruparRelatorio.Size = New System.Drawing.Size(24, 15)
+        Me.btnAgruparRelatorio.TabIndex = 99
+        Me.btnAgruparRelatorio.TabStop = False
+        Me.ToolTip.SetToolTip(Me.btnAgruparRelatorio, "Agrupar: exibe a área para arrastar o cabeçalho da coluna e agrupar")
+        Me.btnAgruparRelatorio.UseVisualStyleBackColor = False
         '
         'grdRelatorio
         '
@@ -2605,6 +2707,7 @@ Partial Class usrAdmChamado
     Friend WithEvents cboResponsavelFiltro As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents btnFiltrar As Janus.Windows.EditControls.UIButton
     Friend WithEvents grdListagem As Janus.Windows.GridEX.GridEX
+    Friend WithEvents btnAgruparListagem As System.Windows.Forms.Button
     Friend WithEvents grpLegenda As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents picLegendaAberto As System.Windows.Forms.PictureBox
     Friend WithEvents lblAberto As System.Windows.Forms.Label
@@ -2638,6 +2741,7 @@ Partial Class usrAdmChamado
     Friend WithEvents cboTipoAtividade As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents lblResponsavel As System.Windows.Forms.Label
     Friend WithEvents cboResponsavel As Janus.Windows.GridEX.EditControls.CheckedComboBox
+    Friend WithEvents btnTemplateResponsavel As Janus.Windows.EditControls.UIButton
     Friend WithEvents lblTipoAtendimento As System.Windows.Forms.Label
     Friend WithEvents cboTipoAtendimento As Janus.Windows.GridEX.EditControls.CheckedComboBox
     Friend WithEvents lblModulo As System.Windows.Forms.Label
@@ -2663,6 +2767,7 @@ Partial Class usrAdmChamado
     Friend WithEvents pagChecklist As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents txtChecklist As Janus.Windows.GridEX.EditControls.EditBox
     Friend WithEvents btnAdicionarChecklist As Janus.Windows.EditControls.UIButton
+    Friend WithEvents btnMostrarChecklistOculto As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnTemplateEmpresa As Janus.Windows.EditControls.UIButton
     Friend WithEvents grdChecklist As Janus.Windows.GridEX.GridEX
     Friend WithEvents pagAgrupamento As Janus.Windows.UI.Tab.UITabPage
@@ -2706,8 +2811,10 @@ Partial Class usrAdmChamado
     Friend WithEvents tlpApontamento As System.Windows.Forms.TableLayoutPanel
     Friend WithEvents grpApontamentoHistorico As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents grdApontamentoHistorico As Janus.Windows.GridEX.GridEX
+    Friend WithEvents btnAgruparApontamentoHistorico As System.Windows.Forms.Button
     Friend WithEvents grpApontamentoAndamento As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents grdApontamentoAndamento As Janus.Windows.GridEX.GridEX
+    Friend WithEvents btnAgruparApontamentoAndamento As System.Windows.Forms.Button
     Friend WithEvents grpControl3 As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents btnExcelApontamento As Janus.Windows.EditControls.UIButton
     Friend WithEvents grpFiltroRelatorio As Janus.Windows.EditControls.UIGroupBox
@@ -2737,6 +2844,7 @@ Partial Class usrAdmChamado
     Friend WithEvents chrRelatorio As Dundas.Charting.WinControl.Chart
     Friend WithEvents grpResumoRelatorio As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents grdRelatorio As Janus.Windows.GridEX.GridEX
+    Friend WithEvents btnAgruparRelatorio As System.Windows.Forms.Button
     Friend WithEvents grpControl4 As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents btnExcelRelatorio As Janus.Windows.EditControls.UIButton
     Friend WithEvents vsmMain As Janus.Windows.Common.VisualStyleManager

@@ -35,6 +35,7 @@ Partial Class usrAdmEvento
         Dim cboTimes_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Dim cboEmpresas_DesignTimeLayout As Janus.Windows.GridEX.GridEXLayout = New Janus.Windows.GridEX.GridEXLayout()
         Me.vsmMain = New Janus.Windows.Common.VisualStyleManager(Me.components)
+        Me.ToolTip = New System.Windows.Forms.ToolTip(Me.components)
         Me.tabMain = New Janus.Windows.UI.Tab.UITab()
         Me.pagLista = New Janus.Windows.UI.Tab.UITabPage()
         Me.grpFiltro = New Janus.Windows.EditControls.UIGroupBox()
@@ -62,6 +63,7 @@ Partial Class usrAdmEvento
         Me.schMain = New Janus.Windows.Schedule.Schedule()
         Me.pagGrid = New Janus.Windows.UI.Tab.UITabPage()
         Me.grdListagem = New Janus.Windows.GridEX.GridEX()
+        Me.btnAgruparListagem = New System.Windows.Forms.Button()
         Me.grpControl = New Janus.Windows.EditControls.UIGroupBox()
         Me.btnExcel = New Janus.Windows.EditControls.UIButton()
         Me.btnNovo1 = New Janus.Windows.EditControls.UIButton()
@@ -115,6 +117,15 @@ Partial Class usrAdmEvento
         CType(Me.grpControl2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.grpControl2.SuspendLayout()
         Me.SuspendLayout()
+        '
+        'ToolTip
+        '
+        Me.ToolTip.AutomaticDelay = 0
+        Me.ToolTip.AutoPopDelay = 5000
+        Me.ToolTip.InitialDelay = 0
+        Me.ToolTip.ReshowDelay = 0
+        Me.ToolTip.ShowAlways = True
+        Me.ToolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info
         '
         'vsmMain
         '
@@ -426,6 +437,7 @@ Partial Class usrAdmEvento
         '
         'pagGrid
         '
+        Me.pagGrid.Controls.Add(Me.btnAgruparListagem)
         Me.pagGrid.Controls.Add(Me.grdListagem)
         Me.pagGrid.Key = "pagGrid"
         Me.pagGrid.Location = New System.Drawing.Point(1, 24)
@@ -433,6 +445,22 @@ Partial Class usrAdmEvento
         Me.pagGrid.Size = New System.Drawing.Size(1182, 389)
         Me.pagGrid.TabStop = True
         Me.pagGrid.Text = "Lista por Data"
+        '
+        'btnAgruparListagem
+        '
+        Me.btnAgruparListagem.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnAgruparListagem.BackColor = System.Drawing.Color.Transparent
+        Me.btnAgruparListagem.FlatAppearance.BorderSize = 0
+        Me.btnAgruparListagem.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnAgruparListagem.Image = Global.Documentacti.My.Resources.Resources.merge
+        Me.btnAgruparListagem.Location = New System.Drawing.Point(7, 366)
+        Me.btnAgruparListagem.Margin = New System.Windows.Forms.Padding(0)
+        Me.btnAgruparListagem.Name = "btnAgruparListagem"
+        Me.btnAgruparListagem.Size = New System.Drawing.Size(24, 15)
+        Me.btnAgruparListagem.TabIndex = 99
+        Me.btnAgruparListagem.TabStop = False
+        Me.ToolTip.SetToolTip(Me.btnAgruparListagem, "Agrupar: exibe a área para arrastar o cabeçalho da coluna e agrupar")
+        Me.btnAgruparListagem.UseVisualStyleBackColor = False
         '
         'grdListagem
         '
@@ -901,6 +929,7 @@ Partial Class usrAdmEvento
 
     End Sub
     Friend WithEvents vsmMain As Janus.Windows.Common.VisualStyleManager
+    Friend WithEvents ToolTip As System.Windows.Forms.ToolTip
     Friend WithEvents tabMain As Janus.Windows.UI.Tab.UITab
     Friend WithEvents pagLista As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents grpFiltro As Janus.Windows.EditControls.UIGroupBox
@@ -928,6 +957,7 @@ Partial Class usrAdmEvento
     Friend WithEvents schMain As Janus.Windows.Schedule.Schedule
     Friend WithEvents pagGrid As Janus.Windows.UI.Tab.UITabPage
     Friend WithEvents grdListagem As Janus.Windows.GridEX.GridEX
+    Friend WithEvents btnAgruparListagem As System.Windows.Forms.Button
     Friend WithEvents grpControl As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents btnExcel As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnNovo1 As Janus.Windows.EditControls.UIButton

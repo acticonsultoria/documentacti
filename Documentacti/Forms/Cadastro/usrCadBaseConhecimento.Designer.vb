@@ -46,6 +46,7 @@ Partial Class usrCadBaseConhecimento
         Me.cboEmpresaFiltro = New Janus.Windows.EditControls.UIComboBox()
         Me.btnFiltrar = New Janus.Windows.EditControls.UIButton()
         Me.grdListagem = New Janus.Windows.GridEX.GridEX()
+        Me.btnAgruparListagem = New System.Windows.Forms.Button()
         Me.grpControl = New Janus.Windows.EditControls.UIGroupBox()
         Me.btnNovo = New Janus.Windows.EditControls.UIButton()
         Me.btnExcel = New Janus.Windows.EditControls.UIButton()
@@ -72,7 +73,6 @@ Partial Class usrCadBaseConhecimento
         Me.btnNovo1 = New Janus.Windows.EditControls.UIButton()
         Me.btnSalvar = New Janus.Windows.EditControls.UIButton()
         Me.btnVoltar = New Janus.Windows.EditControls.UIButton()
-        Me.btnSair2 = New Janus.Windows.EditControls.UIButton()
         Me.vsmMain = New Janus.Windows.Common.VisualStyleManager(Me.components)
         Me.ToolTip = New System.Windows.Forms.ToolTip(Me.components)
         CType(Me.tabMain, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -114,6 +114,7 @@ Partial Class usrCadBaseConhecimento
         'pagLista
         '
         Me.pagLista.Controls.Add(Me.grpControl)
+        Me.pagLista.Controls.Add(Me.btnAgruparListagem)
         Me.pagLista.Controls.Add(Me.grdListagem)
         Me.pagLista.Controls.Add(Me.grpFiltro)
         Me.pagLista.Key = "pagLista"
@@ -240,6 +241,22 @@ Partial Class usrCadBaseConhecimento
         Me.btnFiltrar.TabIndex = 8
         Me.btnFiltrar.Text = "Filtrar"
         Me.btnFiltrar.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
+        '
+        'btnAgruparListagem
+        '
+        Me.btnAgruparListagem.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnAgruparListagem.BackColor = System.Drawing.Color.Transparent
+        Me.btnAgruparListagem.FlatAppearance.BorderSize = 0
+        Me.btnAgruparListagem.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnAgruparListagem.Image = Global.Documentacti.My.Resources.Resources.merge
+        Me.btnAgruparListagem.Location = New System.Drawing.Point(8, 463)
+        Me.btnAgruparListagem.Margin = New System.Windows.Forms.Padding(0)
+        Me.btnAgruparListagem.Name = "btnAgruparListagem"
+        Me.btnAgruparListagem.Size = New System.Drawing.Size(24, 15)
+        Me.btnAgruparListagem.TabIndex = 99
+        Me.btnAgruparListagem.TabStop = False
+        Me.ToolTip.SetToolTip(Me.btnAgruparListagem, "Agrupar: exibe a área para arrastar o cabeçalho da coluna e agrupar")
+        Me.btnAgruparListagem.UseVisualStyleBackColor = False
         '
         'grdListagem
         '
@@ -549,7 +566,6 @@ Partial Class usrCadBaseConhecimento
         Me.grpControl2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpControl2.BackColor = System.Drawing.Color.Transparent
-        Me.grpControl2.Controls.Add(Me.btnSair2)
         Me.grpControl2.Controls.Add(Me.btnVoltar)
         Me.grpControl2.Controls.Add(Me.btnSalvar)
         Me.grpControl2.Controls.Add(Me.btnNovo1)
@@ -602,27 +618,13 @@ Partial Class usrCadBaseConhecimento
         Me.btnVoltar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnVoltar.Image = Global.Documentacti.My.Resources.Resources.seta_esquerda
         Me.btnVoltar.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnVoltar.Location = New System.Drawing.Point(984, 17)
+        Me.btnVoltar.Location = New System.Drawing.Point(1081, 17)
         Me.btnVoltar.Name = "btnVoltar"
         Me.btnVoltar.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
         Me.btnVoltar.Size = New System.Drawing.Size(91, 23)
         Me.btnVoltar.TabIndex = 3
         Me.btnVoltar.Text = "Voltar"
         Me.btnVoltar.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
-        '
-        'btnSair2
-        '
-        Me.btnSair2.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSair2.Image = CType(resources.GetObject("btnSair2.Image"), System.Drawing.Image)
-        Me.btnSair2.ImageHorizontalAlignment = Janus.Windows.EditControls.ImageHorizontalAlignment.Near
-        Me.btnSair2.ImageSize = New System.Drawing.Size(19, 16)
-        Me.btnSair2.Location = New System.Drawing.Point(1081, 17)
-        Me.btnSair2.Name = "btnSair2"
-        Me.btnSair2.Office2007ColorScheme = Janus.Windows.UI.Office2007ColorScheme.Silver
-        Me.btnSair2.Size = New System.Drawing.Size(91, 23)
-        Me.btnSair2.TabIndex = 4
-        Me.btnSair2.Text = "Sair"
-        Me.btnSair2.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
         '
         'vsmMain
         '
@@ -698,6 +700,7 @@ Partial Class usrCadBaseConhecimento
     Friend WithEvents cboEmpresaFiltro As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents btnFiltrar As Janus.Windows.EditControls.UIButton
     Friend WithEvents grdListagem As Janus.Windows.GridEX.GridEX
+    Friend WithEvents btnAgruparListagem As System.Windows.Forms.Button
     Friend WithEvents grpControl As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents btnNovo As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnExcel As Janus.Windows.EditControls.UIButton
@@ -724,7 +727,6 @@ Partial Class usrCadBaseConhecimento
     Friend WithEvents btnNovo1 As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnSalvar As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnVoltar As Janus.Windows.EditControls.UIButton
-    Friend WithEvents btnSair2 As Janus.Windows.EditControls.UIButton
     Friend WithEvents vsmMain As Janus.Windows.Common.VisualStyleManager
     Friend WithEvents ToolTip As System.Windows.Forms.ToolTip
 

@@ -38,6 +38,18 @@ Public Class usrCadUsuario
 
     End Sub
 
+    Private Sub btnAgruparListagem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAgruparListagem.Click
+
+        Try
+
+            Call AlternarAgrupamentoGrid(grdListagem)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
     Private Sub btnFiltrar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnFiltrar.Click
 
         Try

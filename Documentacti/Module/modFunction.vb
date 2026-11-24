@@ -256,7 +256,7 @@ Public Module modFunction
     Public Sub AddComboAutoComplete(ByVal oComboBox() As UIComboBox)
 
         'Combos digitáveis com autocomplete (como no INTERACTI): ao sair do combo com um texto que não
-        'corresponde a nenhum item (ou em branco), volta a seleção que ele tinha ao receber o foco
+        'corresponde a nenhum item, volta a seleção que ele tinha ao receber o foco; em branco, limpa a seleção
         Try
 
             For Each oCombo As UIComboBox In oComboBox
@@ -279,7 +279,19 @@ Public Module modFunction
                                          iIndiceEntrada = oCombo.SelectedIndex
                                      End Sub
 
+            'Apagou o texto com o teclado: já tira a seleção (o Enter do filtro pesquisa sem o item)
+            AddHandler oCombo.TextChanged, Sub(sender As Object, e As EventArgs)
+                                               If oCombo.ContainsFocus AndAlso oCombo.Text = "" AndAlso oCombo.SelectedIndex <> -1 Then oCombo.SelectedIndex = -1
+                                           End Sub
+
             AddHandler oCombo.Leave, Sub(sender As Object, e As EventArgs)
+
+                                         'Texto apagado pelo teclado: o combo fica sem seleção (ex.: limpar um filtro)
+                                         If oCombo.Text.Trim = "" Then
+                                             oCombo.SelectedIndex = -1
+                                             oCombo.Text = ""
+                                             Exit Sub
+                                         End If
 
                                          If oCombo.SelectedIndex <> -1 Then Exit Sub
 
@@ -638,7 +650,10 @@ Public Module modFunction
             Dim iLinha As Integer = oGrid.RowPositionFromPoint(e.X, e.Y)
             Dim oColuna As GridEXColumn = oGrid.ColumnFromPoint(e.X, e.Y)
 
-            If iLinha >= 0 AndAlso iLinha < oGrid.RowCount Then oGrid.Row = iLinha
+            If iLinha >= 0 AndAlso iLinha < oGrid.RowCount Then
+                'Seleção múltipla: clique direito dentro da seleção mantém as linhas selecionadas
+                If oGrid.SelectedItems.Count <= 1 OrElse oGrid.GetRow(iLinha).Selected = False Then oGrid.Row = iLinha
+            End If
             If IsNothing(oColuna) = False Then oGrid.CurrentColumn = oColuna
 
         Catch ex As Exception
@@ -1289,6 +1304,26 @@ Public Module modFunction
 
             'Iniciando o arquivo
             Process.Start(oFileDialog.FileName)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Public Sub AlternarAgrupamentoGrid(ByVal oGrid As GridEX)
+
+        Try
+
+            'Exibe/oculta a área de agrupamento (arrastar o cabeçalho da coluna para agrupar)
+            If oGrid.GroupByBoxVisible = True Then
+                'Ocultar a área desfaz o agrupamento: sem a área não há como tirar a coluna do grupo
+                oGrid.RootTable.Groups.Clear()
+                oGrid.GroupByBoxVisible = False
+            Else
+                oGrid.GroupByBoxVisible = True
+                oGrid.HideColumnsWhenGrouped = InheritableBoolean.True
+            End If
 
         Catch ex As Exception
             Throw ex

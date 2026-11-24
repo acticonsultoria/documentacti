@@ -45,6 +45,9 @@ Public Module modDeclaration
     Public Const gcStatusChamadoConcluido As Integer = 6
     Public Const gcStatusChamadoCancelado As Integer = 14
 
+    'Tipo de atendimento do Chamado (tb_stc_tipo_atendimento)
+    Public Const gcTipoAtendimentoReuniao As Integer = 4 'não exige resolução para concluir
+
     'Situação do apontamento (sp_update_administracao_chamado_apontamento_situacao)
     Public Const gcSituacaoApontamentoNormal As Integer = 0
     Public Const gcSituacaoApontamentoAnulado As Integer = 1 'não conta nas horas

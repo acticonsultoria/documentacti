@@ -977,6 +977,7 @@ Public Class frmMain
             Case "EXCLUSAO" : Return "excluído"
             Case "CONCLUSAO" : Return "concluído"
             Case "REABERTURA" : Return "reaberto"
+            Case "DESIGNACAO" : Return "designado a você"
             Case Else : Return "alterado"
         End Select
 

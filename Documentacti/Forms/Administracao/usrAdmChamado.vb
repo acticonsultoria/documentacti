@@ -44,8 +44,11 @@ Public Class usrAdmChamado
     Private lChecklistEdicao As Long = 0
     'Checklist: chamado carregado na grid (a posição só é mantida ao recarregar o mesmo chamado)
     Private lChamadoChecklist As Long = 0
+    'Checklist: itens ocultos só na tela (não grava; limpa ao trocar de chamado)
+    Private oChecklistOculto As New List(Of Long)
     'Checklist Empresa: menu de times do botão Template (ao lado do combo Empresa)
     Private oMenuTemplateEmpresa As ContextMenuStrip
+    Private oMenuTemplateResponsavel As ContextMenuStrip
     'Iniciar chamado com mais de uma empresa: menu para escolher a empresa do apontamento
     Private oMenuEmpresaApontamento As ContextMenuStrip
 
@@ -66,6 +69,28 @@ Public Class usrAdmChamado
         Try
 
             Call ExportExcel(grdListagem)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub btnAgrupar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAgruparListagem.Click, btnAgruparApontamentoAndamento.Click, btnAgruparApontamentoHistorico.Click, btnAgruparRelatorio.Click
+
+        Try
+
+            Dim oGrid As GridEX = grdListagem
+
+            If sender Is btnAgruparApontamentoAndamento Then
+                oGrid = grdApontamentoAndamento
+            ElseIf sender Is btnAgruparApontamentoHistorico Then
+                oGrid = grdApontamentoHistorico
+            ElseIf sender Is btnAgruparRelatorio Then
+                oGrid = grdRelatorio
+            End If
+
+            Call AlternarAgrupamentoGrid(oGrid)
 
         Catch ex As Exception
             Call TratarErro(ex)
@@ -282,6 +307,21 @@ Public Class usrAdmChamado
 
     End Sub
 
+    Private Sub tabMain_SelectedTabChanged(sender As Object, e As Janus.Windows.UI.Tab.TabEventArgs) Handles tabMain.SelectedTabChanged
+
+        Try
+
+            If IsNothing(e.Page) Then Exit Sub
+
+            'Recarrega os chamados elegíveis ao apontamento (podem ter sido abertos/iniciados/concluídos em outra aba)
+            If e.Page Is pagApontamento Then Call LoadComboChamadoApontamento()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
 #End Region
 
 #Region "::: COMENTÁRIO :::"
@@ -439,7 +479,7 @@ Public Class usrAdmChamado
             'Linha de filtro: só filtra, não grava
             If IsNothing(grdChecklist.CurrentRow) OrElse grdChecklist.CurrentRow.RowType <> RowType.Record Then Exit Sub
 
-            'Check gravado na hora
+            'Check gravado na hora (o designado é digitável: grava ao sair da célula ou no Enter)
             If e.Column.Key = "concluido" Then grdChecklist.UpdateData()
 
         Catch ex As Exception
@@ -471,6 +511,14 @@ Public Class usrAdmChamado
                 With grdChecklist.CurrentRow.Cells
                     oClsUsrAdmChamado.UpdateChecklistObservacao(CLng(.Item("codigo").Value), _
                                                                 IIf(IsDBNull(.Item("observacao").Value), "", .Item("observacao").Value).ToString.Trim)
+                End With
+
+            ElseIf e.Column.Key = "codigo_usuario_designado" Then
+
+                'Designado a (vazio = ninguém): o designado recebe a notificação do checklist
+                With grdChecklist.CurrentRow.Cells
+                    oClsUsrAdmChamado.UpdateChecklistDesignado(CLng(.Item("codigo").Value), _
+                                                               IIf(IsNumeric(.Item("codigo_usuario_designado").Value), .Item("codigo_usuario_designado").Value, 0))
                 End With
 
             End If
@@ -541,6 +589,68 @@ Public Class usrAdmChamado
 
     End Sub
 
+    Private Sub grdChecklist_KeyDown(sender As Object, e As KeyEventArgs) Handles grdChecklist.KeyDown
+
+        Try
+
+            'Designado a pelo teclado: Ctrl+V cola o nome copiado e Delete limpa (aplica em todas as linhas selecionadas)
+            If IsNothing(grdChecklist.CurrentColumn) OrElse grdChecklist.CurrentColumn.Key <> "codigo_usuario_designado" Then Exit Sub
+
+            'Editando uma única célula: o próprio combo cola o texto (autocomplete)
+            If e.Control AndAlso e.KeyCode = Keys.V AndAlso (grdChecklist.EditMode = EditMode.EditOff OrElse grdChecklist.SelectedItems.Count > 1) Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                Call ColarDesignadoChecklist(Clipboard.GetText)
+            ElseIf e.KeyCode = Keys.Delete AndAlso grdChecklist.EditMode = EditMode.EditOff Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                Call ColarDesignadoChecklist("")
+            End If
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+            Me.BeginInvoke(New MethodInvoker(AddressOf LoadGridChecklist))
+        End Try
+
+    End Sub
+
+    Private Sub mnuOcultarChecklist_Click(sender As Object, e As EventArgs)
+
+        Try
+
+            Call OcultarItemChecklist(False)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub mnuSomenteSelecionadosChecklist_Click(sender As Object, e As EventArgs)
+
+        Try
+
+            Call OcultarItemChecklist(True)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub btnMostrarChecklistOculto_Click(sender As Object, e As EventArgs) Handles btnMostrarChecklistOculto.Click
+
+        Try
+
+            oChecklistOculto.Clear()
+            Call AplicarChecklistOculto()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
 #End Region
 
 #Region "::: CHECKLIST EMPRESA :::"
@@ -603,6 +713,35 @@ Public Class usrAdmChamado
         Catch ex As Exception
             Call TratarErro(ex)
             Me.BeginInvoke(New MethodInvoker(AddressOf LoadGridChecklistEmpresa))
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: RESPONSÁVEL :::"
+
+    Private Sub btnTemplateResponsavel_Click(sender As Object, e As EventArgs) Handles btnTemplateResponsavel.Click
+
+        Try
+
+            Call MostrarTemplateResponsavel()
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub mnuTemplateResponsavel_Click(sender As Object, e As EventArgs)
+
+        Try
+
+            Dim oItem As ToolStripMenuItem = CType(sender, ToolStripMenuItem)
+            Call AplicarTemplateResponsavel(CInt(oItem.Tag), oItem.Text)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
         End Try
 
     End Sub
@@ -1015,7 +1154,7 @@ Public Class usrAdmChamado
             Call AddGotFocus(Me, New DelegateGotFocus(AddressOf Control_GotFocus))
             Call AddKeyDown(Me, New DelegateKeyDown(AddressOf usrAdmChamado_KeyDown))
             Call AddLostFocus(Me, New DelegateLostFocus(AddressOf Control_LostFocus))
-            Call AddComboAutoComplete(New UIComboBox() {cboTipoAtividade, cboPrioridade, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio, cboCanal, cboAgrupamentoFiltro, cboAgrupamentoChamado})
+            Call AddComboAutoComplete(New UIComboBox() {cboTipoAtividade, cboPrioridade, cboChamadoApontamento, cboGraficoRelatorio, cboAgruparRelatorio, cboCanal, cboAgrupamentoFiltro, cboAgrupamentoChamado, cboResponsavelApontamento})
 
             'Combos - Chamados
             Call LoadCombo(cboStatusFiltro, "sp_select_combo_status_atividade")
@@ -1060,8 +1199,9 @@ Public Class usrAdmChamado
             Call LoadComboLista(cboSituacaoApontamento, "-1=TODAS;1=NORMAL;2=ANULADO;3=RETRABALHO")
             cboSituacaoApontamento.SelectedValue = "-1"
             cboResponsavelApontamento.SelectedValue = goUsuario.lUsuario
-            'Apontamentos sempre do usuário logado: o responsável fica travado
-            cboResponsavelApontamento.Enabled = False
+            'Abre nos apontamentos do usuário logado; somente super administrador troca o responsável
+            'para consultar os apontamentos de outra pessoa (mesmo critério do menu Relatórios)
+            cboResponsavelApontamento.Enabled = goUsuario.bSuperAdm
 
             tabMain.TabPages.Remove(pagDados)
 
@@ -1081,6 +1221,7 @@ Public Class usrAdmChamado
             Call ConfiguraGrid(grdComentario)
             Call ConfiguraGrid(grdComentarioDev)
             Call ConfiguraGrid(grdChecklist)
+            Call ConfigurarGridChecklist()
             Call ConfiguraGrid(grdAgrupamentoChamado)
             grdAgrupamentoChamado.RootTable.Columns("excluir").CellToolTipText = "Duplo clique para remover o chamado do agrupamento."
             Call ConfiguraGrid(grdChecklistEmpresa)
@@ -1329,6 +1470,9 @@ Public Class usrAdmChamado
             ExisteResolucao = False
 
             If IsNumeric(txtCodigo.Text) = False Then Return True 'AlterarStatus já avisa para salvar o chamado
+
+            'Reunião não exige resolução
+            If Array.IndexOf(GetCheckedValues(cboTipoAtendimento).Split(","c), gcTipoAtendimentoReuniao.ToString) >= 0 Then Return True
 
             'Recarrega do banco para considerar resolução incluída por outro usuário/web
             Call oClsUsrAdmChamado.LoadGridComentarioDev(grdComentarioDev, CLng(txtCodigo.Text))
@@ -1905,8 +2049,13 @@ Public Class usrAdmChamado
             If IsNumeric(txtCodigo.Text) = False Then
                 grdChecklist.DataSource = Nothing
                 lChamadoChecklist = 0
+                oChecklistOculto.Clear()
+                Call AplicarChecklistOculto()
                 Exit Sub
             End If
+
+            'Itens ocultos valem só para o chamado em que foram ocultados
+            If lChamadoChecklist <> CLng(txtCodigo.Text) Then oChecklistOculto.Clear()
 
             'Guarda a posição para recarregar sem "mexer" nos itens (rolagem e linha atual)
             Dim iPrimeiraLinha As Integer = 0
@@ -1923,6 +2072,8 @@ Public Class usrAdmChamado
             Call oClsUsrAdmChamado.LoadGridChecklist(grdChecklist, CLng(txtCodigo.Text))
             lChamadoChecklist = CLng(txtCodigo.Text)
 
+            Call AplicarChecklistOculto()
+
             If lCodigoAtual > 0 Then
                 For Each oRow As GridEXRow In grdChecklist.GetRows
                     If oRow.RowType = RowType.Record AndAlso CLng(oRow.Cells("codigo").Value) = lCodigoAtual Then
@@ -1936,6 +2087,156 @@ Public Class usrAdmChamado
 
         Catch ex As Exception
             Call TratarErro(ex)
+        End Try
+
+    End Sub
+
+    Private Sub ConfigurarGridChecklist()
+
+        Try
+
+            'Designado a: mesma lista de usuários do combo Responsáveis + vazio (ninguém)
+            Dim oUsuarios As DataTable = CType(cboResponsavel.DropDownDataSource, DataTable).Copy
+            Dim oVazio As DataRow = oUsuarios.NewRow
+            oVazio.Item("codigo") = 0
+            oVazio.Item("descricao") = ""
+            oUsuarios.Rows.InsertAt(oVazio, 0)
+
+            grdChecklist.RootTable.Columns("codigo_usuario_designado").ValueList.PopulateValueList(oUsuarios.DefaultView, "codigo", "descricao")
+
+            'Ocultar itens só na tela (sem marcar como feito): opções no menu do botão direito, junto do Copiar
+            If IsNothing(grdChecklist.ContextMenuStrip) Then grdChecklist.ContextMenuStrip = New ContextMenuStrip
+
+            Dim oOcultar As New ToolStripMenuItem("Ocultar selecionados")
+            AddHandler oOcultar.Click, AddressOf mnuOcultarChecklist_Click
+
+            Dim oSomente As New ToolStripMenuItem("Exibir somente os selecionados")
+            AddHandler oSomente.Click, AddressOf mnuSomenteSelecionadosChecklist_Click
+
+            grdChecklist.ContextMenuStrip.Items.Add(New ToolStripSeparator)
+            grdChecklist.ContextMenuStrip.Items.Add(oOcultar)
+            grdChecklist.ContextMenuStrip.Items.Add(oSomente)
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub OcultarItemChecklist(ByVal bSomenteSelecionados As Boolean)
+
+        'Variaveis Locais
+        Dim oSelecionados As New List(Of Long)
+
+        Try
+
+            For Each oItem As GridEXSelectedItem In grdChecklist.SelectedItems
+                If oItem.RowType = RowType.Record Then oSelecionados.Add(CLng(oItem.GetRow.Cells("codigo").Value))
+            Next
+
+            If oSelecionados.Count = 0 Then
+                frmMain.Informacao("Selecione os itens do checklist (Ctrl ou Shift + clique para mais de um).", gColorInformacaoErro)
+                Exit Sub
+            End If
+
+            If bSomenteSelecionados = True Then
+                'Oculta todos os itens visíveis que não estão selecionados
+                For Each oRow As GridEXRow In grdChecklist.GetRows
+                    If oRow.RowType = RowType.Record AndAlso oSelecionados.Contains(CLng(oRow.Cells("codigo").Value)) = False _
+                       AndAlso oChecklistOculto.Contains(CLng(oRow.Cells("codigo").Value)) = False Then
+                        oChecklistOculto.Add(CLng(oRow.Cells("codigo").Value))
+                    End If
+                Next
+            Else
+                For Each lCodigo As Long In oSelecionados
+                    If oChecklistOculto.Contains(lCodigo) = False Then oChecklistOculto.Add(lCodigo)
+                Next
+            End If
+
+            Call AplicarChecklistOculto()
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub ColarDesignadoChecklist(ByVal sNome As String)
+
+        'Variaveis Locais
+        Dim oCodigos As New List(Of Long)
+        Dim lDesignado As Long = 0
+
+        Try
+
+            'Localiza o usuário pelo nome copiado (aceita também o nome com " (INATIVO)")
+            sNome = IIf(IsNothing(sNome), "", sNome).ToString.Trim
+
+            If sNome <> "" Then
+                For Each oItem As GridEXValueListItem In grdChecklist.RootTable.Columns("codigo_usuario_designado").ValueList
+                    If String.Compare(oItem.Text.Trim, sNome, True) = 0 OrElse _
+                       String.Compare(oItem.Text.Replace(" (INATIVO)", "").Trim, sNome, True) = 0 Then
+                        lDesignado = CLng(oItem.Value)
+                        Exit For
+                    End If
+                Next
+                If lDesignado = 0 Then
+                    frmMain.Informacao("O texto copiado não é um usuário da lista de designados. Copie o nome do usuário (ex.: da coluna Solicitado por).", gColorInformacaoErro)
+                    Exit Sub
+                End If
+            End If
+
+            'Linhas selecionadas; sem seleção, a linha atual
+            For Each oItem As GridEXSelectedItem In grdChecklist.SelectedItems
+                If oItem.RowType = RowType.Record Then oCodigos.Add(CLng(oItem.GetRow.Cells("codigo").Value))
+            Next
+            If oCodigos.Count = 0 AndAlso IsNothing(grdChecklist.CurrentRow) = False AndAlso grdChecklist.CurrentRow.RowType = RowType.Record Then
+                oCodigos.Add(CLng(grdChecklist.CurrentRow.Cells("codigo").Value))
+            End If
+            If oCodigos.Count = 0 Then Exit Sub
+
+            'Descarta a edição em aberto da célula (a gravação é feita abaixo, item a item)
+            If grdChecklist.EditMode = EditMode.EditOn Then grdChecklist.CancelCurrentEdit()
+
+            Cursor.Current = Cursors.WaitCursor
+
+            For Each lCodigo As Long In oCodigos
+                oClsUsrAdmChamado.UpdateChecklistDesignado(lCodigo, lDesignado)
+            Next
+
+            Cursor.Current = Cursors.Default
+
+            Call LoadGridChecklist()
+
+            frmMain.Informacao(oCodigos.Count & " item(ns) " & IIf(lDesignado = 0, "sem designado.", "designado(s) a " & sNome & "."), Color.Blue)
+
+        Catch ex As Exception
+            Cursor.Current = Cursors.Default
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AplicarChecklistOculto()
+
+        Try
+
+            If oChecklistOculto.Count = 0 Then
+                grdChecklist.RootTable.FilterCondition = Nothing
+            Else
+                Dim oCodigos(oChecklistOculto.Count - 1) As Object
+                For i As Integer = 0 To oChecklistOculto.Count - 1
+                    oCodigos(i) = oChecklistOculto(i)
+                Next
+                grdChecklist.RootTable.FilterCondition = New GridEXFilterCondition(grdChecklist.RootTable.Columns("codigo"), ConditionOperator.NotIn, oCodigos)
+            End If
+
+            'Botão aparece só quando há itens ocultos
+            btnMostrarChecklistOculto.Text = "Mostrar todos (" & oChecklistOculto.Count & ")"
+            btnMostrarChecklistOculto.Visible = oChecklistOculto.Count > 0
+
+        Catch ex As Exception
+            Throw ex
         End Try
 
     End Sub
@@ -2168,6 +2469,85 @@ Public Class usrAdmChamado
             Else
                 frmMain.Informacao(iNovas & " empresa(s) do time '" & sTime & "' marcada(s)" & _
                                    IIf(iJaMarcadas > 0, " (" & iJaMarcadas & " já estava(m) marcada(s))", "") & ". Salve o chamado para gravar.", Color.Blue)
+            End If
+
+        Catch ex As Exception
+            Cursor.Current = Cursors.Default
+            Throw ex
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "::: RESPONSÁVEL :::"
+
+    Private Sub MostrarTemplateResponsavel()
+
+        Try
+
+            'Menu com os times, aberto logo abaixo do botão (criado uma vez; descartado junto com a tela)
+            If IsNothing(oMenuTemplateResponsavel) Then
+                oMenuTemplateResponsavel = New ContextMenuStrip
+                components.Add(oMenuTemplateResponsavel)
+            End If
+
+            oMenuTemplateResponsavel.Items.Clear()
+
+            For Each oTime As DataRow In oClsUsrAdmChamado.LoadTimeChecklist().Rows
+                Dim oItem As New ToolStripMenuItem(oTime.Item("descricao").ToString)
+                oItem.Tag = oTime.Item("codigo")
+                AddHandler oItem.Click, AddressOf mnuTemplateResponsavel_Click
+                oMenuTemplateResponsavel.Items.Add(oItem)
+            Next
+
+            If oMenuTemplateResponsavel.Items.Count = 0 Then
+                frmMain.Informacao("Nenhum time cadastrado.", gColorInformacaoErro)
+                Exit Sub
+            End If
+
+            oMenuTemplateResponsavel.Show(btnTemplateResponsavel, New Point(0, btnTemplateResponsavel.Height))
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
+    Private Sub AplicarTemplateResponsavel(ByVal iTime As Integer, ByVal sTime As String)
+
+        'Variaveis Locais
+        Dim oMarcados As New List(Of String)
+        Dim iNovos As Integer = 0
+        Dim iJaMarcados As Integer = 0
+
+        Try
+
+            'Só marca os usuários ativos do time no combo (soma aos já marcados); grava ao salvar o chamado
+            Cursor.Current = Cursors.WaitCursor
+
+            For Each sCodigo As String In GetCheckedValues(cboResponsavel).Split(","c)
+                If sCodigo.Trim <> "" Then oMarcados.Add(sCodigo.Trim)
+            Next
+
+            For Each oUsuario As DataRow In oClsUsrAdmChamado.LoadUsuarioTime(iTime).Rows
+                If oMarcados.Contains(oUsuario.Item("codigo").ToString) Then
+                    iJaMarcados += 1
+                Else
+                    oMarcados.Add(oUsuario.Item("codigo").ToString)
+                    iNovos += 1
+                End If
+            Next
+
+            Call SetCheckedValues(cboResponsavel, String.Join(",", oMarcados.ToArray))
+
+            Cursor.Current = Cursors.Default
+
+            If iNovos = 0 AndAlso iJaMarcados = 0 Then
+                frmMain.Informacao("O time '" & sTime & "' não tem usuário ativo.", gColorInformacaoErro)
+            Else
+                frmMain.Informacao(iNovos & " responsável(is) do time '" & sTime & "' marcado(s)" & _
+                                   IIf(iJaMarcados > 0, " (" & iJaMarcados & " já estava(m) marcado(s))", "") & ". Salve o chamado para gravar.", Color.Blue)
             End If
 
         Catch ex As Exception

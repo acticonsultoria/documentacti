@@ -38,6 +38,7 @@ Partial Class usrCadAviso
         Me.cboAtivoFiltro = New Janus.Windows.EditControls.UIComboBox()
         Me.btnFiltrar = New Janus.Windows.EditControls.UIButton()
         Me.grdListagem = New Janus.Windows.GridEX.GridEX()
+        Me.btnAgruparListagem = New System.Windows.Forms.Button()
         Me.grpControl = New Janus.Windows.EditControls.UIGroupBox()
         Me.btnNovo = New Janus.Windows.EditControls.UIButton()
         Me.btnExcel = New Janus.Windows.EditControls.UIButton()
@@ -96,6 +97,7 @@ Partial Class usrCadAviso
         'pagLista
         '
         Me.pagLista.Controls.Add(Me.grpControl)
+        Me.pagLista.Controls.Add(Me.btnAgruparListagem)
         Me.pagLista.Controls.Add(Me.grdListagem)
         Me.pagLista.Controls.Add(Me.grpFiltro)
         Me.pagLista.Key = "pagLista"
@@ -182,6 +184,22 @@ Partial Class usrCadAviso
         Me.btnFiltrar.TabIndex = 4
         Me.btnFiltrar.Text = "Filtrar"
         Me.btnFiltrar.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
+        '
+        'btnAgruparListagem
+        '
+        Me.btnAgruparListagem.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnAgruparListagem.BackColor = System.Drawing.Color.Transparent
+        Me.btnAgruparListagem.FlatAppearance.BorderSize = 0
+        Me.btnAgruparListagem.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnAgruparListagem.Image = Global.Documentacti.My.Resources.Resources.merge
+        Me.btnAgruparListagem.Location = New System.Drawing.Point(8, 463)
+        Me.btnAgruparListagem.Margin = New System.Windows.Forms.Padding(0)
+        Me.btnAgruparListagem.Name = "btnAgruparListagem"
+        Me.btnAgruparListagem.Size = New System.Drawing.Size(24, 15)
+        Me.btnAgruparListagem.TabIndex = 99
+        Me.btnAgruparListagem.TabStop = False
+        Me.ToolTip.SetToolTip(Me.btnAgruparListagem, "Agrupar: exibe a área para arrastar o cabeçalho da coluna e agrupar")
+        Me.btnAgruparListagem.UseVisualStyleBackColor = False
         '
         'grdListagem
         '
@@ -557,6 +575,7 @@ Partial Class usrCadAviso
     Friend WithEvents cboAtivoFiltro As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents btnFiltrar As Janus.Windows.EditControls.UIButton
     Friend WithEvents grdListagem As Janus.Windows.GridEX.GridEX
+    Friend WithEvents btnAgruparListagem As System.Windows.Forms.Button
     Friend WithEvents grpControl As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents btnNovo As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnExcel As Janus.Windows.EditControls.UIButton

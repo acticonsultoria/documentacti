@@ -35,6 +35,18 @@ Public Class usrAdmAgrupamento
 
     End Sub
 
+    Private Sub btnAgrupar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAgruparListagem.Click, btnAgruparChamados.Click
+
+        Try
+
+            Call AlternarAgrupamentoGrid(IIf(sender Is btnAgruparChamados, grdChamados, grdListagem))
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
     Private Sub btnFiltrar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnFiltrar.Click
 
         Try

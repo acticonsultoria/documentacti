@@ -86,6 +86,18 @@ Public Class usrAdmEvento
 
     End Sub
 
+    Private Sub btnAgruparListagem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAgruparListagem.Click
+
+        Try
+
+            Call AlternarAgrupamentoGrid(grdListagem)
+
+        Catch ex As Exception
+            Call TratarErro(ex)
+        End Try
+
+    End Sub
+
     Private Sub btnNovo1_Click(sender As Object, e As EventArgs) Handles btnNovo1.Click
 
         Try

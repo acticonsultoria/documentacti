@@ -1254,6 +1254,47 @@ Public Class clsUsrAdmChamado
 
     End Sub
 
+    Public Sub UpdateChecklistDesignado(ByVal lCodigo As Long, _
+                                        ByVal lUsuarioDesignado As Long)
+
+        'Variaveis Locais
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código do item
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = lCodigo : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Usuário designado (0 = ninguém)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario_designado"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = lUsuarioDesignado : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Usuário (quem designou: não recebe o aviso)
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_usuario"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int64
+            oMySqlParameter(i).Value = goUsuario.lUsuario
+
+            'Executa Query
+            ExecuteNonQuery(goDatabase.sConnection, CommandType.StoredProcedure, "sp_update_administracao_chamado_checklist_designado", oMySqlParameter)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Sub
+
     Public Function LoadChecklistNotificacao() As DataTable
 
         'Avisos pendentes de alterações no checklist dos chamados do usuário (lidos pelo frmMain)
@@ -1510,6 +1551,39 @@ Public Class clsUsrAdmChamado
 
             'Executa Query
             Return ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_cadastro_empresa", oMySqlParameter).Tables(0)
+
+        Catch MySqlEx As MySqlException
+            Throw MySqlEx
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Public Function LoadUsuarioTime(ByVal iTipoTime As Integer) As DataTable
+
+        'Template: usuários ativos do time; o exe só marca no combo de responsáveis, gravado ao salvar
+        Dim oMySqlParameter(0) As MySqlParameter
+        Dim i As Integer = 0
+
+        Try
+
+            'Seta Parametros - Código Empresa
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_codigo_empresa"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = goUsuario.iEmpresa : i += 1 : ReDim Preserve oMySqlParameter(i)
+
+            'Seta Parametros - Time
+            oMySqlParameter(i) = New MySqlParameter
+            oMySqlParameter(i).ParameterName = "@p_tipo_time"
+            oMySqlParameter(i).Direction = ParameterDirection.Input
+            oMySqlParameter(i).MySqlDbType = MySqlDbType.Int32
+            oMySqlParameter(i).Value = iTipoTime
+
+            'Executa Query
+            Return ExecuteDataset(goDatabase.sConnection, CommandType.StoredProcedure, "sp_select_administracao_chamado_usuario_time", oMySqlParameter).Tables(0)
 
         Catch MySqlEx As MySqlException
             Throw MySqlEx

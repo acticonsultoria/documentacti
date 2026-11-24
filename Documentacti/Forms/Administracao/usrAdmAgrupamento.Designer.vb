@@ -40,6 +40,7 @@ Partial Class usrAdmAgrupamento
         Me.cboAtivoFiltro = New Janus.Windows.EditControls.UIComboBox()
         Me.btnFiltrar = New Janus.Windows.EditControls.UIButton()
         Me.grdListagem = New Janus.Windows.GridEX.GridEX()
+        Me.btnAgruparListagem = New System.Windows.Forms.Button()
         Me.grpControl = New Janus.Windows.EditControls.UIGroupBox()
         Me.btnNovo = New Janus.Windows.EditControls.UIButton()
         Me.btnExcel = New Janus.Windows.EditControls.UIButton()
@@ -52,6 +53,7 @@ Partial Class usrAdmAgrupamento
         Me.chkAtivo = New Janus.Windows.EditControls.UICheckBox()
         Me.grpChamados = New Janus.Windows.EditControls.UIGroupBox()
         Me.grdChamados = New Janus.Windows.GridEX.GridEX()
+        Me.btnAgruparChamados = New System.Windows.Forms.Button()
         Me.lblChamado = New System.Windows.Forms.Label()
         Me.txtChamado = New Janus.Windows.GridEX.EditControls.MaskedEditBox()
         Me.lblMotivo = New System.Windows.Forms.Label()
@@ -101,6 +103,7 @@ Partial Class usrAdmAgrupamento
         'pagLista
         '
         Me.pagLista.Controls.Add(Me.grpControl)
+        Me.pagLista.Controls.Add(Me.btnAgruparListagem)
         Me.pagLista.Controls.Add(Me.grdListagem)
         Me.pagLista.Controls.Add(Me.grpFiltro)
         Me.pagLista.Key = "pagLista"
@@ -187,6 +190,22 @@ Partial Class usrAdmAgrupamento
         Me.btnFiltrar.TabIndex = 4
         Me.btnFiltrar.Text = "Filtrar"
         Me.btnFiltrar.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
+        '
+        'btnAgruparListagem
+        '
+        Me.btnAgruparListagem.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnAgruparListagem.BackColor = System.Drawing.Color.Transparent
+        Me.btnAgruparListagem.FlatAppearance.BorderSize = 0
+        Me.btnAgruparListagem.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnAgruparListagem.Image = Global.Documentacti.My.Resources.Resources.merge
+        Me.btnAgruparListagem.Location = New System.Drawing.Point(8, 463)
+        Me.btnAgruparListagem.Margin = New System.Windows.Forms.Padding(0)
+        Me.btnAgruparListagem.Name = "btnAgruparListagem"
+        Me.btnAgruparListagem.Size = New System.Drawing.Size(24, 15)
+        Me.btnAgruparListagem.TabIndex = 99
+        Me.btnAgruparListagem.TabStop = False
+        Me.ToolTip.SetToolTip(Me.btnAgruparListagem, "Agrupar: exibe a área para arrastar o cabeçalho da coluna e agrupar")
+        Me.btnAgruparListagem.UseVisualStyleBackColor = False
         '
         'grdListagem
         '
@@ -348,6 +367,7 @@ Partial Class usrAdmAgrupamento
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grpChamados.BackColor = System.Drawing.Color.Transparent
+        Me.grpChamados.Controls.Add(Me.btnAgruparChamados)
         Me.grpChamados.Controls.Add(Me.grdChamados)
         Me.grpChamados.Controls.Add(Me.btnAdicionarChamado)
         Me.grpChamados.Controls.Add(Me.txtMotivo)
@@ -414,6 +434,22 @@ Partial Class usrAdmAgrupamento
         Me.btnAdicionarChamado.TabIndex = 4
         Me.btnAdicionarChamado.Text = "Adicionar"
         Me.btnAdicionarChamado.VisualStyle = Janus.Windows.UI.VisualStyle.VS2005
+        '
+        'btnAgruparChamados
+        '
+        Me.btnAgruparChamados.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnAgruparChamados.BackColor = System.Drawing.Color.Transparent
+        Me.btnAgruparChamados.FlatAppearance.BorderSize = 0
+        Me.btnAgruparChamados.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnAgruparChamados.Image = Global.Documentacti.My.Resources.Resources.merge
+        Me.btnAgruparChamados.Location = New System.Drawing.Point(10, 378)
+        Me.btnAgruparChamados.Margin = New System.Windows.Forms.Padding(0)
+        Me.btnAgruparChamados.Name = "btnAgruparChamados"
+        Me.btnAgruparChamados.Size = New System.Drawing.Size(24, 15)
+        Me.btnAgruparChamados.TabIndex = 99
+        Me.btnAgruparChamados.TabStop = False
+        Me.ToolTip.SetToolTip(Me.btnAgruparChamados, "Agrupar: exibe a área para arrastar o cabeçalho da coluna e agrupar")
+        Me.btnAgruparChamados.UseVisualStyleBackColor = False
         '
         'grdChamados
         '
@@ -593,6 +629,7 @@ Partial Class usrAdmAgrupamento
     Friend WithEvents cboAtivoFiltro As Janus.Windows.EditControls.UIComboBox
     Friend WithEvents btnFiltrar As Janus.Windows.EditControls.UIButton
     Friend WithEvents grdListagem As Janus.Windows.GridEX.GridEX
+    Friend WithEvents btnAgruparListagem As System.Windows.Forms.Button
     Friend WithEvents grpControl As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents btnNovo As Janus.Windows.EditControls.UIButton
     Friend WithEvents btnExcel As Janus.Windows.EditControls.UIButton
@@ -605,6 +642,7 @@ Partial Class usrAdmAgrupamento
     Friend WithEvents chkAtivo As Janus.Windows.EditControls.UICheckBox
     Friend WithEvents grpChamados As Janus.Windows.EditControls.UIGroupBox
     Friend WithEvents grdChamados As Janus.Windows.GridEX.GridEX
+    Friend WithEvents btnAgruparChamados As System.Windows.Forms.Button
     Friend WithEvents lblChamado As System.Windows.Forms.Label
     Friend WithEvents txtChamado As Janus.Windows.GridEX.EditControls.MaskedEditBox
     Friend WithEvents lblMotivo As System.Windows.Forms.Label

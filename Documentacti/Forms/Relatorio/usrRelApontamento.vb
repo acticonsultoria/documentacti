@@ -48,15 +48,7 @@ Public Class usrRelApontamento
 
         Try
 
-            Dim oGrid As GridEX = IIf(sender Is btnAgruparAtual, grdAtual, grdHistorico)
-
-            'Exibe/oculta a área de agrupamento (arrastar o cabeçalho da coluna para agrupar)
-            If oGrid.GroupByBoxVisible = True Then
-                oGrid.GroupByBoxVisible = False
-            Else
-                oGrid.GroupByBoxVisible = True
-                oGrid.HideColumnsWhenGrouped = InheritableBoolean.True
-            End If
+            Call AlternarAgrupamentoGrid(IIf(sender Is btnAgruparAtual, grdAtual, grdHistorico))
 
         Catch ex As Exception
             Call TratarErro(ex)
